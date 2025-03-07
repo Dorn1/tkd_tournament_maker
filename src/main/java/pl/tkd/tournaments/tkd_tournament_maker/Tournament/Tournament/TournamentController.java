@@ -1,4 +1,4 @@
-package pl.tkd.tournaments.tkd_tournament_maker.tournament.Controller;
+package pl.tkd.tournaments.tkd_tournament_maker.Tournament.Tournament;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;

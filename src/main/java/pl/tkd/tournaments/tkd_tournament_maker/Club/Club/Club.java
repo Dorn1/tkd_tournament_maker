@@ -1,4 +1,4 @@
-package pl.tkd.tournaments.tkd_tournament_maker.tournament.Entities;
+package pl.tkd.tournaments.tkd_tournament_maker.Club.Club;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
