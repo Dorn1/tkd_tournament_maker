@@ -15,9 +15,10 @@ public class Competitor {
     @Id
     private Long id;
     @ManyToOne
-    @JoinColumn(name = "club_id")
     private Club club;
     @ManyToMany
     Set<Tournament> tournaments;
-
+    private Long age;
+    private Double Weight;
+    private Belt belt;
 }

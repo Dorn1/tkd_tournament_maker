@@ -24,7 +24,6 @@ public class Tournament {
     @ManyToOne
     @JoinColumn(name = "organizer_club_id")
     private Club organizer_Club;
-
     @ManyToMany
     Set<Club> clubs;
     @ManyToMany
