@@ -2,5 +2,8 @@ package pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.CategoryFilt
 
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.CategoryFilter.ICategoryFilter;
 
-public interface ICategoryFilterDecorator extends ICategoryFilter {
+public class SexCategory extends CategoryFilterDecorator {
+    public SexCategory(ICategoryFilter filter, Integer min, Integer max) {
+        super(filter,min,max);
+    }
 }

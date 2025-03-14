@@ -2,6 +2,7 @@ package pl.tkd.tournaments.tkd_tournament_maker.Tournament.Tournament;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import pl.tkd.tournaments.tkd_tournament_maker.Club.Club.Club;
 import pl.tkd.tournaments.tkd_tournament_maker.Club.Competitor.Competitor;
@@ -14,6 +15,7 @@ import java.util.Set;
 @Setter
 @Getter
 @Entity
+@NoArgsConstructor
 public class Tournament {
     @Id
     private Long id;
