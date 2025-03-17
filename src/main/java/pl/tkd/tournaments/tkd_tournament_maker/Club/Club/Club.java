@@ -2,6 +2,7 @@ package pl.tkd.tournaments.tkd_tournament_maker.Club.Club;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import pl.tkd.tournaments.tkd_tournament_maker.Club.Competitor.Competitor;
 import pl.tkd.tournaments.tkd_tournament_maker.Club.Referee.Referee;
@@ -12,6 +13,7 @@ import java.util.Set;
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor
 public class Club {
     public Club(String name) {
         this.name = name;
@@ -27,8 +29,4 @@ public class Club {
     Set<Competitor> Competitors;
     @OneToMany
     Set<Referee> Referees;
-
-    public Club() {
-
-    }
 }
