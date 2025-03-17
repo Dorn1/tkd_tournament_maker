@@ -1,9 +1,6 @@
 package pl.tkd.tournaments.tkd_tournament_maker.Club.Club;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import pl.tkd.tournaments.tkd_tournament_maker.Club.Competitor.Competitor;
@@ -16,8 +13,14 @@ import java.util.Set;
 @Getter
 @Setter
 public class Club {
+    public Club(String name) {
+        this.name = name;
+    }
+
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String name;
     @ManyToMany
     Set<Tournament> tournaments;
     @OneToMany
@@ -25,4 +28,7 @@ public class Club {
     @OneToMany
     Set<Referee> Referees;
 
+    public Club() {
+
+    }
 }

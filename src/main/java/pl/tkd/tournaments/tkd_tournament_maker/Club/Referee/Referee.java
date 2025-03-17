@@ -13,6 +13,7 @@ import java.util.Set;
 @Entity
 public class Referee {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne
     @JoinColumn(name = "club_id")

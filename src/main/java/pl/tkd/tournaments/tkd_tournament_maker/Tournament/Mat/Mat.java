@@ -13,6 +13,7 @@ import java.util.Set;
 @Entity
 public class Mat {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne
     private Tournament tournament;

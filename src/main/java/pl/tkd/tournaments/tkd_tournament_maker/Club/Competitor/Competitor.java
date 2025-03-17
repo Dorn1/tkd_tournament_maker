@@ -1,7 +1,6 @@
 package pl.tkd.tournaments.tkd_tournament_maker.Club.Competitor;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,6 +15,7 @@ import java.util.Set;
 @NoArgsConstructor
 public class Competitor {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne
     private Club club;
