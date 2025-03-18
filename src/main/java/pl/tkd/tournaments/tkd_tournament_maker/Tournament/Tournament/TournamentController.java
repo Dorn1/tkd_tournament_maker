@@ -1,5 +1,7 @@
 package pl.tkd.tournaments.tkd_tournament_maker.Tournament.Tournament;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,6 +13,7 @@ import pl.tkd.tournaments.tkd_tournament_maker.exceptions.ObjectNotFoundExceptio
 public class TournamentController {
 
     private final TournamentService tournamentService;
+    private static final Logger logger = LoggerFactory.getLogger(TournamentController.class);
     @Autowired
     public TournamentController(TournamentService tournamentService) {
         this.tournamentService = tournamentService;
@@ -23,8 +26,10 @@ public class TournamentController {
                                         @RequestParam Long organizerId) {
         try{
         tournamentService.addTournament(name,location,startDate,endDate,organizerId);
+        logger.info("New tournament {} created",name);
         return ResponseEntity.ok("Tournament created");
         } catch (ObjectNotFoundException e) {
+            logger.warn("attempt to access a non-existent club");
             return ResponseEntity.status(404).body(e.getMessage());
         }
     }

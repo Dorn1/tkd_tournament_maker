@@ -33,6 +33,5 @@ public class TournamentService {
         Club c = clubService.getClub(organizerId);
         Tournament t = new Tournament(name,location, startDate, endDate, c);
         tournamentRepository.save(t);
-        System.out.println(tournamentRepository.findAll());
     }
 }
