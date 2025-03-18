@@ -1,8 +1,11 @@
 package pl.tkd.tournaments.tkd_tournament_maker.Tournament.Tournament;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import pl.tkd.tournaments.tkd_tournament_maker.exceptions.ObjectNotFoundException;
 
 @RestController
 public class TournamentController {
@@ -12,8 +15,17 @@ public class TournamentController {
     public TournamentController(TournamentService tournamentService) {
         this.tournamentService = tournamentService;
     }
-    @GetMapping(value = "/newTournament")
-    public void newTournament() {
-        tournamentService.addTournament();
+    @PostMapping(value = "/newTournament")
+    public ResponseEntity<String> newTournament(@RequestParam String name,
+                                        @RequestParam String location,
+                                        @RequestParam Long startDate,
+                                        @RequestParam Long endDate,
+                                        @RequestParam Long organizerId) {
+        try{
+        tournamentService.addTournament(name,location,startDate,endDate,organizerId);
+        return ResponseEntity.ok("Tournament created");
+        } catch (ObjectNotFoundException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        }
     }
 }

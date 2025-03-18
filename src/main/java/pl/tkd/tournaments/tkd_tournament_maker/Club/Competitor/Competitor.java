@@ -7,6 +7,7 @@ import lombok.Setter;
 import pl.tkd.tournaments.tkd_tournament_maker.Club.Club.Club;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Tournament.Tournament;
 
+import java.util.Date;
 import java.util.Set;
 
 @Setter
@@ -21,7 +22,7 @@ public class Competitor {
     private Club club;
     @ManyToMany
     Set<Tournament> tournaments;
-    private Long age;
+    private Date birthDate;
     private Double Weight;
     private Belt belt;
     private Sex sex;

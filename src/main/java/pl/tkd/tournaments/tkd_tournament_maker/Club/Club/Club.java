@@ -1,24 +1,19 @@
 package pl.tkd.tournaments.tkd_tournament_maker.Club.Club;
 
 import jakarta.persistence.*;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import pl.tkd.tournaments.tkd_tournament_maker.Club.Competitor.Competitor;
 import pl.tkd.tournaments.tkd_tournament_maker.Club.Referee.Referee;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Tournament.Tournament;
 
+import java.io.Serializable;
 import java.util.Set;
 
 @Entity
-@Getter
-@Setter
 @NoArgsConstructor
-public class Club {
-    public Club(String name) {
-        this.name = name;
-    }
-
+@Data
+public class Club implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -29,4 +24,5 @@ public class Club {
     Set<Competitor> Competitors;
     @OneToMany
     Set<Referee> Referees;
+
 }
