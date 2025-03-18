@@ -2,7 +2,6 @@ package pl.tkd.tournaments.tkd_tournament_maker.Tournament.Tournament;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
 import pl.tkd.tournaments.tkd_tournament_maker.Club.Club.Club;
 import pl.tkd.tournaments.tkd_tournament_maker.Club.Club.ClubService;
 import pl.tkd.tournaments.tkd_tournament_maker.exceptions.ObjectNotFoundException;

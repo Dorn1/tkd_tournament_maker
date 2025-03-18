@@ -2,7 +2,6 @@ package pl.tkd.tournaments.tkd_tournament_maker.Club.Club;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pl.tkd.tournaments.tkd_tournament_maker.Club.Competitor.Belt;
 import pl.tkd.tournaments.tkd_tournament_maker.Club.Competitor.Competitor;
 import pl.tkd.tournaments.tkd_tournament_maker.Club.Competitor.CompetitorRepository;
 import pl.tkd.tournaments.tkd_tournament_maker.Club.Competitor.Sex;
