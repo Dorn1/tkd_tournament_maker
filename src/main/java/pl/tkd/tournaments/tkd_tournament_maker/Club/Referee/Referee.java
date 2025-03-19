@@ -18,6 +18,8 @@ public class Referee {
     @ManyToOne
     @JoinColumn(name = "club_id")
     private Club club;
+    private String firstName;
+    private String lastName;
     @ManyToMany
     Set<Tournament> tournaments;
 
