@@ -50,21 +50,21 @@ public class ClubService {
         Sex competitorSex = Sex.Female;
         if(male) competitorSex = Sex.Male;
 
-        if(clubRepository.findById(clubId).isPresent()){
-            Club club = clubRepository.findById(clubId).get();
-            Competitor newCompetitor = new Competitor();
-            newCompetitor.setFirstName(firstname);
-            newCompetitor.setLastName(lastName);
-            newCompetitor.setSex(competitorSex);
-            newCompetitor.setBirthDate(new Date(birthDate));
-            newCompetitor.setClub(club);
-            newCompetitor.setBelt(Belt.WHITE);
-            club.getCompetitors().add(newCompetitor);
-            competitorRepository.save(newCompetitor);
-            clubRepository.save(club);
-        }
-        else
+        if(clubRepository.findById(clubId).isPresent())
             throw new ObjectNotFoundException("Club doesn't exist");
+        Club club = clubRepository.findById(clubId).get();
+        Competitor newCompetitor = new Competitor();
+        newCompetitor.setFirstName(firstname);
+        newCompetitor.setLastName(lastName);
+        newCompetitor.setSex(competitorSex);
+        newCompetitor.setBirthDate(new Date(birthDate));
+        newCompetitor.setClub(club);
+        newCompetitor.setBelt(Belt.WHITE);
+        club.getCompetitors().add(newCompetitor);
+        competitorRepository.save(newCompetitor);
+        clubRepository.save(club);
+
+
 
 
     }
@@ -73,24 +73,22 @@ public class ClubService {
                                     String lastName,
                                     Long clubId) throws ObjectNotFoundException {
 
-        if(clubRepository.findById(clubId).isPresent()){
-            Club club = clubRepository.findById(clubId).get();
-            Referee newReferee = new Referee();
-            newReferee.setFirstName(firstname);
-            newReferee.setLastName(lastName);
-            newReferee.setClub(club);
-            refereeRepository.save(newReferee);
-            clubRepository.save(club);
-        }
-        else
+        if(clubRepository.findById(clubId).isEmpty())
             throw new ObjectNotFoundException("Club doesn't exist");
+        Club club = clubRepository.findById(clubId).get();
+        Referee newReferee = new Referee();
+        newReferee.setFirstName(firstname);
+        newReferee.setLastName(lastName);
+        newReferee.setClub(club);
+        refereeRepository.save(newReferee);
+        clubRepository.save(club);
 
 
     }
+
     public Club getClub(Long id) throws ObjectNotFoundException {
-        if (clubRepository.findById(id).isPresent()) {
+        if (clubRepository.findById(id).isPresent())
             return clubRepository.findById(id).get();
-        }
         throw new ObjectNotFoundException("Club doesn't exist");
     }
 }

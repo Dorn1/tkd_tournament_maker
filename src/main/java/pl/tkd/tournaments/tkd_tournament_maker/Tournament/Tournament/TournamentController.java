@@ -14,10 +14,16 @@ public class TournamentController {
 
     private final TournamentService tournamentService;
     private static final Logger logger = LoggerFactory.getLogger(TournamentController.class);
+
+
+
     @Autowired
     public TournamentController(TournamentService tournamentService) {
         this.tournamentService = tournamentService;
     }
+
+
+
     @PostMapping(value = "/newTournament")
     public ResponseEntity<String> newTournament(@RequestParam String name,
                                         @RequestParam String location,
@@ -30,6 +36,17 @@ public class TournamentController {
         return ResponseEntity.ok("Tournament created");
         } catch (ObjectNotFoundException e) {
             logger.warn("attempt to access a non-existent club");
+            return ResponseEntity.status(404).body(e.getMessage());
+        }
+    }
+    @PostMapping(value = "/newMat")
+    public ResponseEntity<String> newMat(@RequestParam Long tournamentId){
+        try {
+            tournamentService.addMat(tournamentId);
+            logger.info("New mat created");
+            return ResponseEntity.ok("Mat created");
+        } catch (ObjectNotFoundException e) {
+            logger.warn("attempt to access a non-existent tournament");
             return ResponseEntity.status(404).body(e.getMessage());
         }
     }

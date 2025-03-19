@@ -17,10 +17,12 @@ public class ClubController {
     private static final Logger logger = LoggerFactory.getLogger(ClubController.class);
 
 
+
     @Autowired
     public ClubController(ClubService clubService) {
         this.clubService = clubService;
     }
+
 
 
     @PostMapping(value = "/newClub")
