@@ -6,7 +6,7 @@ import lombok.Setter;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Category;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Tournament.Tournament;
 
-import java.util.Set;
+import java.util.List;
 
 @Getter
 @Setter
@@ -18,5 +18,5 @@ public class Mat {
     @ManyToOne
     private Tournament tournament;
     @OneToMany
-    private Set<Category> categoryQueque;
+    private List<Category> categoryQueque;
 }
