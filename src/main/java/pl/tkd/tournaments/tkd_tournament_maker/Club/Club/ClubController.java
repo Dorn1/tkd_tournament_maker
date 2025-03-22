@@ -45,11 +45,11 @@ public class ClubController {
                     birthDate,
                     clubId);
             logger.info("New competitor {} {} added", firstName, lastName);
+            return ResponseEntity.ok("Competitor added");
         } catch (ObjectNotFoundException e) {
             logger.warn("attempt to access a non-existent club");
             return ResponseEntity.status(404).body(e.getMessage());
         }
-        return ResponseEntity.ok("Competitor added");
     }
 
     @PostMapping(value = "/newReferee")

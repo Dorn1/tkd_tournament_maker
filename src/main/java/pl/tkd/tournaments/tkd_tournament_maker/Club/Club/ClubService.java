@@ -50,9 +50,7 @@ public class ClubService {
         Sex competitorSex = Sex.Female;
         if(male) competitorSex = Sex.Male;
 
-        if(clubRepository.findById(clubId).isPresent())
-            throw new ObjectNotFoundException("Club doesn't exist");
-        Club club = clubRepository.findById(clubId).get();
+        Club club = getClub(clubId);
         Competitor newCompetitor = new Competitor();
         newCompetitor.setFirstName(firstname);
         newCompetitor.setLastName(lastName);
@@ -73,9 +71,7 @@ public class ClubService {
                                     String lastName,
                                     Long clubId) throws ObjectNotFoundException {
 
-        if(clubRepository.findById(clubId).isEmpty())
-            throw new ObjectNotFoundException("Club doesn't exist");
-        Club club = clubRepository.findById(clubId).get();
+        Club club = getClub(clubId);
         Referee newReferee = new Referee();
         newReferee.setFirstName(firstname);
         newReferee.setLastName(lastName);

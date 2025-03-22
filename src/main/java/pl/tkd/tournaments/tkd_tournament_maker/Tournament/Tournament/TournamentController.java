@@ -31,7 +31,11 @@ public class TournamentController {
                                         @RequestParam Long endDate,
                                         @RequestParam Long organizerId) {
         try{
-        tournamentService.addTournament(name,location,startDate,endDate,organizerId);
+        tournamentService.addTournament(name,
+                location,
+                startDate,
+                endDate,
+                organizerId);
         logger.info("New tournament {} created",name);
         return ResponseEntity.ok("Tournament created");
         } catch (ObjectNotFoundException e) {
@@ -47,6 +51,18 @@ public class TournamentController {
             return ResponseEntity.ok("Mat created");
         } catch (ObjectNotFoundException e) {
             logger.warn("attempt to access a non-existent tournament");
+            return ResponseEntity.status(404).body(e.getMessage());
+        }
+    }
+    @PostMapping(value = "/newCategory")
+    public ResponseEntity<String> newCategory(@RequestParam Long matId,
+                                              boolean ladderCategory){
+        try {
+            tournamentService.addCategory(matId,ladderCategory);
+            logger.info("New Category created");
+            return ResponseEntity.ok("Mat created");
+        } catch (ObjectNotFoundException e) {
+            logger.warn("attempt to access a non-existent mat");
             return ResponseEntity.status(404).body(e.getMessage());
         }
     }

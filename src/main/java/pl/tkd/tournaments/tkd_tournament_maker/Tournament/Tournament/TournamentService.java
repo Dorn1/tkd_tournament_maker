@@ -54,10 +54,9 @@ public class TournamentService {
         tournamentRepository.save(t);
     }
 
+
     public void addMat(Long tournamentId) throws ObjectNotFoundException {
-        if(tournamentRepository.findById(tournamentId).isEmpty())
-            throw new ObjectNotFoundException("Tournament doesn't exist");
-        Tournament tournament = tournamentRepository.findById(tournamentId).get();
+        Tournament tournament = getTournament(tournamentId);
         Mat mat = new Mat();
         mat.setTournament(tournament);
         tournament.getMats().add(mat);
@@ -66,9 +65,7 @@ public class TournamentService {
     }
 
     public void addCategory(Long matId, boolean ladderCategory) throws ObjectNotFoundException{
-        if(matRepository.findById(matId).isEmpty())
-            throw new ObjectNotFoundException("Mat doesn't exist");
-        Mat mat = matRepository.findById(matId).get();
+        Mat mat = getMat(matId);
         Category category = new TableCategory();
         if(ladderCategory)
             category = new LadderCategory();
@@ -76,5 +73,17 @@ public class TournamentService {
         mat.getCategoryQueque().add(category);
         matRepository.save(mat);
         categoryRepository.save(category);
+    }
+
+    public Mat getMat(Long id) throws ObjectNotFoundException {
+        if (matRepository.findById(id).isPresent())
+            return matRepository.findById(id).get();
+        throw new ObjectNotFoundException("Tournament doesn't exist");
+    }
+
+    public Tournament getTournament(Long id) throws ObjectNotFoundException {
+        if (tournamentRepository.findById(id).isPresent())
+            return tournamentRepository.findById(id).get();
+        throw new ObjectNotFoundException("Tournament doesn't exist");
     }
 }

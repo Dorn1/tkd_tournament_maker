@@ -18,7 +18,7 @@ public abstract class Category {
     @ManyToMany
     private Set<Competitor> competitors;
 
-    public void filter_competitors(ICategoryFilter filter, Set<Competitor> allCompetitors){
-
+    public void filter_competitors(ICategoryFilter filter,
+                                   Set<Competitor> allCompetitors){
     }
 }
