@@ -32,10 +32,6 @@ public class ClubService {
 
 
 
-    public List<Club> getAllClubs() {
-        return clubRepository.findAll();
-    }
-
     public void addClub(String name) {
         Club c = new Club();
         c.setName(name);
@@ -50,7 +46,7 @@ public class ClubService {
         Sex competitorSex = Sex.Female;
         if(male) competitorSex = Sex.Male;
 
-        Club club = getClub(clubId);
+        Club club = getClubById(clubId);
         Competitor newCompetitor = new Competitor();
         newCompetitor.setFirstName(firstname);
         newCompetitor.setLastName(lastName);
@@ -71,7 +67,7 @@ public class ClubService {
                                     String lastName,
                                     Long clubId) throws ObjectNotFoundException {
 
-        Club club = getClub(clubId);
+        Club club = getClubById(clubId);
         Referee newReferee = new Referee();
         newReferee.setFirstName(firstname);
         newReferee.setLastName(lastName);
@@ -82,9 +78,12 @@ public class ClubService {
 
     }
 
-    public Club getClub(Long id) throws ObjectNotFoundException {
+    public Club getClubById(Long id) throws ObjectNotFoundException {
         if (clubRepository.findById(id).isPresent())
             return clubRepository.findById(id).get();
         throw new ObjectNotFoundException("Club doesn't exist");
+    }
+    public List<Club> getClubByName(String name) {
+        return clubRepository.findByNameContainingIgnoreCase(name);
     }
 }

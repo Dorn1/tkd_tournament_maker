@@ -4,10 +4,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import pl.tkd.tournaments.tkd_tournament_maker.exceptions.ObjectNotFoundException;
+
+import java.util.List;
 
 
 @RestController
@@ -17,13 +20,17 @@ public class ClubController {
     private static final Logger logger = LoggerFactory.getLogger(ClubController.class);
 
 
-
     @Autowired
     public ClubController(ClubService clubService) {
         this.clubService = clubService;
     }
 
+    @GetMapping(value = "/getClubByName")
+    public ResponseEntity<String> getClubByName(@RequestParam String name) {
+        List<Club> club = clubService.getClubByName(name);
+        return ResponseEntity.ok(List.of(club).toString());
 
+    }
 
     @PostMapping(value = "/newClub")
     public ResponseEntity<String> newClub(@RequestParam String name) {

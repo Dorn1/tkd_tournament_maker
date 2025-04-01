@@ -3,7 +3,6 @@ package pl.tkd.tournaments.tkd_tournament_maker.Tournament.Tournament;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pl.tkd.tournaments.tkd_tournament_maker.Club.Club.Club;
-import pl.tkd.tournaments.tkd_tournament_maker.Club.Club.ClubRepository;
 import pl.tkd.tournaments.tkd_tournament_maker.Club.Club.ClubService;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Category;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.CategoryRepository;
@@ -49,7 +48,7 @@ public class TournamentService {
                               Long organizerId) throws ObjectNotFoundException {
         Date startDate = new Date(startDatenum);
         Date endDate = new Date(endDatenum);
-        Club c = clubService.getClub(organizerId);
+        Club c = clubService.getClubById(organizerId);
         Tournament t = new Tournament(name,location, startDate, endDate, c);
         tournamentRepository.save(t);
     }
