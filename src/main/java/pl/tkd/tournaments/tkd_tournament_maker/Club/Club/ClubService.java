@@ -83,7 +83,18 @@ public class ClubService {
             return clubRepository.findById(id).get();
         throw new ObjectNotFoundException("Club doesn't exist");
     }
+
     public List<Club> getClubByName(String name) {
         return clubRepository.findByNameContainingIgnoreCase(name);
+    }
+
+    public List<Referee> getRefereeByName(String firstname, String lastname) {
+        return refereeRepository.findByFirstNameContainingIgnoreCaseAndLastNameContainingIgnoreCase(firstname,lastname);
+    }
+
+    public Competitor getCompetitorById(Long id) throws ObjectNotFoundException {
+        if (competitorRepository.findById(id).isPresent())
+            return competitorRepository.findById(id).get();
+        throw new ObjectNotFoundException("Competitor doesn't exist");
     }
 }

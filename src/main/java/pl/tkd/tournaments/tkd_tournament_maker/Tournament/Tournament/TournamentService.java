@@ -37,10 +37,6 @@ public class TournamentService {
 
 
 
-    public List<Tournament> getAllTournaments() {
-        return tournamentRepository.findAll();
-    }
-
     public void addTournament(String name,
                               String location,
                               Long startDatenum,

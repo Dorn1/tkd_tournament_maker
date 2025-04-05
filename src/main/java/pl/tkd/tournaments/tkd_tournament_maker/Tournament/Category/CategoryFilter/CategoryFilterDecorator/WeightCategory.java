@@ -1,21 +1,16 @@
 package pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.CategoryFilter.CategoryFilterDecorator;
 
+import lombok.Getter;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.CategoryFilter.ICategoryFilter;
 
-
+@Getter
 public class WeightCategory extends CategoryFilterDecorator {
+    Integer min;
+    Integer max;
     public WeightCategory(ICategoryFilter filter, Integer min, Integer max) {
-        super(filter,min,max);
+        this.min = min;
+        this.max = max;
+        super(filter);
     }
 
-//    @Override
-//    public Set<Competitor> filter(Set<Competitor> competitors) {
-//        return super
-//                .filter(competitors)
-//                .stream()
-//                .filter(c -> c.getWeight() <= super.getMax() &&
-//                        c.getWeight() >= super.getMin())
-//                .collect(Collectors.toSet());
-//
-//    }
 }

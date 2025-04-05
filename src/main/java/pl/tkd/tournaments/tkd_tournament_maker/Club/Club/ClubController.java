@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import pl.tkd.tournaments.tkd_tournament_maker.Club.Competitor.Competitor;
+import pl.tkd.tournaments.tkd_tournament_maker.Club.Referee.Referee;
 import pl.tkd.tournaments.tkd_tournament_maker.exceptions.ObjectNotFoundException;
 
 import java.util.List;
@@ -25,10 +27,27 @@ public class ClubController {
         this.clubService = clubService;
     }
 
+    @GetMapping(value = "/getCompetitorById")
+    public ResponseEntity<String> getCompetitorById(@RequestParam Long id) {
+        try {
+            Competitor competitor = clubService.getCompetitorById(id);
+            return ResponseEntity.ok(competitor.toString());
+        } catch (ObjectNotFoundException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        }
+    }
+
     @GetMapping(value = "/getClubByName")
     public ResponseEntity<String> getClubByName(@RequestParam String name) {
-        List<Club> club = clubService.getClubByName(name);
-        return ResponseEntity.ok(List.of(club).toString());
+        List<Club> clubs = clubService.getClubByName(name);
+        return ResponseEntity.ok(clubs.toString());
+
+    }
+
+    @GetMapping(value = "/getRefereeByName")
+    public ResponseEntity<String> getClubByName(@RequestParam String firstName, @RequestParam String lastName) {
+        List<Referee> refereeList = clubService.getRefereeByName(firstName, lastName);
+        return ResponseEntity.ok(refereeList.toString());
 
     }
 
@@ -70,6 +89,6 @@ public class ClubController {
             logger.warn("attempt to access a non-existent club");
             return ResponseEntity.status(404).body(e.getMessage());
         }
-        return ResponseEntity.ok("Competitor added");
+        return ResponseEntity.ok("Referee added");
     }
 }
