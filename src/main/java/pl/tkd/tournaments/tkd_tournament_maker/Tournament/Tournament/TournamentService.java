@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pl.tkd.tournaments.tkd_tournament_maker.Club.Club.Club;
 import pl.tkd.tournaments.tkd_tournament_maker.Club.Club.ClubService;
+import pl.tkd.tournaments.tkd_tournament_maker.Club.Competitor.Competitor;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Category;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.CategoryRepository;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.LadderCategory;
@@ -80,5 +81,10 @@ public class TournamentService {
         if (tournamentRepository.findById(id).isPresent())
             return tournamentRepository.findById(id).get();
         throw new ObjectNotFoundException("Tournament doesn't exist");
+    }
+    public void addCompetitorToTournament(Long CompetitorId, Long tournamentId) throws ObjectNotFoundException {
+        Tournament tournament = getTournament(tournamentId);
+        Competitor competitor = clubService.getCompetitorById(CompetitorId);
+        tournament.getCompetitors().add(competitor);
     }
 }
