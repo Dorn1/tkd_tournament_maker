@@ -1,7 +1,6 @@
 package pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.CategoryFilter.CategoryFilterDecorator;
 
 import lombok.Getter;
-import pl.tkd.tournaments.tkd_tournament_maker.Club.Competitor.Belt;
 import pl.tkd.tournaments.tkd_tournament_maker.Club.Competitor.Competitor;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.CategoryFilter.ICategoryFilter;
 
@@ -10,9 +9,9 @@ import java.util.stream.Collectors;
 
 @Getter
 public class BeltCategory extends CategoryFilterDecorator {
-    Belt minbelt;
-    Belt maxbelt;
-    public BeltCategory(ICategoryFilter filter, Belt minbelt, Belt maxbelt) {
+    Integer minbelt;
+    Integer maxbelt;
+    public BeltCategory(ICategoryFilter filter, Integer minbelt, Integer maxbelt) {
         this.minbelt = minbelt;
         this.maxbelt = maxbelt;
         super(filter);

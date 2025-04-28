@@ -24,7 +24,7 @@ public class Competitor {
     Set<Tournament> tournaments;
     private Date birthDate;
     private Double Weight;
-    private Belt belt;
+    private Integer belt;
     private Sex sex;
     private String firstName;
     private String lastName;

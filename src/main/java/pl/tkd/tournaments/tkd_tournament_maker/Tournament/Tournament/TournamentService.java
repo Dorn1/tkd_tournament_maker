@@ -14,7 +14,6 @@ import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Mat.MatRepository;
 import pl.tkd.tournaments.tkd_tournament_maker.exceptions.ObjectNotFoundException;
 
 import java.util.Date;
-import java.util.List;
 
 @Service
 public class TournamentService {
@@ -82,6 +81,7 @@ public class TournamentService {
             return tournamentRepository.findById(id).get();
         throw new ObjectNotFoundException("Tournament doesn't exist");
     }
+    
     public void addCompetitorToTournament(Long CompetitorId, Long tournamentId) throws ObjectNotFoundException {
         Tournament tournament = getTournament(tournamentId);
         Competitor competitor = clubService.getCompetitorById(CompetitorId);
