@@ -6,6 +6,7 @@ import lombok.Setter;
 import pl.tkd.tournaments.tkd_tournament_maker.Club.Competitor.Competitor;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.CategoryFilter.ICategoryFilter;
 
+import java.util.List;
 import java.util.Set;
 
 @Entity

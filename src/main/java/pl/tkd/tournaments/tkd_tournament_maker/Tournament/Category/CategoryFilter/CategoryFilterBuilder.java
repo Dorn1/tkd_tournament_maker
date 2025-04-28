@@ -8,11 +8,9 @@ import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.CategoryFilte
 
 public class CategoryFilterBuilder {
     private ICategoryFilter categoryFilter;
-
     public CategoryFilterBuilder() {
         this.categoryFilter = new BaseCategoryFilter();
     }
-
 
     public void addminAge(int minAge) {
         categoryFilter = new AgeCategory(categoryFilter, minAge, 1000);
@@ -41,4 +39,9 @@ public class CategoryFilterBuilder {
     public void addmaxWeight(int maxWeight) {
         categoryFilter = new WeightCategory(categoryFilter, Integer.MIN_VALUE, maxWeight);
     }
+
+    public ICategoryFilter getCategoryFilter() {
+        return categoryFilter;
+    }
+
 }
