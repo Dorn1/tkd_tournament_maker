@@ -1,11 +1,16 @@
 package pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.CategoryFilter.CategoryFilterDecorator;
 
 
+import lombok.Data;
 import lombok.Getter;
 import pl.tkd.tournaments.tkd_tournament_maker.Club.Competitor.Competitor;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.CategoryFilter.ICategoryFilter;
 
 
+import java.time.Year;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -23,10 +28,11 @@ public class AgeCategory extends CategoryFilterDecorator {
 
     @Override
     public Set<Competitor> filter(Set<Competitor> competitors) {
+        Long year = (long) java.time.Year.now().getValue();
         return super.filter(competitors)
                 .stream().
-                filter(competitor -> competitor.getAge() >= min)
-                .filter(competitor -> competitor.getAge() <= max)
+                filter(competitor -> year - competitor.getBirthYear() >= min)
+                .filter(competitor -> year - competitor.getBirthYear() <= max)
                 .collect(Collectors.toSet());
     }
 }

@@ -9,6 +9,7 @@ import pl.tkd.tournaments.tkd_tournament_maker.Club.Competitor.Sex;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.CategoryFilter.CategoryFilterHandler;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.CategoryFilter.ICategoryFilter;
 
+import java.time.Year;
 import java.util.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -26,10 +27,11 @@ public class CategoryFilterTests {
         club.setName("TkdFreaks");
         club.setId(1L);
         club.setCompetitors(new HashSet<>());
+        Long thisYear = (long)Year.now().getValue();
 
         competitor1 = new Competitor();
         competitor1.setSex(Sex.Male);
-        competitor1.setAge(15L);
+        competitor1.setBirthYear(thisYear - 15) ;
         competitor1.setBelt(5);
         competitor1.setId(1L);
         competitor1.setWeight(65.5);
@@ -39,7 +41,7 @@ public class CategoryFilterTests {
 
         competitor2 = new Competitor();
         competitor2.setSex(Sex.Male);
-        competitor2.setAge(5L);
+        competitor2.setBirthYear(thisYear - 5);
         competitor2.setBelt(1);
         competitor2.setId(1L);
         competitor2.setWeight(10.0);
@@ -49,7 +51,7 @@ public class CategoryFilterTests {
 
         competitor3 = new Competitor();
         competitor3.setSex(Sex.Female);
-        competitor3.setAge(30L);
+        competitor3.setBirthYear(thisYear - 30);
         competitor3.setBelt(8);
         competitor3.setId(1L);
         competitor3.setWeight(60.0);
@@ -69,6 +71,7 @@ public class CategoryFilterTests {
         ICategoryFilter categoryFilter = handler.build();
         Assertions.assertEquals(3,categoryFilter.filter(competitors).size());
     }
+
     @Test
     public void ageCategoryTest(){
         CategoryFilterHandler handler = new CategoryFilterHandler();
@@ -78,7 +81,24 @@ public class CategoryFilterTests {
         Assertions.assertEquals(1,categoryFilter.filter(competitors).size());
         Assertions.assertTrue(categoryFilter.filter(competitors).contains(competitor1));
 
+        handler = new CategoryFilterHandler();
+        handler.addmaxAge(16L);
+        handler.addminAge(5L);
+        categoryFilter = handler.build();
+        Assertions.assertEquals(2,categoryFilter.filter(competitors).size());
+        Assertions.assertTrue(categoryFilter.filter(competitors).contains(competitor1)
+                && categoryFilter.filter(competitors).contains(competitor2));
+
+        handler = new CategoryFilterHandler();
+        handler.addmaxAge(30L);
+        handler.addminAge(10L);
+        categoryFilter = handler.build();
+        Assertions.assertEquals(2,categoryFilter.filter(competitors).size());
+        Assertions.assertTrue(categoryFilter.filter(competitors).contains(competitor1)
+                && categoryFilter.filter(competitors).contains(competitor3));
+
     }
+
     @Test
     public void beltCategoryTest(){
         CategoryFilterHandler handler = new CategoryFilterHandler();
@@ -105,6 +125,7 @@ public class CategoryFilterTests {
         Assertions.assertTrue(categoryFilter.filter(competitors).contains(competitor1) && categoryFilter.filter(competitors).contains(competitor2));
 
     }
+
     @Test
     public void weightCategoryTest(){
         CategoryFilterHandler handler = new CategoryFilterHandler();

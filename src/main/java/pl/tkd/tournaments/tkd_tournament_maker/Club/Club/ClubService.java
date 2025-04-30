@@ -37,7 +37,7 @@ public class ClubService {
     public void addCompetitorToClub(String firstname,
                                     String lastName,
                                     boolean male,
-                                    Long age,
+                                    Long birthYear,
                                     Long clubId) throws ObjectNotFoundException {
         Sex competitorSex = Sex.Female;
         if (male) competitorSex = Sex.Male;
@@ -47,7 +47,7 @@ public class ClubService {
         newCompetitor.setFirstName(firstname);
         newCompetitor.setLastName(lastName);
         newCompetitor.setSex(competitorSex);
-        newCompetitor.setAge(age);
+        newCompetitor.setBirthYear(birthYear);
         newCompetitor.setClub(club);
         newCompetitor.setBelt(1);
         club.getCompetitors().add(newCompetitor);

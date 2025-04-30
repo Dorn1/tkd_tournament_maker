@@ -26,5 +26,5 @@ public class Competitor {
     private Sex sex;
     private String firstName;
     private String lastName;
-    private Long age;
+    private Long birthYear;
 }
