@@ -1,6 +1,7 @@
 package pl.tkd.tournaments.tkd_tournament_maker.Club.Competitor;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

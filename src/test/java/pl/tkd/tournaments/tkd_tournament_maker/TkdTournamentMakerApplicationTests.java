@@ -9,11 +9,5 @@ class TkdTournamentMakerApplicationTests {
     @Test
     void contextLoads() {
     }
-    @Test
-    public void BaseCategoryFilterTest() {
-        //ICategoryFilter filter = new BaseCategoryFilter();
-        //Assert.assertEquals(competitors,filter.filter(competitors));
-
-    }
 
 }

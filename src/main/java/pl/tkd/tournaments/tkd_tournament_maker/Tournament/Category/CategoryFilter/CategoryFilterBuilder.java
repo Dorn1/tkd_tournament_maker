@@ -40,7 +40,7 @@ public class CategoryFilterBuilder {
         categoryFilter = new WeightCategory(categoryFilter, Integer.MIN_VALUE, maxWeight);
     }
 
-    public ICategoryFilter getCategoryFilter() {
+    public ICategoryFilter build() {
         return categoryFilter;
     }
 

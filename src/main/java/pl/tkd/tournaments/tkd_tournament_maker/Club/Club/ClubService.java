@@ -19,7 +19,6 @@ public class ClubService {
     private final RefereeRepository refereeRepository;
 
 
-
     @Autowired
     public ClubService(ClubRepository clubRepository,
                        CompetitorRepository competitorRepository,
@@ -28,7 +27,6 @@ public class ClubService {
         this.competitorRepository = competitorRepository;
         this.refereeRepository = refereeRepository;
     }
-
 
 
     public void addClub(String name) {
@@ -43,7 +41,7 @@ public class ClubService {
                                     Long birthDate,
                                     Long clubId) throws ObjectNotFoundException {
         Sex competitorSex = Sex.Female;
-        if(male) competitorSex = Sex.Male;
+        if (male) competitorSex = Sex.Male;
 
         Club club = getClubById(clubId);
         Competitor newCompetitor = new Competitor();
@@ -58,13 +56,11 @@ public class ClubService {
         clubRepository.save(club);
 
 
-
-
     }
 
     public void addRefereeToClub(String firstname,
-                                    String lastName,
-                                    Long clubId) throws ObjectNotFoundException {
+                                 String lastName,
+                                 Long clubId) throws ObjectNotFoundException {
 
         Club club = getClubById(clubId);
         Referee newReferee = new Referee();
@@ -88,7 +84,7 @@ public class ClubService {
     }
 
     public List<Referee> getRefereeByName(String firstname, String lastname) {
-        return refereeRepository.findByFirstNameContainingIgnoreCaseAndLastNameContainingIgnoreCase(firstname,lastname);
+        return refereeRepository.findByFirstNameContainingIgnoreCaseAndLastNameContainingIgnoreCase(firstname, lastname);
     }
 
     public Competitor getCompetitorById(Long id) throws ObjectNotFoundException {
