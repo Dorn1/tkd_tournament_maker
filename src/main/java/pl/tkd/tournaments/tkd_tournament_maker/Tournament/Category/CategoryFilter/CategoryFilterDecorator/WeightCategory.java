@@ -9,9 +9,9 @@ import java.util.stream.Collectors;
 
 @Getter
 public class WeightCategory extends CategoryFilterDecorator {
-    Integer min;
-    Integer max;
-    public WeightCategory(ICategoryFilter filter, Integer min, Integer max) {
+    Double min;
+    Double max;
+    public WeightCategory(ICategoryFilter filter, Double min, Double max) {
         this.min = min;
         this.max = max;
         super(filter);

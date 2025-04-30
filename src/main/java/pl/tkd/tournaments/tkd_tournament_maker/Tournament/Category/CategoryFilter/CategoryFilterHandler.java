@@ -32,12 +32,12 @@ public class CategoryFilterHandler {
         categoryFilter = new BeltCategory(categoryFilter, Integer.MIN_VALUE, maxBelt);
     }
 
-    public void addminWeight(int minWeight) {
-        categoryFilter = new WeightCategory(categoryFilter, minWeight, Integer.MAX_VALUE);
+    public void addminWeight(Double minWeight) {
+        categoryFilter = new WeightCategory(categoryFilter, minWeight, Double.MAX_VALUE);
     }
 
-    public void addmaxWeight(int maxWeight) {
-        categoryFilter = new WeightCategory(categoryFilter, Integer.MIN_VALUE, maxWeight);
+    public void addmaxWeight(Double maxWeight) {
+        categoryFilter = new WeightCategory(categoryFilter, Double.MIN_VALUE, maxWeight);
     }
 
     public ICategoryFilter build() {

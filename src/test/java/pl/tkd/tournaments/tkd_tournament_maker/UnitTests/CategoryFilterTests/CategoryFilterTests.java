@@ -75,8 +75,8 @@ public class CategoryFilterTests {
     @Test
     public void ageCategoryTest(){
         CategoryFilterHandler handler = new CategoryFilterHandler();
-        handler.addmaxAge(16L);
-        handler.addminAge(10L);
+        handler.addmaxAge(29L);
+        handler.addminAge(6L);
         ICategoryFilter categoryFilter = handler.build();
         Assertions.assertEquals(1,categoryFilter.filter(competitors).size());
         Assertions.assertTrue(categoryFilter.filter(competitors).contains(competitor1));
@@ -88,6 +88,7 @@ public class CategoryFilterTests {
         Assertions.assertEquals(2,categoryFilter.filter(competitors).size());
         Assertions.assertTrue(categoryFilter.filter(competitors).contains(competitor1)
                 && categoryFilter.filter(competitors).contains(competitor2));
+
 
         handler = new CategoryFilterHandler();
         handler.addmaxAge(30L);
@@ -108,6 +109,19 @@ public class CategoryFilterTests {
         Assertions.assertEquals(1,categoryFilter.filter(competitors).size());
         Assertions.assertTrue(categoryFilter.filter(competitors).contains(competitor1));
 
+        handler = new CategoryFilterHandler();
+        handler.addmaxBelt(7);
+        handler.addminBelt(1);
+        categoryFilter = handler.build();
+        Assertions.assertEquals(2,categoryFilter.filter(competitors).size());
+        Assertions.assertTrue(categoryFilter.filter(competitors).contains(competitor1) && categoryFilter.filter(competitors).contains(competitor2));
+
+        handler = new CategoryFilterHandler();
+        handler.addmaxBelt(8);
+        handler.addminBelt(2);
+        categoryFilter = handler.build();
+        Assertions.assertEquals(2,categoryFilter.filter(competitors).size());
+        Assertions.assertTrue(categoryFilter.filter(competitors).contains(competitor1) && categoryFilter.filter(competitors).contains(competitor3));
     }
 
     @Test
@@ -129,11 +143,25 @@ public class CategoryFilterTests {
     @Test
     public void weightCategoryTest(){
         CategoryFilterHandler handler = new CategoryFilterHandler();
-        handler.addmaxWeight(60);
-        handler.addminWeight(50);
+        handler.addmaxWeight(65.499999);
+        handler.addminWeight(10.000001);
         ICategoryFilter categoryFilter = handler.build();
         Assertions.assertEquals(1,categoryFilter.filter(competitors).size());
         Assertions.assertTrue(categoryFilter.filter(competitors).contains(competitor3));
+
+        handler = new CategoryFilterHandler();
+        handler.addmaxWeight(65.5);
+        handler.addminWeight(10.000001);
+        categoryFilter = handler.build();
+        Assertions.assertEquals(2,categoryFilter.filter(competitors).size());
+        Assertions.assertTrue(categoryFilter.filter(competitors).contains(competitor3) && categoryFilter.filter(competitors).contains(competitor1));
+
+        handler = new CategoryFilterHandler();
+        handler.addmaxWeight(65.499999);
+        handler.addminWeight(10.0);
+        categoryFilter = handler.build();
+        Assertions.assertEquals(2,categoryFilter.filter(competitors).size());
+        Assertions.assertTrue(categoryFilter.filter(competitors).contains(competitor3) && categoryFilter.filter(competitors).contains(competitor2));
 
     }
 
