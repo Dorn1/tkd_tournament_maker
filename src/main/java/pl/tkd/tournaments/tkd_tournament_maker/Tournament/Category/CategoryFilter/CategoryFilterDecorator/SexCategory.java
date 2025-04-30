@@ -10,8 +10,8 @@ import java.util.stream.Collectors;
 public class SexCategory extends CategoryFilterDecorator {
     Sex sex;
     public SexCategory(ICategoryFilter filter, Sex sex) {
-        this.sex = sex;
         super(filter);
+        this.sex = sex;
     }
 
     @Override

@@ -13,9 +13,9 @@ public class BeltCategory extends CategoryFilterDecorator {
     Integer maxbelt;
 
     public BeltCategory(ICategoryFilter filter, Integer minbelt, Integer maxbelt) {
+        super(filter);
         this.minbelt = minbelt;
         this.maxbelt = maxbelt;
-        super(filter);
     }
 
     @Override

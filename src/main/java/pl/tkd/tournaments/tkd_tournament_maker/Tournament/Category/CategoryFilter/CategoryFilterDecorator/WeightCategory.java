@@ -12,9 +12,9 @@ public class WeightCategory extends CategoryFilterDecorator {
     Double min;
     Double max;
     public WeightCategory(ICategoryFilter filter, Double min, Double max) {
+        super(filter);
         this.min = min;
         this.max = max;
-        super(filter);
     }
 
     @Override
