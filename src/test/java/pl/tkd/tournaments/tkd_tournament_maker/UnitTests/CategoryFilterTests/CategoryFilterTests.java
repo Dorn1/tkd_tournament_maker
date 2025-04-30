@@ -1,38 +1,20 @@
 package pl.tkd.tournaments.tkd_tournament_maker.UnitTests.CategoryFilterTests;
 
-import org.junit.experimental.categories.Categories;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import pl.tkd.tournaments.tkd_tournament_maker.Club.Club.Club;
-import pl.tkd.tournaments.tkd_tournament_maker.Club.Club.ClubRepository;
-import pl.tkd.tournaments.tkd_tournament_maker.Club.Club.ClubService;
 import pl.tkd.tournaments.tkd_tournament_maker.Club.Competitor.Competitor;
-import pl.tkd.tournaments.tkd_tournament_maker.Club.Competitor.CompetitorRepository;
 import pl.tkd.tournaments.tkd_tournament_maker.Club.Competitor.Sex;
-import pl.tkd.tournaments.tkd_tournament_maker.Club.Referee.RefereeRepository;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.CategoryFilter.CategoryFilterBuilder;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.CategoryFilter.ICategoryFilter;
 
 import java.util.*;
 
-import static org.mockito.BDDMockito.given;
-
 @ExtendWith(MockitoExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class CategoryFilterTests {
-    @Mock
-    ClubRepository clubRepository;
-    @Mock
-    CompetitorRepository competitorRepository;
-    @Mock
-    RefereeRepository refereeRepository;
-    @InjectMocks
-    ClubService clubService;
 
-    private Club club;
     private Competitor competitor1;
     private Competitor competitor2;
     private Competitor competitor3;
@@ -40,7 +22,7 @@ public class CategoryFilterTests {
 
     @BeforeEach
     public void setup() {
-        club = new Club();
+        Club club = new Club();
         club.setName("TkdFreaks");
         club.setId(1L);
         club.setCompetitors(new HashSet<>());
