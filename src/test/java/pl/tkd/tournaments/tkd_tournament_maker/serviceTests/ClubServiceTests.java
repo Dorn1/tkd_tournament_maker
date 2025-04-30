@@ -31,12 +31,19 @@ public class ClubServiceTests {
     @InjectMocks
     ClubService clubService;
 
-    @Test
-    public void CompetitorAddTest(){
-        Club club = new Club();
+    private Club club;
+
+    @BeforeEach
+    public void setup() {
+        club = new Club();
         club.setName("TkdFreaks");
         club.setId(1L);
         club.setCompetitors(new HashSet<>());
+    }
+
+    @Test
+    public void CompetitorAddTest() {
+
         Calendar goodAge = new GregorianCalendar(2010, Calendar.MAY, 14);
         given(clubRepository.findById(1L)).willReturn(Optional.of(club));
         Assertions.assertDoesNotThrow(
@@ -56,6 +63,23 @@ public class ClubServiceTests {
                             true,
                             goodAge.getTimeInMillis(),
                             0L);
+                }
+        );
+    }
+
+    @Test
+    public void RefereeAddTest() {
+        given(clubRepository.findById(1L)).willReturn(Optional.of(club));
+
+        Assertions.assertDoesNotThrow(
+                () -> {
+                    clubService.addRefereeToClub("John", "Smith", 1L);
+                }
+        );
+
+        Assertions.assertThrowsExactly(ObjectNotFoundException.class,
+                () -> {
+                    clubService.addRefereeToClub("John", "Smith", 0L);
                 }
         );
     }

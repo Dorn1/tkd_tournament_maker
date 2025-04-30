@@ -54,8 +54,6 @@ public class ClubService {
         club.getCompetitors().add(newCompetitor);
         competitorRepository.save(newCompetitor);
         clubRepository.save(club);
-
-
     }
 
     public void addRefereeToClub(String firstname,
