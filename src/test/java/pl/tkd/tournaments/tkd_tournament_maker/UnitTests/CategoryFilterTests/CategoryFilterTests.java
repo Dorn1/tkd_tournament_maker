@@ -97,5 +97,41 @@ public class CategoryFilterTests {
         Assertions.assertTrue(categoryFilter.filter(competitors).contains(competitor1));
 
     }
+    @Test
+    public void beltCategoryTest(){
+        CategoryFilterBuilder builder = new CategoryFilterBuilder();
+        builder.addmaxBelt(7);
+        builder.addminBelt(2);
+        ICategoryFilter categoryFilter = builder.build();
+        Assertions.assertEquals(1,categoryFilter.filter(competitors).size());
+        Assertions.assertTrue(categoryFilter.filter(competitors).contains(competitor1));
+
+    }
+
+    @Test
+    public void sexCategoryTestFemale(){
+        CategoryFilterBuilder builder = new CategoryFilterBuilder();
+        builder.setSex(Sex.Female);
+        ICategoryFilter categoryFilter = builder.build();
+        Assertions.assertEquals(1,categoryFilter.filter(competitors).size());
+        Assertions.assertTrue(categoryFilter.filter(competitors).contains(competitor3));
+
+        builder = new CategoryFilterBuilder();
+        builder.setSex(Sex.Male);
+        categoryFilter = builder.build();
+        Assertions.assertEquals(2,categoryFilter.filter(competitors).size());
+        Assertions.assertTrue(categoryFilter.filter(competitors).contains(competitor1) && categoryFilter.filter(competitors).contains(competitor2));
+
+    }
+    @Test
+    public void weightCategoryTest(){
+        CategoryFilterBuilder builder = new CategoryFilterBuilder();
+        builder.addmaxWeight(60);
+        builder.addminWeight(50);
+        ICategoryFilter categoryFilter = builder.build();
+        Assertions.assertEquals(1,categoryFilter.filter(competitors).size());
+        Assertions.assertTrue(categoryFilter.filter(competitors).contains(competitor3));
+
+    }
 
 }
