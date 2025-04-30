@@ -1,4 +1,4 @@
-package pl.tkd.tournaments.tkd_tournament_maker.serviceTests;
+package pl.tkd.tournaments.tkd_tournament_maker.UnitTests.serviceTests;
 
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,7 +11,6 @@ import static org.mockito.BDDMockito.given;
 import pl.tkd.tournaments.tkd_tournament_maker.Club.Club.Club;
 import pl.tkd.tournaments.tkd_tournament_maker.Club.Club.ClubRepository;
 import pl.tkd.tournaments.tkd_tournament_maker.Club.Club.ClubService;
-import pl.tkd.tournaments.tkd_tournament_maker.Club.Competitor.Competitor;
 import pl.tkd.tournaments.tkd_tournament_maker.Club.Competitor.CompetitorRepository;
 import pl.tkd.tournaments.tkd_tournament_maker.Club.Referee.RefereeRepository;
 import pl.tkd.tournaments.tkd_tournament_maker.exceptions.ObjectNotFoundException;

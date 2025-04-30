@@ -23,7 +23,6 @@ public class Competitor {
     private Club club;
     @ManyToMany
     Set<Tournament> tournaments;
-    private Date birthDate;
     private Double Weight;
     private Integer belt;
     private Sex sex;

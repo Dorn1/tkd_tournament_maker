@@ -9,7 +9,6 @@ import pl.tkd.tournaments.tkd_tournament_maker.Club.Referee.Referee;
 import pl.tkd.tournaments.tkd_tournament_maker.Club.Referee.RefereeRepository;
 import pl.tkd.tournaments.tkd_tournament_maker.exceptions.ObjectNotFoundException;
 
-import java.util.Date;
 import java.util.List;
 
 @Service
@@ -38,7 +37,7 @@ public class ClubService {
     public void addCompetitorToClub(String firstname,
                                     String lastName,
                                     boolean male,
-                                    Long birthDate,
+                                    Long age,
                                     Long clubId) throws ObjectNotFoundException {
         Sex competitorSex = Sex.Female;
         if (male) competitorSex = Sex.Male;
@@ -48,7 +47,7 @@ public class ClubService {
         newCompetitor.setFirstName(firstname);
         newCompetitor.setLastName(lastName);
         newCompetitor.setSex(competitorSex);
-        newCompetitor.setBirthDate(new Date(birthDate));
+        newCompetitor.setAge(age);
         newCompetitor.setClub(club);
         newCompetitor.setBelt(1);
         club.getCompetitors().add(newCompetitor);

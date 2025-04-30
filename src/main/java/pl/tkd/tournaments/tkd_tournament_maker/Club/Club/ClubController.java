@@ -62,13 +62,13 @@ public class ClubController {
     public ResponseEntity<String> newCompetitor(@RequestParam String firstName,
                                                 @RequestParam String lastName,
                                                 @RequestParam boolean male,
-                                                @RequestParam Long birthDate,
+                                                @RequestParam Long age,
                                                 @RequestParam Long clubId) {
         try {
             clubService.addCompetitorToClub(firstName,
                     lastName,
                     male,
-                    birthDate,
+                    age,
                     clubId);
             logger.info("New competitor {} {} added", firstName, lastName);
             return ResponseEntity.ok("Competitor added");

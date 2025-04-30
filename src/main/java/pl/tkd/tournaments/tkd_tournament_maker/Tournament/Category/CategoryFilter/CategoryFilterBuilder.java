@@ -12,12 +12,12 @@ public class CategoryFilterBuilder {
         this.categoryFilter = new BaseCategoryFilter();
     }
 
-    public void addminAge(int minAge) {
-        categoryFilter = new AgeCategory(categoryFilter, minAge, 1000);
+    public void addminAge(Long minAge) {
+        categoryFilter = new AgeCategory(categoryFilter, minAge, 1000L);
     }
 
-    public void addmaxAge(int maxAge) {
-        categoryFilter = new AgeCategory(categoryFilter, 0, maxAge);
+    public void addmaxAge(Long maxAge) {
+        categoryFilter = new AgeCategory(categoryFilter, 0L, maxAge);
     }
 
     public void setSex(Sex sex) {
