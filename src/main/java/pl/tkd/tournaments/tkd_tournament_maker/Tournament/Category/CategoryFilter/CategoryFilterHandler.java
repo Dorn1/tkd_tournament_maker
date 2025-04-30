@@ -6,9 +6,9 @@ import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.CategoryFilte
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.CategoryFilter.CategoryFilterDecorator.SexCategory;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.CategoryFilter.CategoryFilterDecorator.WeightCategory;
 
-public class CategoryFilterBuilder {
+public class CategoryFilterHandler {
     private ICategoryFilter categoryFilter;
-    public CategoryFilterBuilder() {
+    public CategoryFilterHandler() {
         this.categoryFilter = new BaseCategoryFilter();
     }
 
