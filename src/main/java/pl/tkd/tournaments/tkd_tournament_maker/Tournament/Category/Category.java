@@ -20,5 +20,6 @@ public abstract class Category {
 
     public void filter_competitors(ICategoryFilter filter,
                                    Set<Competitor> allCompetitors){
+        competitors = filter.filter(allCompetitors);
     }
 }
