@@ -50,12 +50,14 @@ public class LadderCategory extends Category {
         }
         fights.add(initial);
     }
+
     public void make_new_layer(){
         List<Fight> newLayer = new ArrayList<>();
         for (int i = 0; i < fights.getLast().size(); i+=2){
-            Fight newFight = new Fight();
-            newFight.setCompetitor1(fights.getLast().get(i).getWinner());
-            newFight.setCompetitor2(fights.getLast().get(i+1).getWinner());
+            Fight Fight = new Fight();
+            Fight.setCompetitor1(fights.getLast().get(i).getWinner());
+            Fight.setCompetitor2(fights.getLast().get(i+1).getWinner());
+            newLayer.add(Fight);
         }
         fights.add(newLayer);
     }
