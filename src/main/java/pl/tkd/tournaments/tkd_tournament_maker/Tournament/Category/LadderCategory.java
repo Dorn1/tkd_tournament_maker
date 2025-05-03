@@ -31,12 +31,11 @@ public class LadderCategory extends Category {
 
     public void randomize_category(){
         Set<Competitor> competitorSet = super.getCompetitors();
-        fights = new ArrayList<>();
+        fights = new ArrayList<List<Fight>>();
         ArrayList<Fight> initial = new ArrayList<>();
+        Competitor chosen = null;
         if (super.getCompetitors().size() %2 == 1){
-            Fight fight = new Fight();
-            fight.setCompetitor1(randomCompetitor(competitorSet));
-            initial.add(fight);
+            chosen = randomCompetitor(competitorSet);
         }
         for (int i = 0; i<super.getCompetitors().size()/2; i++){
             Fight fight = new Fight();
@@ -44,7 +43,21 @@ public class LadderCategory extends Category {
             fight.setCompetitor2(randomCompetitor(competitorSet));
             initial.add(fight);
         }
+        if (chosen !=null){
+            Fight fight = new Fight();
+            fight.setCompetitor1(chosen);
+            initial.add(fight);
+        }
         fights.add(initial);
+    }
+    public void make_new_layer(){
+        List<Fight> newLayer = new ArrayList<>();
+        for (int i = 0; i < fights.getLast().size(); i+=2){
+            Fight newFight = new Fight();
+            newFight.setCompetitor1(fights.getLast().get(i).getWinner());
+            newFight.setCompetitor1(fights.getLast().get(i+1).getWinner());
+        }
+        fights.add(newLayer);
     }
 
 }
