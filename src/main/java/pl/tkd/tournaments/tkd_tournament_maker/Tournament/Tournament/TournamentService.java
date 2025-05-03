@@ -5,10 +5,11 @@ import org.springframework.stereotype.Service;
 import pl.tkd.tournaments.tkd_tournament_maker.Club.Club.Club;
 import pl.tkd.tournaments.tkd_tournament_maker.Club.Club.ClubService;
 import pl.tkd.tournaments.tkd_tournament_maker.Club.Competitor.Competitor;
-import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Category;
-import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.CategoryRepository;
-import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.LadderCategory;
-import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.TableCategory;
+import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.*;
+import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Categories.Category;
+import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Categories.CategoryRepository;
+import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Categories.LadderCategory;
+import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Categories.TableCategory;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Mat.Mat;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Mat.MatRepository;
 import pl.tkd.tournaments.tkd_tournament_maker.exceptions.ObjectNotFoundException;
@@ -20,6 +21,7 @@ public class TournamentService {
     private final TournamentRepository tournamentRepository;
     private final MatRepository matRepository;
     private final CategoryRepository categoryRepository;
+    private final FightRepository fightRepository;
     private final ClubService clubService;
 
 
@@ -28,11 +30,13 @@ public class TournamentService {
     public TournamentService(TournamentRepository tournamentRepository,
                              MatRepository matRepository,
                              CategoryRepository categoryRepository,
-                             ClubService clubService) {
+                             ClubService clubService,
+                             FightRepository fightRepository) {
         this.tournamentRepository = tournamentRepository;
         this.matRepository = matRepository;
         this.categoryRepository = categoryRepository;
         this.clubService = clubService;
+        this.fightRepository = fightRepository;
     }
 
 
