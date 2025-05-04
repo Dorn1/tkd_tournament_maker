@@ -2,7 +2,6 @@ package pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Categories;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,14 +16,14 @@ import java.util.*;
 @NoArgsConstructor
 public class LadderCategory extends Category {
     @OneToMany
-    Set<LadderLayer> lavers;
+    Set<LadderLayer> layers;
 
     @OneToMany
     Set<Competitor> competitors;
 
     public void initialLayer() throws IllegalAccessException {
-        if (lavers != null) throw new IllegalAccessException("");
-        lavers = new HashSet<>();
+        if (layers != null) throw new IllegalAccessException("");
+        layers = new HashSet<>();
         LadderLayer layer = new LadderLayer();
         Competitor chosenCompetitor = null;
         if(competitors.size()%2!=0){
@@ -41,7 +40,30 @@ public class LadderCategory extends Category {
             fight.setCompetitor1(chosenCompetitor);
             layer.addFight(fight);
         }
-        lavers.add(layer);
+        layers.add(layer);
+    }
+
+    public void newLayer() throws IllegalAccessException {
+        if (layers == null) throw new IllegalAccessException("");
+        LadderLayer layer = new LadderLayer();
+        List<LadderLayer> layersList = new ArrayList<>(layers);
+        layersList.sort(Comparator.comparing(LadderLayer::getId));
+        LadderLayer previousLayer = layersList.getLast();
+        List<Fight> previousLayerFights = new ArrayList<>(previousLayer.getFights());
+        previousLayerFights.sort(Comparator.comparing(Fight::getId));
+        Fight exceptionalFight = null;
+        if(previousLayerFights.size()%2!=0){
+            exceptionalFight = previousLayerFights.getLast();
+            previousLayerFights.remove(exceptionalFight);
+        }
+        for (int i = 0; i < previousLayerFights.size(); i+=2) {
+            Fight fight = new Fight();
+            fight.setCompetitor1(previousLayerFights.get(i).getWinner());
+            fight.setCompetitor2(previousLayerFights.get(i).getWinner());
+            layer.addFight(fight);
+        }
+        if (exceptionalFight != null) layer.addFight(exceptionalFight);
+        layers.add(layer);
     }
 
 
