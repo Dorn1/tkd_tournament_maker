@@ -41,6 +41,7 @@ public class LadderCategory extends Category {
             fight.setCompetitor1(chosenCompetitor);
             layer.addFight(fight);
         }
+        lavers.add(layer);
     }
 
 
