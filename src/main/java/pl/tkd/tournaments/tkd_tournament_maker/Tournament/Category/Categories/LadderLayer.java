@@ -18,4 +18,7 @@ public class LadderLayer {
     @Setter
     @Id
     private Long id;
+    public void addFight(Fight fight){
+        fights.add(fight);
+    }
 }
