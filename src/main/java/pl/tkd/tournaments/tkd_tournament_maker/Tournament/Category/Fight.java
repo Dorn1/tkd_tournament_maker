@@ -22,10 +22,12 @@ public class Fight {
     private Competitor competitor2;
     @ManyToOne
     private Competitor winner;
-    @OneToMany
-    private Set<Fight> observers = new HashSet<>();
+    @OneToOne
+    private Fight nextFightObserver;
     @OneToOne
     private Fight thirdPlaceObserver = null;
+    @OneToMany
+    private Set<Fight> fightsBefore = new HashSet<>();
 
     public Competitor getLoser(){
         if (winner.equals(competitor1)){
@@ -34,25 +36,9 @@ public class Fight {
         return competitor1;
     }
 
-    public void addObserver(Fight observer) {
-        observers.add(observer);
-    }
-
-    public void removeObserver(Fight observer) {
-        observers.remove(observer);
-    }
-
     public void updateObservers() throws IllegalAccessException {
-        for (Fight observer : observers) {
-            if (observer.competitor1 !=null && observer.competitor2 != null) {
-                throw new IllegalAccessException("next Fight already has 2 competitors set");
-            }
-            if (observer.competitor1 != null) {
-                observer.setCompetitor2(competitor2);
-            }
-            else {
-                observer.setCompetitor1(competitor1);
-            }
+        if (nextFightObserver != null){
+            nextFightObserver.addCompetitor(winner);
         }
         if (thirdPlaceObserver != null) {
             if (thirdPlaceObserver.competitor1 ==null) {
@@ -75,6 +61,18 @@ public class Fight {
         }
         else{
             throw new ObjectNotFoundException("neither competitor1 nor competitor2 is set");
+        }
+    }
+
+    public void addCompetitor(Competitor competitor) throws IllegalAccessException {
+        if (competitor1 == null){
+            competitor1 = competitor;
+        }
+        else if (competitor2 == null && competitor1 != null){
+            competitor2 = competitor;
+        }
+        else {
+            throw new IllegalAccessException("added too many competitors to fight");
         }
     }
 
