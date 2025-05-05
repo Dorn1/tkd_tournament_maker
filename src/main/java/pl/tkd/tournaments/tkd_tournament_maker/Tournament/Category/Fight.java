@@ -27,6 +27,13 @@ public class Fight {
     @OneToOne
     private Fight thirdPlaceObserver = null;
 
+    public Competitor getLoser(){
+        if (winner.equals(competitor1)){
+            return competitor2;
+        }
+        return competitor1;
+    }
+
     public void addObserver(Fight observer) {
         observers.add(observer);
     }

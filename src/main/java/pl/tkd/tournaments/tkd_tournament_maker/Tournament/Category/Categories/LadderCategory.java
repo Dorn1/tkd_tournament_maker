@@ -26,8 +26,28 @@ public class LadderCategory extends Category {
     @OneToOne
     private Fight thridPlaceFight;
 
+    public Competitor getFirstPlace(){
+        LadderLayer firstLadderLayer = layers.stream().sorted(Comparator.comparingLong(LadderLayer::getId)).toList().getFirst();
+        if (firstLadderLayer.getFights().size()!=1){
+            throw new RuntimeException("Wrong size of final layer");
+        }
+        return firstLadderLayer.getFights().stream().toList().getFirst().getWinner();
+    }
+    public Competitor getSecondPlace(){
+        LadderLayer firstLadderLayer = layers.stream().sorted(Comparator.comparingLong(LadderLayer::getId)).toList().getFirst();
+        if (firstLadderLayer.getFights().size()!=1){
+            throw new RuntimeException("Wrong size of final layer");
+        }
+        return firstLadderLayer.getFights().stream().toList().getFirst().getLoser();
+    }
+    public Competitor getThirdPlace(){
+        return thridPlaceFight.getWinner();
+    }
+
     public void createLadder() throws IllegalAccessException, ObjectNotFoundException {
         if (layers != null) throw new IllegalAccessException("");
+        if (thridPlaceFight != null) throw new IllegalAccessException("");
+        thridPlaceFight = new Fight();
         List<LadderLayer> layers1 = new ArrayList<>();
         int power;
         for (power = 0; Math.pow(2, power + 1) < competitors.size(); power++) {
