@@ -52,7 +52,6 @@ public class LadderCategory extends Category {
             if (competitorFightSum == competitors.size()-1) {
                 Fight beforeFight1 = new Fight();
                 generatingFight.getFightsBefore().add(beforeFight1);
-                competitorFightSum++;
                 break;
             }
             Fight beforeFight1 = new Fight();
