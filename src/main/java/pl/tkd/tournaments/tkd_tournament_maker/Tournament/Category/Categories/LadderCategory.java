@@ -2,6 +2,7 @@ package pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Categories;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -21,6 +22,9 @@ public class LadderCategory extends Category {
 
     @OneToMany
     Set<Competitor> competitors;
+
+    @OneToOne
+    private Fight thridPlaceFight;
 
     public void createLadder() throws IllegalAccessException, ObjectNotFoundException {
         if (layers != null) throw new IllegalAccessException("");
@@ -49,7 +53,11 @@ public class LadderCategory extends Category {
                 thisFight.addObserver(nextFight);
                 layer.addFight(thisFight);
             }
-
+            if (power ==1){
+                for (Fight fight : layer.getFights()) {
+                    fight.setThirdPlaceObserver(thridPlaceFight);
+                }
+            }
             layers1.add(layer);
         }
         Set<Competitor> competitorsCopy = new HashSet<>(competitors);

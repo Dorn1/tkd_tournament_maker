@@ -24,6 +24,8 @@ public class Fight {
     private Competitor winner;
     @OneToMany
     private Set<Fight> observers = new HashSet<>();
+    @OneToOne
+    private Fight thirdPlaceObserver = null;
 
     public void addObserver(Fight observer) {
         observers.add(observer);
@@ -43,6 +45,13 @@ public class Fight {
             }
             else {
                 observer.setCompetitor1(competitor1);
+            }
+        }
+        if (thirdPlaceObserver != null) {
+            if (thirdPlaceObserver.competitor1 ==null) {
+                thirdPlaceObserver.setCompetitor1(competitor1);
+            } else if (thirdPlaceObserver.competitor2 == null) {
+                thirdPlaceObserver.setCompetitor2(competitor2);
             }
         }
     }
