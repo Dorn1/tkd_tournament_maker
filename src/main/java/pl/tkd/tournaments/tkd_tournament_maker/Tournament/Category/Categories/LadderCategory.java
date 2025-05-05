@@ -58,16 +58,7 @@ public class LadderCategory extends Category {
             fight.setCompetitor2(randomCompetitor(competitorsCopy));
         }
         LadderLayer beforeFights = new LadderLayer();
-        for (int i = 0; !competitorsCopy.isEmpty(); i++){
-            if(competitors.size() == 1){
-                Fight newFight = new Fight();
-                newFight.setCompetitor1(randomCompetitor(competitorsCopy));
-                List<Fight> fights = layers1.getLast().getFights().stream().toList();
-                Fight nextFight = fights.get(fights.size()/2);
-                newFight.addObserver(nextFight);
-                newFight.setWinner(true);
-                beforeFights.addFight(newFight);
-            }
+        for (int i = 0; competitorsCopy.size() > 1; i++){
             if (i%2==0){
                 Fight nextFight = new Fight();
                 nextFight.setCompetitor1(randomCompetitor(competitorsCopy));
@@ -96,6 +87,15 @@ public class LadderCategory extends Category {
                 }
                 beforeFights.addFight(nextFight);
             }
+        }
+        if(competitors.size() == 1){
+            Fight newFight = new Fight();
+            newFight.setCompetitor1(randomCompetitor(competitorsCopy));
+            List<Fight> fights = layers1.getLast().getFights().stream().toList();
+            Fight nextFight = fights.get(fights.size()/2);
+            newFight.addObserver(nextFight);
+            newFight.setWinner(true);
+            beforeFights.addFight(newFight);
         }
         layers1.add(beforeFights);
         layers = new HashSet<>(layers1);
