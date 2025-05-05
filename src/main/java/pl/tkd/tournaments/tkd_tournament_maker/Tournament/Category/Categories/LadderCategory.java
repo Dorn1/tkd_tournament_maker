@@ -53,6 +53,7 @@ public class LadderCategory extends Category {
                 Fight beforeFight1 = new Fight();
                 generatingFight.getFightsBefore().add(beforeFight1);
                 competitorFightSum++;
+                break;
             }
             Fight beforeFight1 = new Fight();
             Fight beforeFight2 = new Fight();
