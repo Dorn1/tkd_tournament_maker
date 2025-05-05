@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import pl.tkd.tournaments.tkd_tournament_maker.Club.Competitor.Competitor;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Fight;
+import pl.tkd.tournaments.tkd_tournament_maker.exceptions.ObjectNotFoundException;
 
 import java.util.*;
 
@@ -21,53 +22,86 @@ public class LadderCategory extends Category {
     @OneToMany
     Set<Competitor> competitors;
 
-    public void initialLayer() throws IllegalAccessException {
+    public void createLadder() throws IllegalAccessException, ObjectNotFoundException {
         if (layers != null) throw new IllegalAccessException("");
-        layers = new HashSet<>();
-        LadderLayer layer = new LadderLayer();
-        Competitor chosenCompetitor = null;
-        if(competitors.size()%2!=0){
-            chosenCompetitor = randomCompetitor(competitors);
+        List<LadderLayer> layers1 = new ArrayList<>();
+        int power;
+        for (power = 0; Math.pow(2, power + 1) < competitors.size(); power++) {
+            LadderLayer layer = new LadderLayer();
+            Fight nextFight = null;
+            for (int j = 0; j <= power; j++) {
+                Fight thisFight = new Fight();
+                if (!layers1.isEmpty()) {
+                    Long lowest_index = Long.MAX_VALUE;
+                    for (Fight fight : layers1.get(power - 1).getFights()) {
+                        if (fight.getId() < lowest_index) {
+                            lowest_index = fight.getId();
+                        }
+                    }
+                    for (Fight fight : layers1.get(power - 1).getFights()) {
+                        if (j % 2 == 0) {
+                            if (fight.getId() - lowest_index - j == 0) {
+                                nextFight = fight;
+                            }
+                        }
+                    }
+                }
+                thisFight.addObserver(nextFight);
+                layer.addFight(thisFight);
+            }
+
+            layers1.add(layer);
         }
-        for (int i = 0; i < competitors.size()/2; i++) {
-            Fight fight = new Fight();
-            fight.setCompetitor1(randomCompetitor(competitors));
-            fight.setCompetitor2(randomCompetitor(competitors));
-            layer.addFight(fight);
+        Set<Competitor> competitorsCopy = new HashSet<>(competitors);
+        for (Fight fight : layers1.getLast().getFights()) {
+            fight.setCompetitor1(randomCompetitor(competitorsCopy));
+            fight.setCompetitor2(randomCompetitor(competitorsCopy));
         }
-        if (chosenCompetitor != null){
-            Fight fight = new Fight();
-            fight.setCompetitor1(chosenCompetitor);
-            layer.addFight(fight);
+        LadderLayer beforeFights = new LadderLayer();
+        for (int i = 0; !competitorsCopy.isEmpty(); i++){
+            if(competitors.size() == 1){
+                Fight newFight = new Fight();
+                newFight.setCompetitor1(randomCompetitor(competitorsCopy));
+                List<Fight> fights = layers1.getLast().getFights().stream().toList();
+                Fight nextFight = fights.get(fights.size()/2);
+                newFight.addObserver(nextFight);
+                newFight.setWinner(true);
+                beforeFights.addFight(newFight);
+            }
+            if (i%2==0){
+                Fight nextFight = new Fight();
+                nextFight.setCompetitor1(randomCompetitor(competitorsCopy));
+                nextFight.setCompetitor2(randomCompetitor(competitorsCopy));
+                Long minId = Long.MAX_VALUE;
+                for (Fight fight : layers1.getLast().getFights()){
+                    if (fight.getId() < minId) {
+                        minId = fight.getId();
+                        nextFight.getObservers().clear();
+                        nextFight.addObserver(fight);
+                    }
+                }
+                beforeFights.addFight(nextFight);
+            }
+            else{
+                Fight nextFight = new Fight();
+                nextFight.setCompetitor1(randomCompetitor(competitorsCopy));
+                nextFight.setCompetitor2(randomCompetitor(competitorsCopy));
+                Long maxId = Long.MIN_VALUE;
+                for (Fight fight : layers1.getLast().getFights()){
+                    if (fight.getId() > maxId) {
+                        maxId = fight.getId();
+                        nextFight.getObservers().clear();
+                        nextFight.addObserver(fight);
+                    }
+                }
+                beforeFights.addFight(nextFight);
+            }
         }
-        layers.add(layer);
+        layers1.add(beforeFights);
+        layers = new HashSet<>(layers1);
     }
 
-    public void newLayer() throws IllegalAccessException {
-        if (layers == null) throw new IllegalAccessException("");
-        LadderLayer layer = new LadderLayer();
-        List<LadderLayer> layersList = new ArrayList<>(layers);
-        layersList.sort(Comparator.comparing(LadderLayer::getId));
-        LadderLayer previousLayer = layersList.getLast();
-        List<Fight> previousLayerFights = new ArrayList<>(previousLayer.getFights());
-        previousLayerFights.sort(Comparator.comparing(Fight::getId));
-        Fight exceptionalFight = null;
-        if(previousLayerFights.size()%2!=0){
-            exceptionalFight = previousLayerFights.getLast();
-            previousLayerFights.remove(exceptionalFight);
-        }
-        for (int i = 0; i < previousLayerFights.size(); i+=2) {
-            Fight fight = new Fight();
-            fight.setCompetitor1(previousLayerFights.get(i).getWinner());
-            fight.setCompetitor2(previousLayerFights.get(i).getWinner());
-            layer.addFight(fight);
-        }
-        if (exceptionalFight != null) layer.addFight(exceptionalFight);
-        layers.add(layer);
-    }
-
-
-    private Competitor randomCompetitor(Set<Competitor> competitorSet){
+    private Competitor randomCompetitor(Set<Competitor> competitorSet) {
         int random = new Random().nextInt(competitorSet.size());
         Competitor chosen = null;
         int i = 0;

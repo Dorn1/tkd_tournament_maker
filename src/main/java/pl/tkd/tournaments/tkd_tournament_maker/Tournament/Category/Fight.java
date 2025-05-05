@@ -6,6 +6,9 @@ import lombok.Setter;
 import pl.tkd.tournaments.tkd_tournament_maker.Club.Competitor.Competitor;
 import pl.tkd.tournaments.tkd_tournament_maker.exceptions.ObjectNotFoundException;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @Getter
 @Setter
@@ -19,6 +22,31 @@ public class Fight {
     private Competitor competitor2;
     @ManyToOne
     private Competitor winner;
+    @OneToMany
+    private Set<Fight> observers = new HashSet<>();
+
+    public void addObserver(Fight observer) {
+        observers.add(observer);
+    }
+
+    public void removeObserver(Fight observer) {
+        observers.remove(observer);
+    }
+
+    public void updateObservers() throws IllegalAccessException {
+        for (Fight observer : observers) {
+            if (observer.competitor1 !=null && observer.competitor2 != null) {
+                throw new IllegalAccessException("next Fight already has 2 competitors set");
+            }
+            if (observer.competitor1 != null) {
+                observer.setCompetitor2(competitor2);
+            }
+            else {
+                observer.setCompetitor1(competitor1);
+            }
+        }
+    }
+
     public void setWinner(boolean wonFirst) throws ObjectNotFoundException {
         if (competitor1 != null && competitor2 != null){
         winner = wonFirst ? competitor1 : competitor2;
