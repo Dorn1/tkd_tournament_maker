@@ -147,7 +147,7 @@ public class TournamentService {
 //                fightStack.addAll(checkedFight.getFightsBefore());
 //            }
 //        }
-        for (Fight fight : category.getFights()){
+        for (Fight fight : category.getFights().stream().sorted(Comparator.comparing(Fight::getId)).toList().reversed()) {
             if (competitorsCopy.isEmpty()) break;
             if (fight.getFightsBefore().isEmpty()){
                 fight.addCompetitor(randomCompetitor(competitorsCopy));
