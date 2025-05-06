@@ -132,21 +132,7 @@ public class TournamentService {
             competitorFightSum +=2;
         }
         Set<Competitor> competitorsCopy = new HashSet<>(category.getCompetitors());
-//        Stack<Fight> fightStack = new Stack<>();
-//        fightStack.add(category.getFirstPlaceFight());
-//
-//        while (!competitorsCopy.isEmpty()){
-//            Fight checkedFight = fightStack.pop();
-//            if (checkedFight.getFightsBefore().isEmpty()){
-//                checkedFight.addCompetitor(randomCompetitor(competitorsCopy));
-//                checkedFight.addCompetitor(randomCompetitor(competitorsCopy));
-//            } else if (checkedFight.getFightsBefore().size() == 1) {
-//                checkedFight.addCompetitor(randomCompetitor(competitorsCopy));
-//            }
-//            if (!checkedFight.getFightsBefore().isEmpty()) {
-//                fightStack.addAll(checkedFight.getFightsBefore());
-//            }
-//        }
+
         for (Fight fight : category.getFights().stream().sorted(Comparator.comparing(Fight::getId)).toList().reversed()) {
             if (competitorsCopy.isEmpty()) break;
             if (fight.getFightsBefore().isEmpty()){
