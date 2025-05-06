@@ -18,10 +18,7 @@ import java.util.*;
 public class LadderCategory extends Category {
 
     @OneToMany
-    Set<Competitor> competitors;
-
-    @OneToMany
-    private Set<Fight> fights;
+    private Set<Fight> fights = new HashSet<>();
 
     @OneToOne
     private Fight firstPlaceFight;

@@ -23,10 +23,6 @@ import java.util.*;
 public class ClubServiceTests {
     @Mock
     ClubRepository clubRepository;
-    @Mock
-    CompetitorRepository competitorRepository;
-    @Mock
-    RefereeRepository refereeRepository;
     @InjectMocks
     ClubService clubService;
 

@@ -25,7 +25,6 @@ public class TournamentService {
     private final ClubService clubService;
 
 
-
     @Autowired
     public TournamentService(TournamentRepository tournamentRepository,
                              MatRepository matRepository,
@@ -40,7 +39,6 @@ public class TournamentService {
     }
 
 
-
     public void addTournament(String name,
                               String location,
                               Long startDatenum,
@@ -49,7 +47,7 @@ public class TournamentService {
         Date startDate = new Date(startDatenum);
         Date endDate = new Date(endDatenum);
         Club c = clubService.getClubById(organizerId);
-        Tournament t = new Tournament(name,location, startDate, endDate, c);
+        Tournament t = new Tournament(name, location, startDate, endDate, c);
         tournamentRepository.save(t);
     }
 
@@ -63,10 +61,10 @@ public class TournamentService {
         tournamentRepository.save(tournament);
     }
 
-    public void addCategory(Long matId, boolean ladderCategory) throws ObjectNotFoundException{
+    public void addCategory(Long matId, boolean ladderCategory) throws ObjectNotFoundException {
         Mat mat = getMat(matId);
         Category category = new TableCategory();
-        if(ladderCategory)
+        if (ladderCategory)
             category = new LadderCategory();
         //Category Filtering logic needed here
         mat.getCategoryQueque().add(category);
@@ -85,7 +83,7 @@ public class TournamentService {
             return tournamentRepository.findById(id).get();
         throw new ObjectNotFoundException("Tournament doesn't exist");
     }
-    
+
     public void addCompetitorToTournament(Long CompetitorId, Long tournamentId) throws ObjectNotFoundException {
         Tournament tournament = getTournament(tournamentId);
         Competitor competitor = clubService.getCompetitorById(CompetitorId);
@@ -104,7 +102,7 @@ public class TournamentService {
         List<Fight> nextLayerQueque = new ArrayList<>();
         boolean thirdPlaceFightSet = false;
         while (competitorFightSum < category.getCompetitors().size()) {
-            if (!thirdPlaceFightSet && thisLayerQueque.size() ==2) {
+            if (!thirdPlaceFightSet && thisLayerQueque.size() == 2) {
                 thirdPlaceFightSet = true;
                 category.setThridPlaceFight(new Fight());
                 category.getThridPlaceFight().getFightsBefore().add(thisLayerQueque.getFirst());
@@ -112,9 +110,10 @@ public class TournamentService {
                 category.getFights().add(category.getThridPlaceFight());
             }
             Fight generatingFight = thisLayerQueque.removeFirst();
-            if (competitorFightSum == category.getCompetitors().size()-1) {
+            if (competitorFightSum == category.getCompetitors().size() - 1) {
                 Fight beforeFight1 = new Fight();
                 generatingFight.getFightsBefore().add(beforeFight1);
+                category.getFights().add(beforeFight1);
                 break;
             }
             Fight beforeFight1 = new Fight();
@@ -125,17 +124,17 @@ public class TournamentService {
             category.getFights().add(beforeFight2);
             nextLayerQueque.add(beforeFight1);
             nextLayerQueque.add(beforeFight2);
-            if(thisLayerQueque.isEmpty()){
+            if (thisLayerQueque.isEmpty()) {
                 thisLayerQueque = evenQueque(nextLayerQueque);
                 nextLayerQueque = new ArrayList<>();
             }
-            competitorFightSum +=2;
+            competitorFightSum += 2;
         }
         Set<Competitor> competitorsCopy = new HashSet<>(category.getCompetitors());
 
-        for (Fight fight : category.getFights().stream().sorted(Comparator.comparing(Fight::getId)).toList().reversed()) {
+        for (Fight fight : category.getFights()) {
             if (competitorsCopy.isEmpty()) break;
-            if (fight.getFightsBefore().isEmpty()){
+            if (fight.getFightsBefore().isEmpty()) {
                 fight.addCompetitor(randomCompetitor(competitorsCopy));
                 fight.addCompetitor(randomCompetitor(competitorsCopy));
             } else if (fight.getFightsBefore().size() == 1) {
@@ -148,17 +147,19 @@ public class TournamentService {
     }
 
     public List<Fight> evenQueque(List<Fight> thisLayerQueque) throws IllegalAccessException {
-        if (thisLayerQueque == null) {throw new IllegalAccessException("null Fight Queque provided");}
-        if (thisLayerQueque.size() <=4){
+        if (thisLayerQueque == null) {
+            throw new IllegalAccessException("null Fight Queque provided");
+        }
+        if (thisLayerQueque.size() <= 4) {
             List<Fight> quartet = new ArrayList<>();
             quartet.add(thisLayerQueque.getFirst());
-            if (thisLayerQueque.size() >=3) {
+            if (thisLayerQueque.size() >= 3) {
                 quartet.add(thisLayerQueque.get(2));
             }
-            if (thisLayerQueque.size() >=2) {
+            if (thisLayerQueque.size() >= 2) {
                 quartet.add(thisLayerQueque.get(1));
             }
-            if (thisLayerQueque.size() ==4) {
+            if (thisLayerQueque.size() == 4) {
                 quartet.add(thisLayerQueque.get(3));
             }
             return quartet;
@@ -166,9 +167,9 @@ public class TournamentService {
         List<Fight> byTwo1 = new ArrayList<>();
         List<Fight> byTwo2 = new ArrayList<>();
         for (int i = 0; i < thisLayerQueque.size(); i++) {
-            if (i%2 == 0) {
+            if (i % 2 == 0) {
                 byTwo1.add(thisLayerQueque.get(i));
-            }else{
+            } else {
                 byTwo2.add(thisLayerQueque.get(i));
             }
         }
@@ -178,7 +179,6 @@ public class TournamentService {
         evenQueque.addAll(byTwo1);
         evenQueque.addAll(byTwo2);
         return evenQueque;
-
     }
 
     public Competitor randomCompetitor(Set<Competitor> competitorSet) {
@@ -191,6 +191,7 @@ public class TournamentService {
                 competitorSet.remove(competitor);
                 break;
             }
+            i++;
         }
         return chosen;
     }
