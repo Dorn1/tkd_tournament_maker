@@ -94,6 +94,7 @@ public class TournamentService {
         if (category.getFirstPlaceFight() != null) {
             throw new IllegalAccessException("Category already has generated ladder");
         }
+        int pow = 1;
         category.setFirstPlaceFight(new Fight());
         category.getFights().add(category.getFirstPlaceFight());
         int competitorFightSum = 2;
@@ -110,7 +111,7 @@ public class TournamentService {
                 category.getFights().add(category.getThridPlaceFight());
             }
             Fight generatingFight = thisLayerQueque.removeFirst();
-            if (competitorFightSum >= category.getCompetitors().size() - 2) {
+            if (competitorFightSum >= category.getCompetitors().size() - Math.pow(2,pow) && Math.pow(2,pow-1) >= (category.getCompetitors().size()-competitorFightSum)) {
                 Fight beforeFight1 = new Fight();
                 generatingFight.getFightsBefore().add(beforeFight1);
                 category.getFights().add(beforeFight1);
@@ -127,6 +128,7 @@ public class TournamentService {
             if (thisLayerQueque.isEmpty()) {
                 thisLayerQueque = evenQueque(nextLayerQueque);
                 nextLayerQueque = new ArrayList<>();
+                pow++;
             }
             competitorFightSum += 2;
             }
