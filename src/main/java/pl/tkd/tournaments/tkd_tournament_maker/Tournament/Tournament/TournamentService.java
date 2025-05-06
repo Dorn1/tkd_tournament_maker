@@ -110,12 +110,12 @@ public class TournamentService {
                 category.getFights().add(category.getThridPlaceFight());
             }
             Fight generatingFight = thisLayerQueque.removeFirst();
-            if (competitorFightSum == category.getCompetitors().size() - 1) {
+            if (competitorFightSum >= category.getCompetitors().size() - 2) {
                 Fight beforeFight1 = new Fight();
                 generatingFight.getFightsBefore().add(beforeFight1);
                 category.getFights().add(beforeFight1);
-                break;
-            }
+                competitorFightSum++;
+            }else {
             Fight beforeFight1 = new Fight();
             Fight beforeFight2 = new Fight();
             generatingFight.getFightsBefore().add(beforeFight1);
@@ -129,6 +129,7 @@ public class TournamentService {
                 nextLayerQueque = new ArrayList<>();
             }
             competitorFightSum += 2;
+            }
         }
         Set<Competitor> competitorsCopy = new HashSet<>(category.getCompetitors());
 
@@ -150,19 +151,9 @@ public class TournamentService {
         if (thisLayerQueque == null) {
             throw new IllegalAccessException("null Fight Queque provided");
         }
-        if (thisLayerQueque.size() <= 4) {
-            List<Fight> quartet = new ArrayList<>();
-            quartet.add(thisLayerQueque.getFirst());
-            if (thisLayerQueque.size() >= 3) {
-                quartet.add(thisLayerQueque.get(2));
-            }
-            if (thisLayerQueque.size() >= 2) {
-                quartet.add(thisLayerQueque.get(1));
-            }
-            if (thisLayerQueque.size() == 4) {
-                quartet.add(thisLayerQueque.get(3));
-            }
-            return quartet;
+        if (thisLayerQueque.size() <= 2) {
+
+            return thisLayerQueque;
         }
         List<Fight> byTwo1 = new ArrayList<>();
         List<Fight> byTwo2 = new ArrayList<>();
