@@ -6,10 +6,8 @@ import jakarta.persistence.OneToOne;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.boot.autoconfigure.web.ErrorProperties;
 import pl.tkd.tournaments.tkd_tournament_maker.Club.Competitor.Competitor;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Fight;
-import pl.tkd.tournaments.tkd_tournament_maker.exceptions.ObjectNotFoundException;
 
 import java.util.*;
 
@@ -32,23 +30,15 @@ public class LadderCategory extends Category {
         if (firstPlaceFight != null) {
             throw new IllegalAccessException("Category already has generated ladder");
         }
-        boolean even = false;
         firstPlaceFight = new Fight();
         int competitorFightSum = 2;
         List<Fight> thisLayerQueque = new ArrayList<>();
         thisLayerQueque.add(firstPlaceFight);
         List<Fight> nextLayerQueque = new ArrayList<>();
-        nextLayerQueque.add(firstPlaceFight);
 
         while (competitorFightSum < competitors.size()) {
-            Fight generatingFight = null;
-            if (!even) {
-                generatingFight = thisLayerQueque.removeFirst();
-                even = true;
-            } else {
-                generatingFight = thisLayerQueque.removeLast();
-                even = false;
-            }
+
+            Fight generatingFight = thisLayerQueque.removeFirst();
             if (competitorFightSum == competitors.size()-1) {
                 Fight beforeFight1 = new Fight();
                 generatingFight.getFightsBefore().add(beforeFight1);
@@ -61,13 +51,46 @@ public class LadderCategory extends Category {
             nextLayerQueque.add(beforeFight1);
             nextLayerQueque.add(beforeFight2);
             if(thisLayerQueque.isEmpty()){
-                thisLayerQueque = nextLayerQueque;
+                thisLayerQueque = evenQueque(nextLayerQueque);
                 nextLayerQueque = new ArrayList<>();
             }
             competitorFightSum +=2;
         }
     }
 
+    private List<Fight> evenQueque(List<Fight> thisLayerQueque) throws IllegalAccessException {
+        if (thisLayerQueque == null) {throw new IllegalAccessException("null Fight Queque provided");}
+        if (thisLayerQueque.size() <=4){
+            List<Fight> quartet = new ArrayList<>();
+            quartet.add(thisLayerQueque.getFirst());
+            if (thisLayerQueque.size() >=3) {
+                quartet.add(thisLayerQueque.get(2));
+            }
+            if (thisLayerQueque.size() >=2) {
+                quartet.add(thisLayerQueque.get(1));
+            }
+            if (thisLayerQueque.size() ==4) {
+                quartet.add(thisLayerQueque.get(3));
+            }
+            return quartet;
+        }
+        List<Fight> byTwo1 = new ArrayList<>();
+        List<Fight> byTwo2 = new ArrayList<>();
+        for (int i = 0; i < thisLayerQueque.size(); i++) {
+            if (i%2 == 0) {
+                byTwo1.add(thisLayerQueque.get(i));
+            }else{
+                byTwo2.add(thisLayerQueque.get(i));
+            }
+        }
+        byTwo1 = evenQueque(byTwo1);
+        byTwo2 = evenQueque(byTwo2);
+        List<Fight> evenQueque = new ArrayList<>();
+        evenQueque.addAll(byTwo1);
+        evenQueque.addAll(byTwo2);
+        return evenQueque;
+
+    }
     private Competitor randomCompetitor(Set<Competitor> competitorSet) {
         int random = new Random().nextInt(competitorSet.size());
         Competitor chosen = null;
