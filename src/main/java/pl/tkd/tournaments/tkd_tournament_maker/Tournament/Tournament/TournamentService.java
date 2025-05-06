@@ -94,7 +94,11 @@ public class TournamentService {
         if (category.getFirstPlaceFight() != null) {
             throw new IllegalAccessException("Category already has generated ladder");
         }
-        int pow = 1;
+        int maxtwopowered = 1;
+        while (maxtwopowered < category.getCompetitors().size()) {
+            maxtwopowered *= 2;
+        }
+        int layerFightCount = 1;
         category.setFirstPlaceFight(new Fight());
         category.getFights().add(category.getFirstPlaceFight());
         int competitorFightSum = 2;
@@ -103,34 +107,35 @@ public class TournamentService {
         List<Fight> nextLayerQueque = new ArrayList<>();
         boolean thirdPlaceFightSet = false;
         while (competitorFightSum < category.getCompetitors().size()) {
+            Fight generatingFight = thisLayerQueque.removeFirst();
+            boolean b1 = category.getCompetitors().size() - competitorFightSum <= thisLayerQueque.size() + 1;
+            if (b1 && category.getCompetitors().size() != maxtwopowered && layerFightCount * 2 >= maxtwopowered / 2) {
+                Fight beforeFight1 = new Fight();
+                generatingFight.getFightsBefore().add(beforeFight1);
+                category.getFights().add(beforeFight1);
+                competitorFightSum++;
+            } else {
+                Fight beforeFight1 = new Fight();
+                Fight beforeFight2 = new Fight();
+                generatingFight.getFightsBefore().add(beforeFight1);
+                generatingFight.getFightsBefore().add(beforeFight2);
+                category.getFights().add(beforeFight1);
+                category.getFights().add(beforeFight2);
+                nextLayerQueque.add(beforeFight1);
+                nextLayerQueque.add(beforeFight2);
+                if (thisLayerQueque.isEmpty()) {
+                    thisLayerQueque = evenQueque(nextLayerQueque);
+                    nextLayerQueque = new ArrayList<>();
+                    layerFightCount = thisLayerQueque.size();
+                }
+                competitorFightSum += 2;
+            }
             if (!thirdPlaceFightSet && thisLayerQueque.size() == 2) {
                 thirdPlaceFightSet = true;
                 category.setThridPlaceFight(new Fight());
                 category.getThridPlaceFight().getFightsBefore().add(thisLayerQueque.getFirst());
                 category.getThridPlaceFight().getFightsBefore().add(thisLayerQueque.getLast());
                 category.getFights().add(category.getThridPlaceFight());
-            }
-            Fight generatingFight = thisLayerQueque.removeFirst();
-            if (competitorFightSum >= category.getCompetitors().size() - Math.pow(2,pow) && Math.pow(2,pow-1) >= (category.getCompetitors().size()-competitorFightSum)) {
-                Fight beforeFight1 = new Fight();
-                generatingFight.getFightsBefore().add(beforeFight1);
-                category.getFights().add(beforeFight1);
-                competitorFightSum++;
-            }else {
-            Fight beforeFight1 = new Fight();
-            Fight beforeFight2 = new Fight();
-            generatingFight.getFightsBefore().add(beforeFight1);
-            generatingFight.getFightsBefore().add(beforeFight2);
-            category.getFights().add(beforeFight1);
-            category.getFights().add(beforeFight2);
-            nextLayerQueque.add(beforeFight1);
-            nextLayerQueque.add(beforeFight2);
-            if (thisLayerQueque.isEmpty()) {
-                thisLayerQueque = evenQueque(nextLayerQueque);
-                nextLayerQueque = new ArrayList<>();
-                pow++;
-            }
-            competitorFightSum += 2;
             }
         }
         Set<Competitor> competitorsCopy = new HashSet<>(category.getCompetitors());
@@ -153,9 +158,13 @@ public class TournamentService {
         if (thisLayerQueque == null) {
             throw new IllegalAccessException("null Fight Queque provided");
         }
-        if (thisLayerQueque.size() <= 2) {
-
-            return thisLayerQueque;
+        if (thisLayerQueque.size() <= 4) {
+            List<Fight> newList = new ArrayList<>();
+            newList.add(thisLayerQueque.getFirst());
+            if (thisLayerQueque.size() >= 3) newList.add(thisLayerQueque.get(2));
+            if (thisLayerQueque.size() == 4) newList.add(thisLayerQueque.get(3));
+            if (thisLayerQueque.size() >= 2) newList.add(thisLayerQueque.get(1));
+            return newList;
         }
         List<Fight> byTwo1 = new ArrayList<>();
         List<Fight> byTwo2 = new ArrayList<>();
@@ -171,6 +180,7 @@ public class TournamentService {
         List<Fight> evenQueque = new ArrayList<>();
         evenQueque.addAll(byTwo1);
         evenQueque.addAll(byTwo2);
+
         return evenQueque;
     }
 

@@ -28,7 +28,6 @@ public class Fight {
     private Fight thirdPlaceObserver = null;
     @OneToMany
     private Set<Fight> fightsBefore = new HashSet<>();
-    private Long preferenceLevel;
 
     public Competitor getLoser(){
         if (winner.equals(competitor1)){

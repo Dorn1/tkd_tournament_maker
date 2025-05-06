@@ -42,7 +42,7 @@ public class TournamentServiceTests {
 
 
         competitors = new HashSet<>();
-        for (int i = 0; i<13;i++){
+        for (int i = 0; i<18;i++){
             Competitor competitor1;
             competitor1 = new Competitor();
             competitor1.setSex(Sex.Male);
