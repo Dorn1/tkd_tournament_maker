@@ -20,6 +20,9 @@ public class LadderCategory extends Category {
     @OneToMany
     Set<Competitor> competitors;
 
+    @OneToMany
+    private Set<Fight> fights;
+
     @OneToOne
     private Fight firstPlaceFight;
 
@@ -31,13 +34,21 @@ public class LadderCategory extends Category {
             throw new IllegalAccessException("Category already has generated ladder");
         }
         firstPlaceFight = new Fight();
+        fights.add(firstPlaceFight);
         int competitorFightSum = 2;
         List<Fight> thisLayerQueque = new ArrayList<>();
         thisLayerQueque.add(firstPlaceFight);
         List<Fight> nextLayerQueque = new ArrayList<>();
-
+        boolean thirdPlaceFightSet = false;
+        List<Fight> lastLayerCopy = thisLayerQueque;
         while (competitorFightSum < competitors.size()) {
-
+            if (!thirdPlaceFightSet && thisLayerQueque.size() ==2) {
+                thirdPlaceFightSet = true;
+                thridPlaceFight = new Fight();
+                thridPlaceFight.getFightsBefore().add(thisLayerQueque.getFirst());
+                thridPlaceFight.getFightsBefore().add(thisLayerQueque.getLast());
+                fights.add(thridPlaceFight);
+            }
             Fight generatingFight = thisLayerQueque.removeFirst();
             if (competitorFightSum == competitors.size()-1) {
                 Fight beforeFight1 = new Fight();
@@ -48,17 +59,27 @@ public class LadderCategory extends Category {
             Fight beforeFight2 = new Fight();
             generatingFight.getFightsBefore().add(beforeFight1);
             generatingFight.getFightsBefore().add(beforeFight2);
+            fights.add(beforeFight1);
+            fights.add(beforeFight2);
             nextLayerQueque.add(beforeFight1);
             nextLayerQueque.add(beforeFight2);
             if(thisLayerQueque.isEmpty()){
                 thisLayerQueque = evenQueque(nextLayerQueque);
+                lastLayerCopy = thisLayerQueque;
                 nextLayerQueque = new ArrayList<>();
             }
             competitorFightSum +=2;
         }
+        Set<Competitor> competitorsCopy = new HashSet<>();
+        for (Fight fight : lastLayerCopy) {
+            if (competitorsCopy.size() >1){
+                fight.addCompetitor(randomCompetitor(competitorsCopy));
+            }
+            fight.addCompetitor(randomCompetitor(competitorsCopy));
+        }
     }
 
-    private List<Fight> evenQueque(List<Fight> thisLayerQueque) throws IllegalAccessException {
+    public List<Fight> evenQueque(List<Fight> thisLayerQueque) throws IllegalAccessException {
         if (thisLayerQueque == null) {throw new IllegalAccessException("null Fight Queque provided");}
         if (thisLayerQueque.size() <=4){
             List<Fight> quartet = new ArrayList<>();
