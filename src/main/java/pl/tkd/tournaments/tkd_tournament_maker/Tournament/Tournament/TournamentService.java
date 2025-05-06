@@ -103,7 +103,6 @@ public class TournamentService {
         thisLayerQueque.add(category.getFirstPlaceFight());
         List<Fight> nextLayerQueque = new ArrayList<>();
         boolean thirdPlaceFightSet = false;
-        List<Fight> lastLayerCopy = thisLayerQueque;
         while (competitorFightSum < category.getCompetitors().size()) {
             if (!thirdPlaceFightSet && thisLayerQueque.size() ==2) {
                 thirdPlaceFightSet = true;
@@ -128,21 +127,29 @@ public class TournamentService {
             nextLayerQueque.add(beforeFight2);
             if(thisLayerQueque.isEmpty()){
                 thisLayerQueque = evenQueque(nextLayerQueque);
-                lastLayerCopy = thisLayerQueque;
                 nextLayerQueque = new ArrayList<>();
             }
             competitorFightSum +=2;
         }
-        Set<Competitor> competitorsCopy = new HashSet<>();
-        for (Fight fight : lastLayerCopy) {
-            if (competitorsCopy.size() >1){
-                fight.addCompetitor(randomCompetitor(competitorsCopy));
+        Set<Competitor> competitorsCopy = new HashSet<>(category.getCompetitors());
+        Stack<Fight> fightStack = new Stack<>();
+        fightStack.add(category.getFirstPlaceFight());
+        while (!competitorsCopy.isEmpty()){
+            Fight checkedFight = fightStack.pop();
+            if (checkedFight.getFightsBefore().isEmpty()){
+                checkedFight.addCompetitor(randomCompetitor(competitorsCopy));
+                checkedFight.addCompetitor(randomCompetitor(competitorsCopy));
+            } else if (checkedFight.getFightsBefore().size() == 1) {
+                checkedFight.addCompetitor(randomCompetitor(competitorsCopy));
             }
-            fight.addCompetitor(randomCompetitor(competitorsCopy));
+            if (!checkedFight.getFightsBefore().isEmpty()) {
+                fightStack.addAll(checkedFight.getFightsBefore());
+            }
         }
         fightRepository.saveAll(category.getFights());
         categoryRepository.save(category);
     }
+
     public List<Fight> evenQueque(List<Fight> thisLayerQueque) throws IllegalAccessException {
         if (thisLayerQueque == null) {throw new IllegalAccessException("null Fight Queque provided");}
         if (thisLayerQueque.size() <=4){
@@ -176,7 +183,8 @@ public class TournamentService {
         return evenQueque;
 
     }
-    private Competitor randomCompetitor(Set<Competitor> competitorSet) {
+
+    public Competitor randomCompetitor(Set<Competitor> competitorSet) {
         int random = new Random().nextInt(competitorSet.size());
         Competitor chosen = null;
         int i = 0;

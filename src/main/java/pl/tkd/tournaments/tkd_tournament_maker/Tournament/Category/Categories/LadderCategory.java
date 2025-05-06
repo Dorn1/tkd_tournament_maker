@@ -28,8 +28,5 @@ public class LadderCategory extends Category {
 
     @OneToOne
     private Fight thridPlaceFight;
-
-
-
-
+    
 }
