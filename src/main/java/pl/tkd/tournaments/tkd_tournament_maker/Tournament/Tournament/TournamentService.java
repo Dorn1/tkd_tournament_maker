@@ -108,8 +108,9 @@ public class TournamentService {
         boolean thirdPlaceFightSet = false;
         while (competitorFightSum < category.getCompetitors().size()) {
             Fight generatingFight = thisLayerQueque.removeFirst();
-            boolean b1 = category.getCompetitors().size() - competitorFightSum <= thisLayerQueque.size() + 1;
-            if (b1 && category.getCompetitors().size() != maxtwopowered && layerFightCount * 2 >= maxtwopowered / 2) {
+            if (category.getCompetitors().size() - competitorFightSum <= thisLayerQueque.size() + 1
+                    && category.getCompetitors().size() != maxtwopowered &&
+                    layerFightCount * 2 >= maxtwopowered / 2) {
                 Fight beforeFight1 = new Fight();
                 generatingFight.getFightsBefore().add(beforeFight1);
                 category.getFights().add(beforeFight1);
@@ -124,7 +125,8 @@ public class TournamentService {
                 nextLayerQueque.add(beforeFight1);
                 nextLayerQueque.add(beforeFight2);
                 if (thisLayerQueque.isEmpty()) {
-                    if(category.getCompetitors().size() != maxtwopowered && layerFightCount * 4 >= maxtwopowered / 2)
+                    if(category.getCompetitors().size() != maxtwopowered &&
+                            layerFightCount * 4 >= maxtwopowered / 2)
                         thisLayerQueque = evenQueque(nextLayerQueque);
                     else
                         thisLayerQueque = nextLayerQueque;
