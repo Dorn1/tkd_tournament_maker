@@ -110,12 +110,15 @@ public class TournamentService {
             Fight generatingFight = thisLayerQueque.removeFirst();
             if (category.getCompetitors().size() - competitorFightSum <= thisLayerQueque.size() + 1) {
                 Fight beforeFight1 = new Fight();
+                beforeFight1.setNextFightObserver(generatingFight);
                 generatingFight.getFightsBefore().add(beforeFight1);
                 category.getFights().add(beforeFight1);
                 competitorFightSum++;
             } else {
                 Fight beforeFight1 = new Fight();
                 Fight beforeFight2 = new Fight();
+                beforeFight1.setNextFightObserver(generatingFight);
+                beforeFight2.setNextFightObserver(generatingFight);
                 generatingFight.getFightsBefore().add(beforeFight1);
                 generatingFight.getFightsBefore().add(beforeFight2);
                 category.getFights().add(beforeFight1);
@@ -136,6 +139,8 @@ public class TournamentService {
             if (!thirdPlaceFightSet && thisLayerQueque.size() == 2) {
                 thirdPlaceFightSet = true;
                 category.setThridPlaceFight(new Fight());
+                thisLayerQueque.getFirst().setThirdPlaceFightObserver(category.getThridPlaceFight());
+                thisLayerQueque.getLast().setThirdPlaceFightObserver(category.getThridPlaceFight());
                 category.getThridPlaceFight().getFightsBefore().add(thisLayerQueque.getFirst());
                 category.getThridPlaceFight().getFightsBefore().add(thisLayerQueque.getLast());
                 category.getFights().add(category.getThridPlaceFight());
