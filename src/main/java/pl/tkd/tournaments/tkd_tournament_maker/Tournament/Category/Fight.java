@@ -29,7 +29,6 @@ public class Fight {
     @OneToMany
     private Set<Fight> fightsBefore = new HashSet<>();
 
-    private int score;
 
     public Competitor getLoser(){
         if (winner.equals(competitor1)){
