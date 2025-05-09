@@ -5,11 +5,14 @@ import org.springframework.stereotype.Service;
 import pl.tkd.tournaments.tkd_tournament_maker.Club.Club.Club;
 import pl.tkd.tournaments.tkd_tournament_maker.Club.Club.ClubService;
 import pl.tkd.tournaments.tkd_tournament_maker.Club.Competitor.Competitor;
+import pl.tkd.tournaments.tkd_tournament_maker.Club.Competitor.Sex;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.*;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Categories.Category;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Categories.CategoryRepository;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Categories.LadderCategory;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Categories.TableCategory;
+import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.CategoryFilter.CategoryFilterHandler;
+import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.CategoryFilter.ICategoryFilter;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Mat.Mat;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Mat.MatRepository;
 import pl.tkd.tournaments.tkd_tournament_maker.exceptions.ObjectNotFoundException;
@@ -23,6 +26,7 @@ public class TournamentService {
     private final CategoryRepository categoryRepository;
     private final FightRepository fightRepository;
     private final ClubService clubService;
+    private final TableDataRepository tableDataRepository;
 
 
     @Autowired
@@ -30,12 +34,13 @@ public class TournamentService {
                              MatRepository matRepository,
                              CategoryRepository categoryRepository,
                              ClubService clubService,
-                             FightRepository fightRepository) {
+                             FightRepository fightRepository, TableDataRepository tableDataRepository) {
         this.tournamentRepository = tournamentRepository;
         this.matRepository = matRepository;
         this.categoryRepository = categoryRepository;
         this.clubService = clubService;
         this.fightRepository = fightRepository;
+        this.tableDataRepository = tableDataRepository;
     }
 
 
@@ -126,7 +131,7 @@ public class TournamentService {
                 nextLayerQueque.add(beforeFight1);
                 nextLayerQueque.add(beforeFight2);
                 if (thisLayerQueque.isEmpty()) {
-                    if(category.getCompetitors().size() != maxtwopowered &&
+                    if (category.getCompetitors().size() != maxtwopowered &&
                             layerFightCount * 4 >= maxtwopowered / 2)
                         thisLayerQueque = evenQueque(nextLayerQueque);
                     else
@@ -160,6 +165,38 @@ public class TournamentService {
 
         fightRepository.saveAll(category.getFights());
         categoryRepository.save(category);
+    }
+
+    public void generateTableCategory(TableCategory category) {
+        for (Competitor competitor : category.getCompetitors()){
+            TableData tableData = new TableData();
+            tableData.setCompetitor(competitor);
+            tableDataRepository.save(tableData);
+            category.getScores().add(tableData);
+        }
+    }
+
+    public Set<Competitor> filter_competitors(ICategoryFilter filter, Set<Competitor> allCompetitors) {
+        return filter.filter(allCompetitors);
+    }
+
+    public ICategoryFilter getFilter(Long minAge, Long maxAge, Sex sex, Integer minBelt, Integer maxBelt, Double minWeight, Double maxWeight) {
+        CategoryFilterHandler handler = new CategoryFilterHandler();
+        if (minAge != null)
+            handler.addminAge(minAge);
+        if (maxAge != null)
+            handler.addmaxAge(maxAge);
+        if (sex != null)
+            handler.setSex(sex);
+        if (minBelt != null)
+            handler.addminBelt(minBelt);
+        if (maxBelt != null)
+            handler.addmaxBelt(maxBelt);
+        if (minWeight != null)
+            handler.addminWeight(minWeight);
+        if (maxWeight != null)
+            handler.addmaxWeight(maxWeight);
+        return handler.build();
     }
 
     public List<Fight> evenQueque(List<Fight> thisLayerQueque) throws IllegalAccessException {

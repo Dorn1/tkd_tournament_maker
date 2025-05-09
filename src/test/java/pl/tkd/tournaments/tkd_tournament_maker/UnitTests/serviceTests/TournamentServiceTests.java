@@ -30,8 +30,6 @@ public class TournamentServiceTests {
     @InjectMocks
     private TournamentService tournamentService;
 
-    private Set<Competitor> competitors1;
-    private Set<Competitor> competitors2;
     private LadderCategory testCategory1;
     private LadderCategory testCategory2;
 
@@ -44,7 +42,7 @@ public class TournamentServiceTests {
         Long thisYear = (long) Year.now().getValue();
 
 
-        competitors1 = new HashSet<>();
+        Set<Competitor> competitors1 = new HashSet<>();
         for (int i = 0; i<10;i++){
             Competitor competitor1;
             competitor1 = new Competitor();
@@ -61,7 +59,7 @@ public class TournamentServiceTests {
         testCategory1 = new LadderCategory();
         testCategory1.setCompetitors(competitors1);
 
-        competitors2 = new HashSet<>();
+        Set<Competitor> competitors2 = new HashSet<>();
         for (int i = 0; i<11;i++){
             Competitor competitor1;
             competitor1 = new Competitor();
