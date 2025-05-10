@@ -16,6 +16,7 @@ import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.CategoryFilte
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Mat.Mat;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Mat.MatRepository;
 import pl.tkd.tournaments.tkd_tournament_maker.exceptions.ObjectNotFoundException;
+import pl.tkd.tournaments.tkd_tournament_maker.exceptions.RematchNeededException;
 
 import java.util.*;
 
@@ -27,6 +28,8 @@ public class TournamentService {
     private final FightRepository fightRepository;
     private final ClubService clubService;
     private final TableDataRepository tableDataRepository;
+    private final PlaceWrapperRepository placeWrapperRepository;
+
 
 
     @Autowired
@@ -34,13 +37,17 @@ public class TournamentService {
                              MatRepository matRepository,
                              CategoryRepository categoryRepository,
                              ClubService clubService,
-                             FightRepository fightRepository, TableDataRepository tableDataRepository) {
+                             FightRepository fightRepository,
+                             TableDataRepository tableDataRepository,
+                             PlaceWrapperRepository placeWrapperRepository
+                             ) {
         this.tournamentRepository = tournamentRepository;
         this.matRepository = matRepository;
         this.categoryRepository = categoryRepository;
         this.clubService = clubService;
         this.fightRepository = fightRepository;
         this.tableDataRepository = tableDataRepository;
+        this.placeWrapperRepository = placeWrapperRepository;
     }
 
 
@@ -113,14 +120,13 @@ public class TournamentService {
         boolean thirdPlaceFightSet = false;
         while (competitorFightSum < category.getCompetitors().size()) {
             Fight generatingFight = thisLayerQueque.removeFirst();
+            Fight beforeFight1 = new Fight();
             if (category.getCompetitors().size() - competitorFightSum <= thisLayerQueque.size() + 1) {
-                Fight beforeFight1 = new Fight();
                 beforeFight1.setNextFightObserver(generatingFight);
                 generatingFight.getFightsBefore().add(beforeFight1);
                 category.getFights().add(beforeFight1);
                 competitorFightSum++;
             } else {
-                Fight beforeFight1 = new Fight();
                 Fight beforeFight2 = new Fight();
                 beforeFight1.setNextFightObserver(generatingFight);
                 beforeFight2.setNextFightObserver(generatingFight);
@@ -165,6 +171,59 @@ public class TournamentService {
 
         fightRepository.saveAll(category.getFights());
         categoryRepository.save(category);
+    }
+
+    public List<PlaceWrapper> getTableWinners(TableCategory category){
+        List<TableData> winners = new ArrayList<>();
+        for(TableData score : category.getScores()){
+            if (winners.size() < category.getWantedPlaces()){
+                winners.add(score);
+            }
+            else {
+                for (TableData winscore : winners) {
+                    if (score.getScore() > winscore.getScore()) {
+                        winners.remove(winscore);
+                        winners.add(score);
+                        break;
+                    }
+                }
+            }
+        }
+
+        for (TableData winner : winners) {
+            List<TableData> copy = new ArrayList<>(winners);
+            copy.remove(winner);
+            for (TableData winner2 : copy) {
+                if (Objects.equals(winner.getScore(), winner2.getScore())) {
+                    throw new RematchNeededException("Rematch!",winner,winner2);
+                }
+            }
+        }
+
+        List<TableData> allCopy = new ArrayList<>(category.getScores());
+        allCopy.removeAll(winners);
+        TableData thirdPlace = allCopy.getFirst();
+        for (TableData winner : winners) {
+            if (thirdPlace.getScore() > winner.getScore()) {
+                thirdPlace = winner;
+            }
+        }
+        for (TableData score : allCopy) {
+            if (Objects.equals(score.getScore(), thirdPlace.getScore())) {
+                throw new RematchNeededException("Rematch for third place!",score,thirdPlace);
+            }
+        }
+        List<PlaceWrapper> result = new ArrayList<>();
+        winners = winners.stream().sorted(Comparator.comparing(TableData::getScore)).toList();
+        for (int place = 0; place< winners.size(); place++){
+            PlaceWrapper placeWrapper1 = new PlaceWrapper();
+            placeWrapper1.setPlace(place+1);
+            placeWrapper1.setCategory(category);
+            placeWrapper1.setCompetitor(winners.get(place).getCompetitor());
+            result.add(placeWrapper1);
+            placeWrapperRepository.save(placeWrapper1);
+        }
+        return result;
     }
 
     public void generateTableCategory(TableCategory category) {

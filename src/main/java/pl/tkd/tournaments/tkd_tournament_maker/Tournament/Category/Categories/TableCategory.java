@@ -6,6 +6,7 @@ import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.Setter;
 import pl.tkd.tournaments.tkd_tournament_maker.Club.Competitor.Competitor;
+import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.PlaceWrapper;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.TableData;
 
 import java.util.Set;
@@ -23,5 +24,5 @@ public class TableCategory extends Category {
     private Long WantedPlaces;
 
     @OneToMany
-    private Set<Category> winners;
+    private Set<PlaceWrapper> places;
 }
