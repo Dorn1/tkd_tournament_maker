@@ -195,7 +195,10 @@ public class TournamentService {
             copy.remove(winner);
             for (TableData winner2 : copy) {
                 if (Objects.equals(winner.getScore(), winner2.getScore())) {
-                    throw new RematchNeededException("Rematch!",winner,winner2);
+                    List<TableData> rematchWinners = new ArrayList<>(2);
+                    winners.add(winner);
+                    winners.add(winner2);
+                    throw new RematchNeededException("Rematch!",rematchWinners);
                 }
             }
         }
@@ -208,11 +211,19 @@ public class TournamentService {
                 thirdPlace = winner;
             }
         }
+        List<TableData> rematchCompetitors = new LinkedList<>();
         for (TableData score : allCopy) {
             if (Objects.equals(score.getScore(), thirdPlace.getScore())) {
-                throw new RematchNeededException("Rematch for third place!",score,thirdPlace);
+                if (rematchCompetitors.contains(thirdPlace))
+                    rematchCompetitors.add(thirdPlace);
+                rematchCompetitors.add(score);
             }
         }
+
+        if (!rematchCompetitors.isEmpty()) {
+            throw new RematchNeededException("Rematch for third place!",rematchCompetitors);
+        }
+
         List<PlaceWrapper> result = new ArrayList<>();
         winners = winners.stream().sorted(Comparator.comparing(TableData::getScore)).toList();
         for (int place = 0; place< winners.size(); place++){
