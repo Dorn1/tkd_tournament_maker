@@ -6,11 +6,11 @@ import pl.tkd.tournaments.tkd_tournament_maker.Club.Club.Club;
 import pl.tkd.tournaments.tkd_tournament_maker.Club.Club.ClubService;
 import pl.tkd.tournaments.tkd_tournament_maker.Club.Competitor.Competitor;
 import pl.tkd.tournaments.tkd_tournament_maker.Club.Competitor.Sex;
-import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.*;
-import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Categories.Category;
-import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Categories.CategoryRepository;
-import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Categories.LadderCategory;
-import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Categories.TableCategory;
+import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Categories.*;
+import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Categories.LadderCategory.Fight;
+import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Categories.LadderCategory.FightRepository;
+import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Categories.LadderCategory.LadderCategory;
+import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Categories.TableCategory.*;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.CategoryFilter.CategoryFilterHandler;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.CategoryFilter.ICategoryFilter;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Mat.Mat;
@@ -205,23 +205,23 @@ public class TournamentService {
 
         List<TableData> allCopy = new ArrayList<>(category.getScores());
         allCopy.removeAll(winners);
-        TableData thirdPlace = allCopy.getFirst();
+        TableData lastPlace = allCopy.getFirst();
         for (TableData winner : winners) {
-            if (thirdPlace.getScore() > winner.getScore()) {
-                thirdPlace = winner;
+            if (lastPlace.getScore() > winner.getScore()) {
+                lastPlace = winner;
             }
         }
         List<TableData> rematchCompetitors = new LinkedList<>();
         for (TableData score : allCopy) {
-            if (Objects.equals(score.getScore(), thirdPlace.getScore())) {
-                if (rematchCompetitors.contains(thirdPlace))
-                    rematchCompetitors.add(thirdPlace);
+            if (Objects.equals(score.getScore(), lastPlace.getScore())) {
+                if (!rematchCompetitors.contains(lastPlace))
+                    rematchCompetitors.add(lastPlace);
                 rematchCompetitors.add(score);
             }
         }
 
         if (!rematchCompetitors.isEmpty()) {
-            throw new RematchNeededException("Rematch for third place!",rematchCompetitors);
+            throw new RematchNeededException("Rematch for last win place!",rematchCompetitors);
         }
 
         List<PlaceWrapper> result = new ArrayList<>();

@@ -1,4 +1,4 @@
-package pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Categories;
+package pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Categories.TableCategory;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
@@ -6,8 +6,7 @@ import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.Setter;
 import pl.tkd.tournaments.tkd_tournament_maker.Club.Competitor.Competitor;
-import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.PlaceWrapper;
-import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.TableData;
+import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Categories.Category;
 
 import java.util.Set;
 
