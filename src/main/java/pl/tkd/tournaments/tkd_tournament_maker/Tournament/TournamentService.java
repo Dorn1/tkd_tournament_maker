@@ -33,7 +33,7 @@ public class TournamentService {
     private final PlaceWrapperRepository placeWrapperRepository;
     private final TableCategoryRepository tableCategoryRepository;
     private final LadderCategoryRepository ladderCategoryRepository;
-
+    private final RematchRepository rematchRepository;
 
 
     @Autowired
@@ -42,8 +42,8 @@ public class TournamentService {
                              ClubService clubService,
                              FightRepository fightRepository,
                              TableDataRepository tableDataRepository,
-                             PlaceWrapperRepository placeWrapperRepository, TableCategoryRepository tableCategoryRepository, LadderCategoryRepository ladderCategoryRepository
-    ) {
+                             PlaceWrapperRepository placeWrapperRepository, TableCategoryRepository tableCategoryRepository, LadderCategoryRepository ladderCategoryRepository,
+                             RematchRepository rematchRepository) {
         this.tournamentRepository = tournamentRepository;
         this.matRepository = matRepository;
         this.clubService = clubService;
@@ -52,6 +52,7 @@ public class TournamentService {
         this.placeWrapperRepository = placeWrapperRepository;
         this.tableCategoryRepository = tableCategoryRepository;
         this.ladderCategoryRepository = ladderCategoryRepository;
+        this.rematchRepository = rematchRepository;
     }
 
 
@@ -228,7 +229,7 @@ public class TournamentService {
         }
 
         if (!rematchCompetitors.isEmpty()) {
-            throw new RematchNeededException("Rematch for last win place!",rematchCompetitors);
+            throw new RematchNeededException("Rematch needed!",rematchCompetitors);
         }
 
         List<PlaceWrapper> result = new ArrayList<>();
@@ -242,6 +243,15 @@ public class TournamentService {
             placeWrapperRepository.save(placeWrapper1);
         }
         return result;
+    }
+    public void setRematch(TableCategory tableCategory,List<TableData> competitors){
+        Rematch newRematch = new Rematch();
+        Set<TableData> tables = new HashSet<>(competitors);
+        newRematch.setTables(tables);
+        tableCategory.getRematches().add(newRematch);
+        rematchRepository.save(newRematch);
+        tableCategoryRepository.save(tableCategory);
+
     }
 
     public void generateTableCategory(TableCategory category) {
@@ -315,5 +325,12 @@ public class TournamentService {
             i++;
         }
         return chosen;
+    }
+
+    public TableCategory getTableCategoryById(Long id) throws ObjectNotFoundException {
+        if (tableCategoryRepository.findById(id).isPresent()){
+            return tableCategoryRepository.findById(id).get();
+        }
+        throw new ObjectNotFoundException("requested Table Category not found");
     }
 }
