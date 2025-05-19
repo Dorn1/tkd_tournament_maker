@@ -13,7 +13,7 @@ import java.util.*;
 @Entity
 @Getter
 @Setter
-@NoArgsConstructor
+
 public class LadderCategory extends Category {
 
     @OneToMany

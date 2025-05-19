@@ -13,7 +13,7 @@ import java.util.Set;
 @Entity
 @NoArgsConstructor
 @Data
-public class Club implements Serializable {
+public class Club {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

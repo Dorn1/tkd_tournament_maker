@@ -1,13 +1,18 @@
-package pl.tkd.tournaments.tkd_tournament_maker.Tournament.Tournament;
+package pl.tkd.tournaments.tkd_tournament_maker.Tournament;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Categories.LadderCategory.LadderCategoryRepository;
+import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Categories.TableCategory.TableCategoryRepository;
 import pl.tkd.tournaments.tkd_tournament_maker.exceptions.ObjectNotFoundException;
+
+import java.util.Optional;
 
 @RestController
 public class TournamentController {
@@ -17,7 +22,7 @@ public class TournamentController {
 
 
     @Autowired
-    public TournamentController(TournamentService tournamentService) {
+    public TournamentController(TournamentService tournamentService, TableCategoryRepository tableCategoryRepository, LadderCategoryRepository ladderCategoryRepository) {
         this.tournamentService = tournamentService;
     }
 
@@ -41,6 +46,10 @@ public class TournamentController {
             return ResponseEntity.status(404).body(e.getMessage());
         }
     }
+
+//    @GetMapping(value = "/getTableWinners")
+//    public ResponseEntity<String> getTableWinners(@RequestParam Long categoryId) {
+//    }
 
     @PostMapping(value = "/newMat")
     public ResponseEntity<String> newMat(@RequestParam Long tournamentId) {

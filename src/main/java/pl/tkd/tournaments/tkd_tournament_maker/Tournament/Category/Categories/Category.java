@@ -9,6 +9,7 @@ import java.util.Set;
 
 @Entity
 @Getter
+@Inheritance
 @Setter
 public abstract class Category {
     @Id

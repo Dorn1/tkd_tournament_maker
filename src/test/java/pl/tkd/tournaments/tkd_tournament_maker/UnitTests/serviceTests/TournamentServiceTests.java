@@ -12,7 +12,7 @@ import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Categories.Ca
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Categories.LadderCategory.LadderCategory;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Categories.LadderCategory.Fight;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Categories.LadderCategory.FightRepository;
-import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Tournament.TournamentService;
+import pl.tkd.tournaments.tkd_tournament_maker.Tournament.TournamentService;
 
 import java.time.Year;
 import java.util.*;

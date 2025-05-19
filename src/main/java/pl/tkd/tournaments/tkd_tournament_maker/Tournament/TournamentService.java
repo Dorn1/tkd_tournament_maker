@@ -1,4 +1,4 @@
-package pl.tkd.tournaments.tkd_tournament_maker.Tournament.Tournament;
+package pl.tkd.tournaments.tkd_tournament_maker.Tournament;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,11 +10,14 @@ import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Categories.*;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Categories.LadderCategory.Fight;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Categories.LadderCategory.FightRepository;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Categories.LadderCategory.LadderCategory;
+import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Categories.LadderCategory.LadderCategoryRepository;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Categories.TableCategory.*;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.CategoryFilter.CategoryFilterHandler;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.CategoryFilter.ICategoryFilter;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Mat.Mat;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Mat.MatRepository;
+import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Tournament.Tournament;
+import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Tournament.TournamentRepository;
 import pl.tkd.tournaments.tkd_tournament_maker.exceptions.ObjectNotFoundException;
 import pl.tkd.tournaments.tkd_tournament_maker.exceptions.RematchNeededException;
 
@@ -24,30 +27,31 @@ import java.util.*;
 public class TournamentService {
     private final TournamentRepository tournamentRepository;
     private final MatRepository matRepository;
-    private final CategoryRepository categoryRepository;
     private final FightRepository fightRepository;
     private final ClubService clubService;
     private final TableDataRepository tableDataRepository;
     private final PlaceWrapperRepository placeWrapperRepository;
+    private final TableCategoryRepository tableCategoryRepository;
+    private final LadderCategoryRepository ladderCategoryRepository;
 
 
 
     @Autowired
     public TournamentService(TournamentRepository tournamentRepository,
                              MatRepository matRepository,
-                             CategoryRepository categoryRepository,
                              ClubService clubService,
                              FightRepository fightRepository,
                              TableDataRepository tableDataRepository,
-                             PlaceWrapperRepository placeWrapperRepository
-                             ) {
+                             PlaceWrapperRepository placeWrapperRepository, TableCategoryRepository tableCategoryRepository, LadderCategoryRepository ladderCategoryRepository
+    ) {
         this.tournamentRepository = tournamentRepository;
         this.matRepository = matRepository;
-        this.categoryRepository = categoryRepository;
         this.clubService = clubService;
         this.fightRepository = fightRepository;
         this.tableDataRepository = tableDataRepository;
         this.placeWrapperRepository = placeWrapperRepository;
+        this.tableCategoryRepository = tableCategoryRepository;
+        this.ladderCategoryRepository = ladderCategoryRepository;
     }
 
 
@@ -81,7 +85,10 @@ public class TournamentService {
         //Category Filtering logic needed here
         mat.getCategoryQueque().add(category);
         matRepository.save(mat);
-        categoryRepository.save(category);
+        if (ladderCategory)
+            ladderCategoryRepository.save((LadderCategory) category);
+        else
+            tableCategoryRepository.save((TableCategory) category);
     }
 
     public Mat getMat(Long id) throws ObjectNotFoundException {
@@ -170,7 +177,7 @@ public class TournamentService {
         }
 
         fightRepository.saveAll(category.getFights());
-        categoryRepository.save(category);
+        ladderCategoryRepository.save(category);
     }
 
     public List<PlaceWrapper> getTableWinners(TableCategory category){
@@ -244,6 +251,7 @@ public class TournamentService {
             tableDataRepository.save(tableData);
             category.getScores().add(tableData);
         }
+        tableCategoryRepository.save(category);
     }
 
     public Set<Competitor> filter_competitors(ICategoryFilter filter, Set<Competitor> allCompetitors) {

@@ -8,6 +8,7 @@ import lombok.Setter;
 import pl.tkd.tournaments.tkd_tournament_maker.Club.Competitor.Competitor;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Categories.Category;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -19,6 +20,9 @@ public class TableCategory extends Category {
 
     @OneToMany
     private Set<TableData> scores;
+
+    @OneToMany
+    private Set<Rematch> rematches = new HashSet<>();
 
     private Long WantedPlaces;
 

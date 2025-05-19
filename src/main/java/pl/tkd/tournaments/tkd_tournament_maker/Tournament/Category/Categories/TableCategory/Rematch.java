@@ -3,18 +3,17 @@ package pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Categories.T
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import pl.tkd.tournaments.tkd_tournament_maker.Club.Competitor.Competitor;
 
-@Setter
-@Getter
+import java.util.Set;
+
 @Entity
-public class TableData {
+@Getter
+@Setter
+public class Rematch {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    private Competitor competitor;
-
-    private Double score;
+    @OneToMany
+    private Set<TableData> tables;
 }
