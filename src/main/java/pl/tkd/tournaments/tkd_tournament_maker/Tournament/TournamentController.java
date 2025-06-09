@@ -8,16 +8,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Categories.Category;
-import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Categories.LadderCategory.LadderCategoryRepository;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Categories.TableCategory.*;
 import pl.tkd.tournaments.tkd_tournament_maker.exceptions.ObjectNotFoundException;
 import pl.tkd.tournaments.tkd_tournament_maker.exceptions.RematchNeededException;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 @RestController
 public class TournamentController {
@@ -27,7 +22,7 @@ public class TournamentController {
 
 
     @Autowired
-    public TournamentController(TournamentService tournamentService, TableCategoryRepository tableCategoryRepository, LadderCategoryRepository ladderCategoryRepository) {
+    public TournamentController(TournamentService tournamentService) {
         this.tournamentService = tournamentService;
     }
 
@@ -60,8 +55,8 @@ public class TournamentController {
             List<PlaceWrapper> winners = tournamentService.getTableWinners(tableCategory);
                 return ResponseEntity.ok(winners.toString());
             }catch (RematchNeededException e){
-                tournamentService.setRematch(tableCategory,e.getCompetitors());
-                return ResponseEntity.status(400).body(e.getMessage());
+                tournamentService.setTableRematch(tableCategory,e.getCompetitors());
+                return ResponseEntity.status(399).body(e.getMessage());
             }
         } catch (ObjectNotFoundException e) {
             return ResponseEntity.status(404).body(e.getMessage());
@@ -87,7 +82,7 @@ public class TournamentController {
         try {
             tournamentService.addCategory(matId, ladderCategory);
             logger.info("New Category created");
-            return ResponseEntity.ok("Mat created");
+            return ResponseEntity.ok("Category created");
         } catch (ObjectNotFoundException e) {
             logger.warn("attempt to access a non-existent mat");
             return ResponseEntity.status(404).body(e.getMessage());

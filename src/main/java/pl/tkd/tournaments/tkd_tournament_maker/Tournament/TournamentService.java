@@ -81,15 +81,14 @@ public class TournamentService {
     public void addCategory(Long matId, boolean ladderCategory) throws ObjectNotFoundException {
         Mat mat = getMat(matId);
         Category category = new TableCategory();
-        if (ladderCategory)
+        if (ladderCategory){
             category = new LadderCategory();
+            ladderCategoryRepository.save((LadderCategory) category);}
+        else
+            tableCategoryRepository.save((TableCategory) category);
         //Category Filtering logic needed here
         mat.getCategoryQueque().add(category);
         matRepository.save(mat);
-        if (ladderCategory)
-            ladderCategoryRepository.save((LadderCategory) category);
-        else
-            tableCategoryRepository.save((TableCategory) category);
     }
 
     public Mat getMat(Long id) throws ObjectNotFoundException {
@@ -244,7 +243,8 @@ public class TournamentService {
         }
         return result;
     }
-    public void setRematch(TableCategory tableCategory,List<TableData> competitors){
+
+    public void setTableRematch(TableCategory tableCategory, List<TableData> competitors){
         Rematch newRematch = new Rematch();
         Set<TableData> tables = new HashSet<>(competitors);
         newRematch.setTables(tables);
@@ -332,5 +332,25 @@ public class TournamentService {
             return tableCategoryRepository.findById(id).get();
         }
         throw new ObjectNotFoundException("requested Table Category not found");
+    }
+
+    public void removeCompetitorFromLadderCategory(Long competitorID, Long categoryId) throws ObjectNotFoundException {
+        if (ladderCategoryRepository.findById(categoryId).isPresent()){
+            LadderCategory category = ladderCategoryRepository.findById(categoryId).get();
+            for (Fight fight : category.getFights()){
+                if (fight.getCompetitor1().getId().equals(competitorID)
+                        &&fight.getWinner() == null){
+                    fight.setWinner(false);
+                    break;
+                }
+                if (fight.getCompetitor2().getId().equals(competitorID)
+                        &&fight.getWinner() == null){
+                    fight.setWinner(true);
+                    break;
+                }
+            }
+        }
+        else
+            throw new ObjectNotFoundException("Category not found");
     }
 }

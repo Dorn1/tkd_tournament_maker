@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 
 @Getter
-public class AgeCategory extends CategoryFilterDecorator {
+public class  AgeCategory extends CategoryFilterDecorator {
     Long min;
     Long max;
 
