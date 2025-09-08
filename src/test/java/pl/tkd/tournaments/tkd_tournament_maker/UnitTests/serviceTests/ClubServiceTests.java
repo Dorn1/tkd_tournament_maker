@@ -8,11 +8,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.mockito.BDDMockito.given;
 
-import pl.tkd.tournaments.tkd_tournament_maker.Club.Club.Club;
-import pl.tkd.tournaments.tkd_tournament_maker.Club.Club.ClubRepository;
-import pl.tkd.tournaments.tkd_tournament_maker.Club.Club.ClubService;
-import pl.tkd.tournaments.tkd_tournament_maker.Club.Competitor.CompetitorRepository;
-import pl.tkd.tournaments.tkd_tournament_maker.Club.Referee.RefereeRepository;
+import pl.tkd.tournaments.tkd_tournament_maker.club.club.Club;
+import pl.tkd.tournaments.tkd_tournament_maker.club.club.ClubRepository;
+import pl.tkd.tournaments.tkd_tournament_maker.club.club.ClubService;
+import pl.tkd.tournaments.tkd_tournament_maker.club.competitor.CompetitorRepository;
+import pl.tkd.tournaments.tkd_tournament_maker.club.referee.RefereeRepository;
 import pl.tkd.tournaments.tkd_tournament_maker.exceptions.ObjectNotFoundException;
 
 import java.util.*;

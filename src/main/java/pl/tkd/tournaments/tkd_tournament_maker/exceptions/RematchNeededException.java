@@ -1,7 +1,7 @@
 package pl.tkd.tournaments.tkd_tournament_maker.exceptions;
 
 import lombok.Getter;
-import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Categories.TableCategory.TableData;
+import pl.tkd.tournaments.tkd_tournament_maker.tournament.category.categories.tableCategory.TableData;
 
 import java.util.List;
 

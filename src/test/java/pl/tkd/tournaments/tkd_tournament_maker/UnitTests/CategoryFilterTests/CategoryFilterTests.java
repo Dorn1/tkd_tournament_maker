@@ -3,11 +3,11 @@ package pl.tkd.tournaments.tkd_tournament_maker.UnitTests.CategoryFilterTests;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import pl.tkd.tournaments.tkd_tournament_maker.Club.Club.Club;
-import pl.tkd.tournaments.tkd_tournament_maker.Club.Competitor.Competitor;
-import pl.tkd.tournaments.tkd_tournament_maker.Club.Competitor.Sex;
-import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.CategoryFilter.CategoryFilterHandler;
-import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.CategoryFilter.ICategoryFilter;
+import pl.tkd.tournaments.tkd_tournament_maker.club.club.Club;
+import pl.tkd.tournaments.tkd_tournament_maker.club.competitor.Competitor;
+import pl.tkd.tournaments.tkd_tournament_maker.club.competitor.Sex;
+import pl.tkd.tournaments.tkd_tournament_maker.tournament.category.categoryFilter.CategoryFilterHandler;
+import pl.tkd.tournaments.tkd_tournament_maker.tournament.category.categoryFilter.ICategoryFilter;
 
 import java.time.Year;
 import java.util.*;
