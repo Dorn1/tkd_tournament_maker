@@ -1,22 +1,20 @@
 package pl.tkd.tournaments.tkd_tournament_maker.Club.Referee;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import pl.tkd.tournaments.tkd_tournament_maker.Club.Club.Club;
+import pl.tkd.tournaments.tkd_tournament_maker.Club.User;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Tournament.Tournament;
 
 import java.util.Set;
 
-@Getter
-@Setter
+@EqualsAndHashCode(callSuper = true)
+@Data
 @Entity
-public class Referee {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Referee extends User {
+
     @ManyToOne
-    @JoinColumn(name = "club_id")
     private Club club;
     private String firstName;
     private String lastName;

@@ -8,10 +8,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import pl.tkd.tournaments.tkd_tournament_maker.Club.Club.Club;
 import pl.tkd.tournaments.tkd_tournament_maker.Club.Competitor.Competitor;
 import pl.tkd.tournaments.tkd_tournament_maker.Club.Competitor.Sex;
-import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Categories.CategoryRepository;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Categories.LadderCategory.LadderCategory;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Categories.LadderCategory.Fight;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Categories.LadderCategory.FightRepository;
+import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Category.Categories.LadderCategory.LadderCategoryRepository;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.TournamentService;
 
 import java.time.Year;
@@ -21,7 +21,7 @@ import java.util.*;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class TournamentServiceTests {
     @Mock
-    private CategoryRepository categoryRepository;
+    private LadderCategoryRepository categoryRepository;
     @Mock
     private FightRepository fightRepository;
     @InjectMocks
@@ -40,13 +40,13 @@ public class TournamentServiceTests {
 
         Random random = new Random();
         Set<Competitor> competitors1 = new HashSet<>();
-        for (int i = 0; i< random.nextInt(1000); i++){
+        for (int i = 0; i< random.nextInt(1000)+2; i++){
             Competitor competitor1;
             competitor1 = new Competitor();
             competitor1.setSex(Sex.Male);
             competitor1.setBirthYear(thisYear - 15);
             competitor1.setBelt(5);
-            competitor1.setId(1L);
+            competitor1.setId((long) i);
             competitor1.setWeight(65.5);
             competitor1.setClub(club);
             competitor1.setFirstName("John");

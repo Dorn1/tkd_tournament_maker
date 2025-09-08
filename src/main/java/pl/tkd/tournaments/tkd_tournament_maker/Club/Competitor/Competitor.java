@@ -1,22 +1,19 @@
 package pl.tkd.tournaments.tkd_tournament_maker.Club.Competitor;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import pl.tkd.tournaments.tkd_tournament_maker.Club.Club.Club;
+import pl.tkd.tournaments.tkd_tournament_maker.Club.User;
 import pl.tkd.tournaments.tkd_tournament_maker.Tournament.Tournament.Tournament;
 
 import java.util.Set;
 
-@Setter
-@Getter
+@EqualsAndHashCode(callSuper = true)
+@Data
 @Entity
 @NoArgsConstructor
-public class Competitor {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Competitor extends User {
+
     @ManyToOne
     private Club club;
     @ManyToMany
