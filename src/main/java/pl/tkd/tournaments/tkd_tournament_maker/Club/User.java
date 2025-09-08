@@ -14,6 +14,7 @@ import java.util.List;
 
 @Data
 @Entity
+@Table(name = "users")
 public abstract class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,11 +28,9 @@ public abstract class User implements UserDetails {
     private String password;
 
     @CreationTimestamp
-    @Column(updatable = false, name = "created_at")
     private LocalDate createdAt;
 
     @UpdateTimestamp
-    @Column(name = "updated_at")
     private LocalDate updatedAt;
 
     @Override
