@@ -5,5 +5,4 @@ import org.springframework.data.repository.NoRepositoryBean;
 
 @NoRepositoryBean
 public interface UserRepository<T> extends JpaRepository<T, Long> {
-    <T> ScopedValue<T> findByEmail(String username);
 }
