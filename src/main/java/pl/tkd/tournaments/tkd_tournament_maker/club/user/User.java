@@ -27,6 +27,9 @@ public abstract class User implements UserDetails {
     @Column(nullable = false)
     private String password;
 
+    @Column(nullable = false)
+    private Role role;
+
     @CreationTimestamp
     private LocalDate createdAt;
 

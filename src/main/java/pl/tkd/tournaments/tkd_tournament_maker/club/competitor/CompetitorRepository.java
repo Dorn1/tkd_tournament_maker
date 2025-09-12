@@ -1,6 +1,6 @@
 package pl.tkd.tournaments.tkd_tournament_maker.club.competitor;
 
-import pl.tkd.tournaments.tkd_tournament_maker.club.user.UserRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface CompetitorRepository extends UserRepository<Competitor> {
+public interface CompetitorRepository extends JpaRepository<Competitor, Long> {
 }

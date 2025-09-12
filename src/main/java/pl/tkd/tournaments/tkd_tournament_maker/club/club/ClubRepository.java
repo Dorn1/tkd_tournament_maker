@@ -1,11 +1,11 @@
 package pl.tkd.tournaments.tkd_tournament_maker.club.club;
 
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import pl.tkd.tournaments.tkd_tournament_maker.club.user.UserRepository;
 
 import java.util.List;
 
 @Repository
-public interface ClubRepository extends UserRepository<Club> {
+public interface ClubRepository extends JpaRepository<Club, Long> {
     List<Club> findByNameContainingIgnoreCase(String name);
 }
