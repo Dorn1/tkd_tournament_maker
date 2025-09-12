@@ -25,4 +25,6 @@ public class Club extends User {
     @OneToMany
     Set<Referee> Referees;
 
+    private boolean admin;
+
 }
