@@ -2,6 +2,7 @@ package pl.tkd.tournaments.tkd_tournament_maker.club.competitor;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import pl.tkd.tournaments.tkd_tournament_maker.club.club.Club;
 import pl.tkd.tournaments.tkd_tournament_maker.club.user.User;
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.tournament.Tournament;

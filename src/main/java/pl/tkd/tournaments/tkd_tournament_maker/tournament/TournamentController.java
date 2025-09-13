@@ -4,10 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.category.categories.tableCategory.*;
 import pl.tkd.tournaments.tkd_tournament_maker.exceptions.ObjectNotFoundException;
 import pl.tkd.tournaments.tkd_tournament_maker.exceptions.RematchNeededException;
@@ -15,6 +12,7 @@ import pl.tkd.tournaments.tkd_tournament_maker.exceptions.RematchNeededException
 import java.util.List;
 
 @RestController
+@RequestMapping("/tournament")
 public class TournamentController {
 
     private final TournamentService tournamentService;
@@ -26,6 +24,10 @@ public class TournamentController {
         this.tournamentService = tournamentService;
     }
 
+    @GetMapping("/hello")
+    public String hello() {
+        return "Hello World";
+    }
 
     @PostMapping(value = "/newTournament")
     public ResponseEntity<String> newTournament(@RequestParam String name,
