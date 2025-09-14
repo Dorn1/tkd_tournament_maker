@@ -1,15 +1,14 @@
 package pl.tkd.tournaments.tkd_tournament_maker.club.referee;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import pl.tkd.tournaments.tkd_tournament_maker.club.club.Club;
+import pl.tkd.tournaments.tkd_tournament_maker.club.user.Role;
 import pl.tkd.tournaments.tkd_tournament_maker.club.user.User;
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.tournament.Tournament;
 
+import java.time.LocalDate;
 import java.util.Set;
 
 @EqualsAndHashCode(callSuper = true)
@@ -18,6 +17,13 @@ import java.util.Set;
 @AllArgsConstructor
 @Entity
 public class Referee extends User {
+    @Builder
+    public Referee(String email, String password, Role role, LocalDate createdAt, LocalDate updatedAt, Club club, String firstName, String lastName) {
+        super(email, password, role, createdAt, updatedAt);
+        this.club = club;
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
 
     @ManyToOne
     private Club club;

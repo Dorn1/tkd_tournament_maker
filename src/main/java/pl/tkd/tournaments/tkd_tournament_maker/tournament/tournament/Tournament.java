@@ -1,6 +1,7 @@
 package pl.tkd.tournaments.tkd_tournament_maker.tournament.tournament;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -9,6 +10,7 @@ import pl.tkd.tournaments.tkd_tournament_maker.club.competitor.Competitor;
 import pl.tkd.tournaments.tkd_tournament_maker.club.referee.Referee;
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.mat.Mat;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.Set;
 
@@ -25,13 +27,6 @@ public class Tournament {
     private Date startDate;
     private Date endDate;
 
-    public Tournament(String name, String location, Date startDate, Date endDate, Club organizer_Club) {
-        this.name = name;
-        this.location = location;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.organizer_Club = organizer_Club;
-    }
 
     @ManyToOne
     private Club organizer_Club;
@@ -43,4 +38,14 @@ public class Tournament {
     Set<Referee> referees;
     @OneToMany
     Set<Mat> mats;
+
+    @Builder
+    public Tournament(String name, String location, Date startDate, Date endDate, Club organizer_Club) {
+        this.name = name;
+        this.location = location;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.organizer_Club = organizer_Club;
+    }
+
 }

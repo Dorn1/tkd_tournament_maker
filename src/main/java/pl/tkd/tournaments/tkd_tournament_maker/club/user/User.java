@@ -18,11 +18,17 @@ import java.util.List;
 
 @Data
 @Entity
-@Builder
 @Table(name = "users")
 @NoArgsConstructor
-@AllArgsConstructor
 public class User implements UserDetails {
+    public User(String email, String password, Role role, LocalDate createdAt, LocalDate updatedAt) {
+        this.email = email;
+        this.password = password;
+        this.role = role;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
@@ -46,7 +52,7 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        return List.of(new SimpleGrantedAuthority(role.name()));
     }
 
 
