@@ -123,6 +123,7 @@ public class AuthenticationService {
                             .lastName(variables.get(LASTNAME))
                             .club(refereeClub)
                             .build();
+                    refereeRepository.save(referee);
                     String refereeToken = jwtService.generateToken(referee);
                     return AuthenticationResponse
                             .builder()
@@ -143,17 +144,24 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest authenticationRequest) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        authenticationRequest.getEmail(),
-                        authenticationRequest.getPassword()
-                )
-        );
-        User user = userRepository.findByEmail(authenticationRequest.getEmail()).orElseThrow();
-        String jwtToken = jwtService.generateToken(user);
-        return AuthenticationResponse
-                .builder()
-                .token(jwtToken)
-                .build();
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            authenticationRequest.getEmail(),
+                            authenticationRequest.getPassword()
+                    )
+            );
+            User user = userRepository.findByEmail(authenticationRequest.getEmail()).orElseThrow();
+            String jwtToken = jwtService.generateToken(user);
+            return AuthenticationResponse
+                    .builder()
+                    .token(jwtToken)
+                    .role(String.valueOf(user.getRole()))
+                    .success(true)
+                    .build();
+        } catch (Exception e) {
+            return AuthenticationResponse.builder().success(false).build();
+        }
+
     }
 }
