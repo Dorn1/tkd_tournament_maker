@@ -25,11 +25,6 @@ public class TournamentController {
         this.tournamentService = tournamentService;
     }
 
-    @GetMapping("/hello")
-    public String hello() {
-        return "Hello World";
-    }
-
     @PostMapping(value = "/newTournament")
     public ResponseEntity<String> newTournament(@RequestParam String name,
                                                 @RequestParam String location,
