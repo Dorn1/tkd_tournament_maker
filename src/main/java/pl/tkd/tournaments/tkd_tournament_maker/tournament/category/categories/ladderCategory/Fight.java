@@ -50,7 +50,7 @@ public class Fight {
         }
     }
 
-    public void setWinner(boolean wonFirst) throws ObjectNotFoundException {
+    public void setWinner(boolean wonFirst) throws ObjectNotFoundException, IllegalAccessException {
         if (competitor1 != null && competitor2 != null){
         winner = wonFirst ? competitor1 : competitor2;
         }
@@ -63,6 +63,7 @@ public class Fight {
         else{
             throw new ObjectNotFoundException("neither competitor1 nor competitor2 is set");
         }
+        updateObservers();
     }
 
     public void addCompetitor(Competitor competitor) throws IllegalAccessException {
