@@ -28,10 +28,13 @@ public class Competitor extends User {
         this.birthYear = birthYear;
     }
 
+    @ToString.Exclude
     @ManyToOne
     private Club club;
+    @ToString.Exclude
     @ManyToMany
     Set<Tournament> tournaments;
+
     private Double Weight;
     private Integer belt;
     private Sex sex;

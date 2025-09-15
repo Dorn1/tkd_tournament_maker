@@ -25,11 +25,16 @@ public class Referee extends User {
         this.lastName = lastName;
     }
 
+    @ToString.Exclude
     @ManyToOne
     private Club club;
-    private String firstName;
-    private String lastName;
+
+    @ToString.Exclude
     @ManyToMany
     Set<Tournament> tournaments;
+
+    private String firstName;
+    private String lastName;
+
 
 }
