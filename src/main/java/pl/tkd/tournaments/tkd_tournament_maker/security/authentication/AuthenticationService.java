@@ -6,11 +6,14 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import pl.tkd.tournaments.tkd_tournament_maker.club.club.Club;
 import pl.tkd.tournaments.tkd_tournament_maker.club.club.ClubRepository;
 import pl.tkd.tournaments.tkd_tournament_maker.club.competitor.Competitor;
 import pl.tkd.tournaments.tkd_tournament_maker.club.competitor.CompetitorRepository;
 import pl.tkd.tournaments.tkd_tournament_maker.club.competitor.Sex;
+import pl.tkd.tournaments.tkd_tournament_maker.club.referee.Referee;
+import pl.tkd.tournaments.tkd_tournament_maker.club.referee.RefereeRepository;
 import pl.tkd.tournaments.tkd_tournament_maker.club.user.Role;
 import pl.tkd.tournaments.tkd_tournament_maker.club.user.User;
 import pl.tkd.tournaments.tkd_tournament_maker.club.user.UserRepository;
@@ -25,6 +28,7 @@ import java.util.Map;
 public class AuthenticationService {
     private final UserRepository userRepository;
     private final ClubRepository clubRepository;
+    private final RefereeRepository refereeRepository;
     private final CompetitorRepository competitorRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
@@ -37,18 +41,22 @@ public class AuthenticationService {
     private static final String BIRTHYEAR = "birthYear";
     private static final String WEIGHT = "weight";
     private static final String CLUBID = "clubId";
+    private static final String REQUIRED_ARGUMENTS_MISSING_MESSAGE = "clubName";
+    private static final String NON_EXISTING_CLUB_MESSAGE = "provided non existing Club";
 
     public AuthenticationResponse register(RegisterRequest request) {
         try {
+            if (!StringUtils.hasText(request.getPassword())||
+                !StringUtils.hasText(request.getEmail()))
+                throw new IllegalArgumentException(REQUIRED_ARGUMENTS_MISSING_MESSAGE);
+
             Map<String, String> variables = request.getVariables();
             String role = variables.get(ROLE);
             switch (role) {
                 case "CLUB":
-                    Club clubUser = Club.builder()
-                            .email(request.getEmail())
-                            .password(passwordEncoder.encode(request.getPassword()))
-                            .role(Role.valueOf(role))
-                            .build();
+                    if (!StringUtils.hasText(variables.get(NAME)))
+                        throw new IllegalArgumentException(REQUIRED_ARGUMENTS_MISSING_MESSAGE);
+
                     Club club = Club.builder()
                             .email(request.getEmail())
                             .password(passwordEncoder.encode(request.getPassword()))
@@ -57,19 +65,27 @@ public class AuthenticationService {
                             .name(variables.get(NAME))
                             .build();
                     clubRepository.save(club);
-                    String clubToken = jwtService.generateToken(clubUser);
+                    String clubToken = jwtService.generateToken(club);
                     return AuthenticationResponse
                             .builder()
                             .token(clubToken)
+                            .success(true)
                             .build();
+
                 case "COMPETITOR":
-                    Competitor competitorUser = Competitor.builder()
-                            .email(request.getEmail())
-                            .password(passwordEncoder.encode(request.getPassword()))
-                            .role(Role.valueOf(role))
-                            .build();
+                    if (!StringUtils.hasText(variables.get(NAME))||
+                        !StringUtils.hasText(variables.get(LASTNAME))||
+                        !StringUtils.hasText(variables.get(BELT))||
+                        !StringUtils.hasText(variables.get(SEX))||
+                        !StringUtils.hasText(variables.get(BIRTHYEAR))||
+                        !StringUtils.hasText(variables.get(CLUBID))||
+                        !StringUtils.hasText(variables.get(WEIGHT))
+                        )
+                        throw new IllegalArgumentException(REQUIRED_ARGUMENTS_MISSING_MESSAGE);
+
                     Club competitorClub = clubRepository.findById(Long.valueOf(variables.get(CLUBID)))
-                            .orElseThrow(() -> new InputMismatchException("provided non existing Club"));
+                            .orElseThrow(() -> new InputMismatchException(NON_EXISTING_CLUB_MESSAGE));
+
                     Competitor competitor = Competitor.builder()
                             .email(request.getEmail())
                             .password(passwordEncoder.encode(request.getPassword()))
@@ -83,10 +99,34 @@ public class AuthenticationService {
                             .club(competitorClub)
                             .build();
                     competitorRepository.save(competitor);
-                    String competitorToken = jwtService.generateToken(competitorUser);
+                    String competitorToken = jwtService.generateToken(competitor);
                     return AuthenticationResponse
                             .builder()
                             .token(competitorToken)
+                            .success(true)
+                            .build();
+
+                case "REFEREE":
+                    if (!StringUtils.hasText(variables.get(NAME))||
+                            !StringUtils.hasText(variables.get(LASTNAME))||
+                            !StringUtils.hasText(variables.get(CLUBID))
+                    )
+                        throw new IllegalArgumentException(REQUIRED_ARGUMENTS_MISSING_MESSAGE);
+
+                    Club refereeClub = clubRepository.findById(Long.valueOf(variables.get(CLUBID)))
+                            .orElseThrow(() -> new InputMismatchException(NON_EXISTING_CLUB_MESSAGE));
+                    Referee referee = Referee.builder()
+                            .email(request.getEmail())
+                            .password(passwordEncoder.encode(request.getPassword()))
+                            .role(Role.valueOf(role))
+                            .firstName(variables.get(NAME))
+                            .lastName(variables.get(LASTNAME))
+                            .club(refereeClub)
+                            .build();
+                    String refereeToken = jwtService.generateToken(referee);
+                    return AuthenticationResponse
+                            .builder()
+                            .token(refereeToken)
                             .success(true)
                             .build();
 
