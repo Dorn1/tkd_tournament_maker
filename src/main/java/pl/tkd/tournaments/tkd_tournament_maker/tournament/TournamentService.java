@@ -334,7 +334,7 @@ public class TournamentService {
         throw new ObjectNotFoundException("requested Table Category not found");
     }
 
-    public void removeCompetitorFromLadderCategory(Long competitorID, Long categoryId) throws ObjectNotFoundException {
+    public void removeCompetitorFromLadderCategory(Long competitorID, Long categoryId) throws ObjectNotFoundException, IllegalAccessException {
         if (ladderCategoryRepository.findById(categoryId).isPresent()){
             LadderCategory category = ladderCategoryRepository.findById(categoryId).get();
             for (Fight fight : category.getFights()){
