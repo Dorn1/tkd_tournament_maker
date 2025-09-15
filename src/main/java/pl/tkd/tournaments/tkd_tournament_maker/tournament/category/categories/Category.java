@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import pl.tkd.tournaments.tkd_tournament_maker.club.competitor.Competitor;
+import pl.tkd.tournaments.tkd_tournament_maker.tournament.mat.Mat;
 
 import java.util.Set;
 
@@ -17,6 +18,8 @@ public abstract class Category {
     private Long id;
     @ManyToMany
     private Set<Competitor> competitors;
+    @ManyToOne
+    private Mat mat;
 
 
 }

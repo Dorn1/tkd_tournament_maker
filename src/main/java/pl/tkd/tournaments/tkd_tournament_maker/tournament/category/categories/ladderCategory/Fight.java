@@ -33,8 +33,6 @@ public class Fight {
     @ManyToOne
     private Category category;
     @ManyToOne
-    private Referee matLeaderReferee;
-    @ManyToOne
     private Referee mainFightReferee;
     @ManyToMany
     private Set<Referee> fightReferees = new HashSet<>();
