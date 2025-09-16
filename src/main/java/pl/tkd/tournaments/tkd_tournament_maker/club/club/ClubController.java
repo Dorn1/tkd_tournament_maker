@@ -19,7 +19,6 @@ import java.util.List;
 public class ClubController {
 
     private final ClubService clubService;
-    private static final Logger logger = LoggerFactory.getLogger(ClubController.class);
 
 
     @Autowired
