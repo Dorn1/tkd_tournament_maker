@@ -17,8 +17,8 @@ import java.util.Set;
 @NoArgsConstructor
 public class Competitor extends User {
     @Builder
-    public Competitor(String email, String password, Role role, LocalDate createdAt, LocalDate updatedAt, Club club, Double weight, Integer belt, Sex sex, String firstName, String lastName, Long birthYear) {
-        super(email, password, role, createdAt, updatedAt);
+    public Competitor(String userName, String password, Role role, LocalDate createdAt, LocalDate updatedAt, Club club, Double weight, Integer belt, Sex sex, String firstName, String lastName, Long birthYear) {
+        super(userName, password, role, createdAt, updatedAt);
         this.club = club;
         Weight = weight;
         this.belt = belt;

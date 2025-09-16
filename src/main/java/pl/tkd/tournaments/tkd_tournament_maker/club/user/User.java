@@ -21,8 +21,8 @@ import java.util.List;
 @Table(name = "users")
 @NoArgsConstructor
 public class User implements UserDetails {
-    public User(String email, String password, Role role, LocalDate createdAt, LocalDate updatedAt) {
-        this.email = email;
+    public User(String userName, String password, Role role, LocalDate createdAt, LocalDate updatedAt) {
+        this.userName = userName;
         this.password = password;
         this.role = role;
         this.createdAt = createdAt;
@@ -35,7 +35,7 @@ public class User implements UserDetails {
     private Long id;
 
     @Column(unique = true, length = 100, nullable = false)
-    private String email;
+    private String userName;
 
     @Column(nullable = false)
     private String password;
@@ -78,6 +78,6 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return email;
+        return userName;
     }
 }

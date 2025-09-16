@@ -18,8 +18,8 @@ import java.util.Set;
 @Entity
 public class Referee extends User {
     @Builder
-    public Referee(String email, String password, Role role, LocalDate createdAt, LocalDate updatedAt, Club club, String firstName, String lastName) {
-        super(email, password, role, createdAt, updatedAt);
+    public Referee(String userName, String password, Role role, LocalDate createdAt, LocalDate updatedAt, Club club, String firstName, String lastName) {
+        super(userName, password, role, createdAt, updatedAt);
         this.club = club;
         this.firstName = firstName;
         this.lastName = lastName;

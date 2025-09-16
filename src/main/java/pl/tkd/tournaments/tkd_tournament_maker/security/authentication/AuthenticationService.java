@@ -47,22 +47,18 @@ public class AuthenticationService {
     public AuthenticationResponse register(RegisterRequest request) {
         try {
             if (!StringUtils.hasText(request.getPassword())||
-                !StringUtils.hasText(request.getEmail()))
+                !StringUtils.hasText(request.getUserName()))
                 throw new IllegalArgumentException(REQUIRED_ARGUMENTS_MISSING_MESSAGE);
 
             Map<String, String> variables = request.getVariables();
             String role = variables.get(ROLE);
             switch (role) {
                 case "CLUB":
-                    if (!StringUtils.hasText(variables.get(NAME)))
-                        throw new IllegalArgumentException(REQUIRED_ARGUMENTS_MISSING_MESSAGE);
-
                     Club club = Club.builder()
-                            .email(request.getEmail())
                             .password(passwordEncoder.encode(request.getPassword()))
                             .role(Role.valueOf(role))
                             .admin(false)
-                            .name(variables.get(NAME))
+                            .userName(request.getUserName())
                             .build();
                     clubRepository.save(club);
                     String clubToken = jwtService.generateToken(club);
@@ -70,6 +66,7 @@ public class AuthenticationService {
                             .builder()
                             .token(clubToken)
                             .success(true)
+                            .role(role)
                             .build();
 
                 case "COMPETITOR":
@@ -87,7 +84,7 @@ public class AuthenticationService {
                             .orElseThrow(() -> new InputMismatchException(NON_EXISTING_CLUB_MESSAGE));
 
                     Competitor competitor = Competitor.builder()
-                            .email(request.getEmail())
+                            .userName(request.getUserName())
                             .password(passwordEncoder.encode(request.getPassword()))
                             .role(Role.valueOf(role))
                             .belt(Integer.valueOf(variables.get(BELT)))
@@ -104,6 +101,7 @@ public class AuthenticationService {
                             .builder()
                             .token(competitorToken)
                             .success(true)
+                            .role(role)
                             .build();
 
                 case "REFEREE":
@@ -116,7 +114,7 @@ public class AuthenticationService {
                     Club refereeClub = clubRepository.findById(Long.valueOf(variables.get(CLUBID)))
                             .orElseThrow(() -> new InputMismatchException(NON_EXISTING_CLUB_MESSAGE));
                     Referee referee = Referee.builder()
-                            .email(request.getEmail())
+                            .userName(request.getUserName())
                             .password(passwordEncoder.encode(request.getPassword()))
                             .role(Role.valueOf(role))
                             .firstName(variables.get(NAME))
@@ -128,6 +126,7 @@ public class AuthenticationService {
                     return AuthenticationResponse
                             .builder()
                             .token(refereeToken)
+                            .role(role)
                             .success(true)
                             .build();
 
@@ -147,11 +146,11 @@ public class AuthenticationService {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            authenticationRequest.getEmail(),
+                            authenticationRequest.getUserName(),
                             authenticationRequest.getPassword()
                     )
             );
-            User user = userRepository.findByEmail(authenticationRequest.getEmail()).orElseThrow();
+            User user = userRepository.findByUserName(authenticationRequest.getUserName()).orElseThrow();
             String jwtToken = jwtService.generateToken(user);
             return AuthenticationResponse
                     .builder()

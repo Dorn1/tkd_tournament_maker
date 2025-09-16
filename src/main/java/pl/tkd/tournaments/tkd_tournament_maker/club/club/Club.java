@@ -20,16 +20,14 @@ import java.util.Set;
 public class Club extends User {
     @Builder
     public Club(
-            String email,
+            String userName,
             String password,
             Role role,
             LocalDate createdAt,
             LocalDate updatedAt,
-            boolean admin,
-            String name) {
-        super(email, password, role, createdAt, updatedAt);
+            boolean admin) {
+        super(userName, password, role, createdAt, updatedAt);
         this.admin = admin;
-        this.name = name;
     }
 
     private String name;
