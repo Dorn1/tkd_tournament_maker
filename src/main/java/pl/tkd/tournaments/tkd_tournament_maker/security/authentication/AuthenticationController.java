@@ -6,6 +6,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import pl.tkd.tournaments.tkd_tournament_maker.security.authentication.dto.AuthenticationRequest;
+import pl.tkd.tournaments.tkd_tournament_maker.security.authentication.dto.AuthenticationResponse;
+import pl.tkd.tournaments.tkd_tournament_maker.security.authentication.dto.RegisterRequest;
 
 @RestController
 @RequestMapping("/auth")

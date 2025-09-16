@@ -17,6 +17,9 @@ import pl.tkd.tournaments.tkd_tournament_maker.club.referee.RefereeRepository;
 import pl.tkd.tournaments.tkd_tournament_maker.club.user.Role;
 import pl.tkd.tournaments.tkd_tournament_maker.club.user.User;
 import pl.tkd.tournaments.tkd_tournament_maker.club.user.UserRepository;
+import pl.tkd.tournaments.tkd_tournament_maker.security.authentication.dto.AuthenticationRequest;
+import pl.tkd.tournaments.tkd_tournament_maker.security.authentication.dto.AuthenticationResponse;
+import pl.tkd.tournaments.tkd_tournament_maker.security.authentication.dto.RegisterRequest;
 import pl.tkd.tournaments.tkd_tournament_maker.security.authentication.jwt.JwtService;
 
 import java.util.InputMismatchException;

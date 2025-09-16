@@ -1,4 +1,4 @@
-package pl.tkd.tournaments.tkd_tournament_maker.security.authentication;
+package pl.tkd.tournaments.tkd_tournament_maker.security.authentication.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

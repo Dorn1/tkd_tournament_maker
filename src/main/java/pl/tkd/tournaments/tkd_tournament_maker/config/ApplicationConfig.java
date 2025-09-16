@@ -1,4 +1,4 @@
-package pl.tkd.tournaments.tkd_tournament_maker.security.config;
+package pl.tkd.tournaments.tkd_tournament_maker.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
