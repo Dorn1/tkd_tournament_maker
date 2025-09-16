@@ -35,7 +35,7 @@ public class ClubServiceTests {
     @BeforeEach
     public void setup() {
         club = new Club();
-        club.setName("TkdFreaks");
+        club.setUserName("TkdFreaks");
         club.setId(1L);
         club.setCompetitors(new HashSet<>());
     }

@@ -7,5 +7,6 @@ import java.util.List;
 
 @Repository
 public interface ClubRepository extends JpaRepository<Club, Long> {
-    List<Club> findByNameContainingIgnoreCase(String name);
+
+    List<Club> findByUserName(String userName);
 }

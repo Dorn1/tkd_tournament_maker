@@ -62,6 +62,7 @@ public class AuthenticationService {
                             .build();
                     clubRepository.save(club);
                     String clubToken = jwtService.generateToken(club);
+                    log.info("Club {} registered", club.getUsername());
                     return AuthenticationResponse
                             .builder()
                             .token(clubToken)
@@ -97,6 +98,7 @@ public class AuthenticationService {
                             .build();
                     competitorRepository.save(competitor);
                     String competitorToken = jwtService.generateToken(competitor);
+                    log.info("Competitor {} registered", competitor.getUsername());
                     return AuthenticationResponse
                             .builder()
                             .token(competitorToken)
@@ -123,6 +125,7 @@ public class AuthenticationService {
                             .build();
                     refereeRepository.save(referee);
                     String refereeToken = jwtService.generateToken(referee);
+                    log.info("Referee {} registered", referee.getUsername());
                     return AuthenticationResponse
                             .builder()
                             .token(refereeToken)
@@ -152,6 +155,7 @@ public class AuthenticationService {
             );
             User user = userRepository.findByUserName(authenticationRequest.getUserName()).orElseThrow();
             String jwtToken = jwtService.generateToken(user);
+            log.info("User {} authenticated", user.getUsername());
             return AuthenticationResponse
                     .builder()
                     .token(jwtToken)

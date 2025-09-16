@@ -1,5 +1,6 @@
 package pl.tkd.tournaments.tkd_tournament_maker.club.club;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pl.tkd.tournaments.tkd_tournament_maker.club.competitor.Competitor;
@@ -7,32 +8,19 @@ import pl.tkd.tournaments.tkd_tournament_maker.club.competitor.CompetitorReposit
 import pl.tkd.tournaments.tkd_tournament_maker.club.competitor.Sex;
 import pl.tkd.tournaments.tkd_tournament_maker.club.referee.Referee;
 import pl.tkd.tournaments.tkd_tournament_maker.club.referee.RefereeRepository;
+import pl.tkd.tournaments.tkd_tournament_maker.club.user.UserRepository;
 import pl.tkd.tournaments.tkd_tournament_maker.exceptions.ObjectNotFoundException;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class ClubService {
     private final ClubRepository clubRepository;
     private final CompetitorRepository competitorRepository;
     private final RefereeRepository refereeRepository;
 
 
-    @Autowired
-    public ClubService(ClubRepository clubRepository,
-                       CompetitorRepository competitorRepository,
-                       RefereeRepository refereeRepository) {
-        this.clubRepository = clubRepository;
-        this.competitorRepository = competitorRepository;
-        this.refereeRepository = refereeRepository;
-    }
-
-
-    public void addClub(String name) {
-        Club c = new Club();
-        c.setName(name);
-        clubRepository.save(c);
-    }
 
     public void addCompetitorToClub(String firstname,
                                     String lastName,
@@ -77,7 +65,7 @@ public class ClubService {
     }
 
     public List<Club> getClubByName(String name) {
-        return clubRepository.findByNameContainingIgnoreCase(name);
+        return clubRepository.findByUserName(name);
     }
 
     public List<Referee> getRefereeByName(String firstname, String lastname) {

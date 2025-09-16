@@ -30,7 +30,6 @@ public class Club extends User {
         this.admin = admin;
     }
 
-    private String name;
     @ToString.Exclude
     @ManyToMany
     Set<Tournament> tournaments;
