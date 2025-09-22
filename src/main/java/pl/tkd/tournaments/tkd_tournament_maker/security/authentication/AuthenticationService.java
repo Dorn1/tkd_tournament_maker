@@ -91,7 +91,6 @@ public class AuthenticationService {
                     return AuthenticationResponse
                             .builder()
                             .token(clubToken)
-                            .success(true)
                             .role(role)
                             .build();
 
@@ -127,7 +126,6 @@ public class AuthenticationService {
                     return AuthenticationResponse
                             .builder()
                             .token(competitorToken)
-                            .success(true)
                             .role(role)
                             .build();
 
@@ -155,7 +153,6 @@ public class AuthenticationService {
                             .builder()
                             .token(refereeToken)
                             .role(role)
-                            .success(true)
                             .build();
 
                 default:
@@ -163,7 +160,7 @@ public class AuthenticationService {
             }
         } catch (Exception e) {
             log.info(e.getMessage());
-            return AuthenticationResponse.builder().success(false).build();
+            return AuthenticationResponse.builder().build();
         }
 
 
@@ -184,10 +181,9 @@ public class AuthenticationService {
                     .builder()
                     .token(jwtToken)
                     .role(String.valueOf(user.getRole()))
-                    .success(true)
                     .build();
         } catch (Exception e) {
-            return AuthenticationResponse.builder().success(false).build();
+            return AuthenticationResponse.builder().build();
         }
 
     }

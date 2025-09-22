@@ -4,10 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import pl.tkd.tournaments.tkd_tournament_maker.club.competitor.Competitor;
 import pl.tkd.tournaments.tkd_tournament_maker.club.referee.Referee;
 import pl.tkd.tournaments.tkd_tournament_maker.exceptions.ObjectNotFoundException;
@@ -16,6 +13,7 @@ import java.util.List;
 
 
 @RestController
+@CrossOrigin("*")
 public class ClubController {
 
     private final ClubService clubService;
