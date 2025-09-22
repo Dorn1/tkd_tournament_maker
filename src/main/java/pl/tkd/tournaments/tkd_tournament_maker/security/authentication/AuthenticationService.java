@@ -1,7 +1,9 @@
 package pl.tkd.tournaments.tkd_tournament_maker.security.authentication;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -36,6 +38,7 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+
     private static final String ROLE = "role";
     private static final String NAME = "name";
     private static final String LASTNAME = "lastName";
@@ -47,10 +50,29 @@ public class AuthenticationService {
     private static final String REQUIRED_ARGUMENTS_MISSING_MESSAGE = "clubName";
     private static final String NON_EXISTING_CLUB_MESSAGE = "provided non existing Club";
 
+    @Value("${first.user.name}")
+    private String firstUserName;
+    @Value("${first.user.password}")
+    private String firstUserPassword;
+
+    @PostConstruct
+    private void init() {
+        if (clubRepository.count() == 0) {
+            Club firstUser = Club.builder()
+                    .admin(true)
+                    .password(passwordEncoder.encode(firstUserPassword))
+                    .userName(firstUserName)
+                    .role(Role.valueOf("CLUB"))
+                    .build();
+            clubRepository.save(firstUser);
+            log.info("Club {} created", firstUserName);
+        }
+    }
+
     public AuthenticationResponse register(RegisterRequest request) {
         try {
-            if (!StringUtils.hasText(request.getPassword())||
-                !StringUtils.hasText(request.getUserName()))
+            if (!StringUtils.hasText(request.getPassword()) ||
+                    !StringUtils.hasText(request.getUserName()))
                 throw new IllegalArgumentException(REQUIRED_ARGUMENTS_MISSING_MESSAGE);
 
             Map<String, String> variables = request.getVariables();
@@ -74,14 +96,14 @@ public class AuthenticationService {
                             .build();
 
                 case "COMPETITOR":
-                    if (!StringUtils.hasText(variables.get(NAME))||
-                        !StringUtils.hasText(variables.get(LASTNAME))||
-                        !StringUtils.hasText(variables.get(BELT))||
-                        !StringUtils.hasText(variables.get(SEX))||
-                        !StringUtils.hasText(variables.get(BIRTHYEAR))||
-                        !StringUtils.hasText(variables.get(CLUBID))||
-                        !StringUtils.hasText(variables.get(WEIGHT))
-                        )
+                    if (!StringUtils.hasText(variables.get(NAME)) ||
+                            !StringUtils.hasText(variables.get(LASTNAME)) ||
+                            !StringUtils.hasText(variables.get(BELT)) ||
+                            !StringUtils.hasText(variables.get(SEX)) ||
+                            !StringUtils.hasText(variables.get(BIRTHYEAR)) ||
+                            !StringUtils.hasText(variables.get(CLUBID)) ||
+                            !StringUtils.hasText(variables.get(WEIGHT))
+                    )
                         throw new IllegalArgumentException(REQUIRED_ARGUMENTS_MISSING_MESSAGE);
 
                     Club competitorClub = clubRepository.findById(Long.valueOf(variables.get(CLUBID)))
@@ -110,8 +132,8 @@ public class AuthenticationService {
                             .build();
 
                 case "REFEREE":
-                    if (!StringUtils.hasText(variables.get(NAME))||
-                            !StringUtils.hasText(variables.get(LASTNAME))||
+                    if (!StringUtils.hasText(variables.get(NAME)) ||
+                            !StringUtils.hasText(variables.get(LASTNAME)) ||
                             !StringUtils.hasText(variables.get(CLUBID))
                     )
                         throw new IllegalArgumentException(REQUIRED_ARGUMENTS_MISSING_MESSAGE);
@@ -139,8 +161,7 @@ public class AuthenticationService {
                 default:
                     throw new IllegalArgumentException("Invalid role");
             }
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             log.info(e.getMessage());
             return AuthenticationResponse.builder().success(false).build();
         }
