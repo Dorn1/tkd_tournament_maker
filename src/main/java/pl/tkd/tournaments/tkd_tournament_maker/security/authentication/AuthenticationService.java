@@ -187,4 +187,13 @@ public class AuthenticationService {
         }
 
     }
+
+    public Long getUserId(String username) {
+        User user = userRepository.findByUserName(username).orElseThrow();
+        return user.getId();
+    }
+    public String getUserType(String username) {
+        User user = userRepository.findById(getUserId(username)).orElseThrow();
+        return user.getRole().toString();
+    }
 }
