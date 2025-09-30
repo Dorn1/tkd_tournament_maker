@@ -64,7 +64,7 @@ public class ClubService {
         throw new ObjectNotFoundException("Club doesn't exist");
     }
 
-    public List<Club> getClubByName(String name) {
+    public Club getClubByName(String name) {
         return clubRepository.findByUserName(name);
     }
 

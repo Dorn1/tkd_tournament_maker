@@ -45,4 +45,11 @@ public class AuthenticationController {
     ){
         return ResponseEntity.ok(authenticationService.getUserType(userName));
     }
+    @GetMapping("/admin")
+    public ResponseEntity<Boolean> isAdmin(
+            @RequestParam String userName
+    ){
+        boolean admin = authenticationService.isAdmin(userName);
+        return ResponseEntity.ok(admin);
+    }
 }

@@ -18,8 +18,9 @@ import java.util.Set;
 @Entity
 public class Referee extends User {
     @Builder
-    public Referee(String userName, String password, Role role, LocalDate createdAt, LocalDate updatedAt, Club club, String firstName, String lastName) {
+    public Referee(String userName, String password, Role role, LocalDate createdAt, LocalDate updatedAt, Club club, String firstName, String lastName, RefereeClass refereeClass){
         super(userName, password, role, createdAt, updatedAt);
+        this.refereeClass = refereeClass;
         this.club = club;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -35,6 +36,9 @@ public class Referee extends User {
 
     private String firstName;
     private String lastName;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private RefereeClass refereeClass;
 
 
 }

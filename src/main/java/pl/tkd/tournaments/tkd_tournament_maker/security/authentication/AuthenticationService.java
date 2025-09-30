@@ -15,6 +15,7 @@ import pl.tkd.tournaments.tkd_tournament_maker.club.competitor.Competitor;
 import pl.tkd.tournaments.tkd_tournament_maker.club.competitor.CompetitorRepository;
 import pl.tkd.tournaments.tkd_tournament_maker.club.competitor.Sex;
 import pl.tkd.tournaments.tkd_tournament_maker.club.referee.Referee;
+import pl.tkd.tournaments.tkd_tournament_maker.club.referee.RefereeClass;
 import pl.tkd.tournaments.tkd_tournament_maker.club.referee.RefereeRepository;
 import pl.tkd.tournaments.tkd_tournament_maker.club.user.Role;
 import pl.tkd.tournaments.tkd_tournament_maker.club.user.User;
@@ -41,6 +42,7 @@ public class AuthenticationService {
 
     private static final String ROLE = "role";
     private static final String NAME = "name";
+    private static final String REFEREE_CLASS = "referee_class";
     private static final String LASTNAME = "lastName";
     private static final String BELT = "belt";
     private static final String SEX = "sex";
@@ -145,6 +147,7 @@ public class AuthenticationService {
                             .firstName(variables.get(NAME))
                             .lastName(variables.get(LASTNAME))
                             .club(refereeClub)
+                            .refereeClass(RefereeClass.valueOf(variables.get(REFEREE_CLASS)))
                             .build();
                     refereeRepository.save(referee);
                     String refereeToken = jwtService.generateToken(referee);
@@ -195,5 +198,9 @@ public class AuthenticationService {
     public String getUserType(String username) {
         User user = userRepository.findById(getUserId(username)).orElseThrow();
         return user.getRole().toString();
+    }
+    public boolean isAdmin(String username){
+        Club club = clubRepository.findByUserName(username);
+        return  club.isAdmin();
     }
 }

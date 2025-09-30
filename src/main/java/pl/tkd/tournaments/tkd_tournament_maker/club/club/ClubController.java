@@ -36,8 +36,8 @@ public class ClubController {
 
     @GetMapping(value = "/getClubByName")
     public ResponseEntity<String> getClubByName(@RequestParam String name) {
-        List<Club> clubs = clubService.getClubByName(name);
-        return ResponseEntity.ok(clubs.toString());
+        Club club = clubService.getClubByName(name);
+        return ResponseEntity.ok(club.toString());
 
     }
 
