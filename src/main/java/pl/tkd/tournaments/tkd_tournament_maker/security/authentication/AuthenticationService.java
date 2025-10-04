@@ -42,6 +42,7 @@ public class AuthenticationService {
 
     private static final String ROLE = "role";
     private static final String NAME = "name";
+    private static final String ADMIN = "amin";
     private static final String REFEREE_CLASS = "referee_class";
     private static final String LASTNAME = "lastName";
     private static final String BELT = "belt";
@@ -169,6 +170,105 @@ public class AuthenticationService {
 
     }
 
+    public AuthenticationResponse update(RegisterRequest request) {
+        try {
+            if (!StringUtils.hasText(request.getPassword()) ||
+                    !StringUtils.hasText(request.getUserName()))
+                throw new IllegalArgumentException(REQUIRED_ARGUMENTS_MISSING_MESSAGE);
+
+            Map<String, String> variables = request.getVariables();
+            String role = variables.get(ROLE);
+            switch (role) {
+                case "CLUB":
+                    Club updatedClub = clubRepository.findByUsername(request.getUserName());
+                    updatedClub.setPassword(passwordEncoder.encode(request.getPassword()));
+                    updatedClub.setAdmin(Boolean.parseBoolean(request.getVariables().get(ADMIN)));
+                    updatedClub.setUsername(request.getUserName());
+                    clubRepository.save(updatedClub);
+
+                    String clubToken = jwtService.generateToken(updatedClub);
+
+                    log.info("Club {} updated", updatedClub.getUsername());
+
+                    return AuthenticationResponse
+                            .builder()
+                            .token(clubToken)
+                            .role(role)
+                            .build();
+
+                case "COMPETITOR":
+                    if (!StringUtils.hasText(variables.get(NAME)) ||
+                            !StringUtils.hasText(variables.get(LASTNAME)) ||
+                            !StringUtils.hasText(variables.get(BELT)) ||
+                            !StringUtils.hasText(variables.get(SEX)) ||
+                            !StringUtils.hasText(variables.get(BIRTHYEAR)) ||
+                            !StringUtils.hasText(variables.get(CLUBID)) ||
+                            !StringUtils.hasText(variables.get(WEIGHT))
+                    )
+                        throw new IllegalArgumentException(REQUIRED_ARGUMENTS_MISSING_MESSAGE);
+
+                    Club competitorClub = clubRepository.findById(Long.valueOf(variables.get(CLUBID)))
+                            .orElseThrow(() -> new InputMismatchException(NON_EXISTING_CLUB_MESSAGE));
+
+                    Competitor updatedCompetitor = competitorRepository.findByUsername(request.getUserName());
+                    updatedCompetitor.setPassword(passwordEncoder.encode(request.getPassword()));
+                    updatedCompetitor.setBelt(Integer.valueOf(variables.get(BELT)));
+                    updatedCompetitor.setBirthYear(Long.valueOf(variables.get(BIRTHYEAR)));
+                    updatedCompetitor.setFirstName(variables.get(NAME));
+                    updatedCompetitor.setLastName(variables.get(LASTNAME));
+                    updatedCompetitor.setWeight(Double.valueOf(variables.get(WEIGHT)));
+                    competitorRepository.save(updatedCompetitor);
+                    String competitorToken = jwtService.generateToken(updatedCompetitor);
+                    log.info("Competitor {} updated", updatedCompetitor.getUsername());
+                    return AuthenticationResponse
+                            .builder()
+                            .token(competitorToken)
+                            .role(role)
+                            .build();
+
+                case "REFEREE":
+                    if (!StringUtils.hasText(variables.get(NAME)) ||
+                            !StringUtils.hasText(variables.get(LASTNAME)) ||
+                            !StringUtils.hasText(variables.get(CLUBID))
+                    )
+                        throw new IllegalArgumentException(REQUIRED_ARGUMENTS_MISSING_MESSAGE);
+
+                    Club refereeClub = clubRepository.findById(Long.valueOf(variables.get(CLUBID)))
+                            .orElseThrow(() -> new InputMismatchException(NON_EXISTING_CLUB_MESSAGE));
+
+                    Referee updatedReferee = refereeRepository.findByUsername(request.getUserName());
+                    updatedReferee.setPassword(passwordEncoder.encode(request.getPassword()));
+                    updatedReferee.setFirstName(variables.get(NAME));
+                    updatedReferee.setLastName(variables.get(LASTNAME));
+                    updatedReferee.setRefereeClass(RefereeClass.valueOf(variables.get(REFEREE_CLASS)));;
+
+                    refereeRepository.save(updatedReferee);
+                    String refereeToken = jwtService.generateToken(updatedReferee);
+                    log.info("Referee {} updated", updatedReferee.getUsername());
+                    return AuthenticationResponse
+                            .builder()
+                            .token(refereeToken)
+                            .role(role)
+                            .build();
+
+                default:
+                    throw new IllegalArgumentException("Invalid role");
+            }
+        } catch (Exception e) {
+            log.info(e.getMessage());
+            return AuthenticationResponse.builder().build();
+        }
+
+
+    }
+
+    public void deleteUser(String userName){
+        if (userRepository.findByUsername(userName).isPresent())
+            userRepository.delete(userRepository.findByUsername(userName).get());
+        else
+            throw new IllegalArgumentException("User not found");
+    }
+
     public AuthenticationResponse authenticate(AuthenticationRequest authenticationRequest) {
         try {
             authenticationManager.authenticate(
@@ -177,7 +277,7 @@ public class AuthenticationService {
                             authenticationRequest.getPassword()
                     )
             );
-            User user = userRepository.findByUserName(authenticationRequest.getUserName()).orElseThrow();
+            User user = userRepository.findByUsername(authenticationRequest.getUserName()).orElseThrow();
             String jwtToken = jwtService.generateToken(user);
             log.info("User {} authenticated", user.getUsername());
             return AuthenticationResponse
@@ -192,7 +292,7 @@ public class AuthenticationService {
     }
 
     public Long getUserId(String username) {
-        User user = userRepository.findByUserName(username).orElseThrow();
+        User user = userRepository.findByUsername(username).orElseThrow();
         return user.getId();
     }
     public String getUserType(String username) {
@@ -200,7 +300,7 @@ public class AuthenticationService {
         return user.getRole().toString();
     }
     public boolean isAdmin(String username){
-        Club club = clubRepository.findByUserName(username);
+        Club club = clubRepository.findByUsername(username);
         return  club.isAdmin();
     }
 }

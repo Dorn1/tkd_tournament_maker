@@ -21,6 +21,25 @@ public class AuthenticationController {
     ) {
         return ResponseEntity.ok(authenticationService.register(request));
     }
+    @PutMapping("/update")
+    public ResponseEntity<AuthenticationResponse> updateData(
+            @RequestBody RegisterRequest request
+    ) {
+        return ResponseEntity.ok(authenticationService.update(request));
+    }
+
+    @DeleteMapping("/remove")
+    public ResponseEntity<String> removeData(
+            @RequestParam String username
+    ){
+        try{
+            authenticationService.deleteUser(username);
+            return ResponseEntity.ok("Successfully deleted");
+        }catch (Exception e){
+            return ResponseEntity.status(404).body(e.getMessage());
+        }
+    }
+
 
     @PostMapping("/authenticate")
     public ResponseEntity<AuthenticationResponse> authenticate(

@@ -22,7 +22,7 @@ import java.util.List;
 @NoArgsConstructor
 public class User implements UserDetails {
     public User(String userName, String password, Role role, LocalDate createdAt, LocalDate updatedAt) {
-        this.userName = userName;
+        this.username = userName;
         this.password = password;
         this.role = role;
         this.createdAt = createdAt;
@@ -35,7 +35,7 @@ public class User implements UserDetails {
     private Long id;
 
     @Column(unique = true, length = 100, nullable = false)
-    private String userName;
+    private String username;
 
     @Column(nullable = false)
     private String password;
@@ -78,6 +78,6 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return userName;
+        return username;
     }
 }

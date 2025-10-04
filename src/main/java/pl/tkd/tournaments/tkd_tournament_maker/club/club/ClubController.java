@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.tkd.tournaments.tkd_tournament_maker.club.competitor.Competitor;
 import pl.tkd.tournaments.tkd_tournament_maker.club.referee.Referee;
+import pl.tkd.tournaments.tkd_tournament_maker.club.referee.RefereeDTO;
 import pl.tkd.tournaments.tkd_tournament_maker.exceptions.ObjectNotFoundException;
 
 import java.util.List;
@@ -41,10 +42,14 @@ public class ClubController {
 
     }
 
-    @GetMapping(value = "/getRefereeByName")
-    public ResponseEntity<String> getClubByName(@RequestParam String firstName, @RequestParam String lastName) {
-        List<Referee> refereeList = clubService.getRefereeByName(firstName, lastName);
-        return ResponseEntity.ok(refereeList.toString());
+    @GetMapping(value = "/getClubReferees")
+    public ResponseEntity<List<RefereeDTO>> getClubReferees(@RequestParam String clubName) {
+        try {
+            return ResponseEntity.ok(clubService.getRefereesByClub(clubName));
+        }
+        catch (Exception e) {
+            return ResponseEntity.status(500).body(null);
+        }
 
     }
 

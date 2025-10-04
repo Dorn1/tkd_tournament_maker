@@ -31,15 +31,6 @@ public class Club extends User {
     }
 
     @ToString.Exclude
-    @ManyToMany
-    Set<Tournament> tournaments;
-    @ToString.Exclude
-    @OneToMany
-    Set<Competitor> Competitors;
-    @ToString.Exclude
-    @OneToMany
-    Set<Referee> Referees;
-    @ToString.Exclude
     private boolean admin;
 
 }

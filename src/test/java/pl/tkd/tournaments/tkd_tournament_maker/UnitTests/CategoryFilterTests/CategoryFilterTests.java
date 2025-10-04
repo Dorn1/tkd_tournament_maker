@@ -24,9 +24,8 @@ public class CategoryFilterTests {
     @BeforeEach
     public void setup() {
         Club club = new Club();
-        club.setUserName("TkdFreaks");
+        club.setUsername("TkdFreaks");
         club.setId(1L);
-        club.setCompetitors(new HashSet<>());
         Long thisYear = (long)Year.now().getValue();
 
         competitor1 = new Competitor();
