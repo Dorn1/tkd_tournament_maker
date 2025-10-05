@@ -172,16 +172,16 @@ public class AuthenticationService {
 
     public AuthenticationResponse update(RegisterRequest request) {
         try {
-            if (!StringUtils.hasText(request.getPassword()) ||
-                    !StringUtils.hasText(request.getUserName()))
+            if (!StringUtils.hasText(request.getUserName()))
                 throw new IllegalArgumentException(REQUIRED_ARGUMENTS_MISSING_MESSAGE);
 
             Map<String, String> variables = request.getVariables();
             String role = variables.get(ROLE);
             switch (role) {
                 case "CLUB":
-                    Club updatedClub = clubRepository.findByUsername(request.getUserName());
-                    updatedClub.setPassword(passwordEncoder.encode(request.getPassword()));
+                    Club updatedClub = clubRepository.findById(request.getId()).orElseThrow();;
+                    if (request.getPassword() != null)
+                        updatedClub.setPassword(passwordEncoder.encode(request.getPassword()));
                     updatedClub.setAdmin(Boolean.parseBoolean(request.getVariables().get(ADMIN)));
                     updatedClub.setUsername(request.getUserName());
                     clubRepository.save(updatedClub);
@@ -207,11 +207,10 @@ public class AuthenticationService {
                     )
                         throw new IllegalArgumentException(REQUIRED_ARGUMENTS_MISSING_MESSAGE);
 
-                    Club competitorClub = clubRepository.findById(Long.valueOf(variables.get(CLUBID)))
-                            .orElseThrow(() -> new InputMismatchException(NON_EXISTING_CLUB_MESSAGE));
 
-                    Competitor updatedCompetitor = competitorRepository.findByUsername(request.getUserName());
-                    updatedCompetitor.setPassword(passwordEncoder.encode(request.getPassword()));
+                    Competitor updatedCompetitor = competitorRepository.findById(request.getId()).orElseThrow();;
+                    if (request.getPassword() != null)
+                        updatedCompetitor.setPassword(passwordEncoder.encode(request.getPassword()));
                     updatedCompetitor.setBelt(Integer.valueOf(variables.get(BELT)));
                     updatedCompetitor.setBirthYear(Long.valueOf(variables.get(BIRTHYEAR)));
                     updatedCompetitor.setFirstName(variables.get(NAME));
@@ -233,11 +232,9 @@ public class AuthenticationService {
                     )
                         throw new IllegalArgumentException(REQUIRED_ARGUMENTS_MISSING_MESSAGE);
 
-                    Club refereeClub = clubRepository.findById(Long.valueOf(variables.get(CLUBID)))
-                            .orElseThrow(() -> new InputMismatchException(NON_EXISTING_CLUB_MESSAGE));
-
-                    Referee updatedReferee = refereeRepository.findByUsername(request.getUserName());
-                    updatedReferee.setPassword(passwordEncoder.encode(request.getPassword()));
+                    Referee updatedReferee = refereeRepository.findById(request.getId()).orElseThrow();
+                    if (request.getPassword() != null)
+                        updatedReferee.setPassword(passwordEncoder.encode(request.getPassword()));
                     updatedReferee.setFirstName(variables.get(NAME));
                     updatedReferee.setLastName(variables.get(LASTNAME));
                     updatedReferee.setRefereeClass(RefereeClass.valueOf(variables.get(REFEREE_CLASS)));;

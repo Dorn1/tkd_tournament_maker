@@ -1,12 +1,8 @@
 package pl.tkd.tournaments.tkd_tournament_maker.club.club;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pl.tkd.tournaments.tkd_tournament_maker.club.competitor.Competitor;
-import pl.tkd.tournaments.tkd_tournament_maker.club.referee.Referee;
 import pl.tkd.tournaments.tkd_tournament_maker.club.referee.RefereeDTO;
 import pl.tkd.tournaments.tkd_tournament_maker.exceptions.ObjectNotFoundException;
 
@@ -25,23 +21,6 @@ public class ClubController {
         this.clubService = clubService;
     }
 
-    @GetMapping(value = "/getCompetitorById")
-    public ResponseEntity<String> getCompetitorById(@RequestParam Long id) {
-        try {
-            Competitor competitor = clubService.getCompetitorById(id);
-            return ResponseEntity.ok(competitor.toString());
-        } catch (ObjectNotFoundException e) {
-            return ResponseEntity.status(404).body(e.getMessage());
-        }
-    }
-
-    @GetMapping(value = "/getClubByName")
-    public ResponseEntity<String> getClubByName(@RequestParam String name) {
-        Club club = clubService.getClubByName(name);
-        return ResponseEntity.ok(club.toString());
-
-    }
-
     @GetMapping(value = "/getClubReferees")
     public ResponseEntity<List<RefereeDTO>> getClubReferees(@RequestParam String clubName) {
         try {
@@ -51,6 +30,15 @@ public class ClubController {
             return ResponseEntity.status(500).body(null);
         }
 
+    }
+
+    @GetMapping(value = "/getReferee")
+    public ResponseEntity<RefereeDTO> getReferee(@RequestParam Long refereeId) {
+        try {
+            return ResponseEntity.ok(clubService.getRefereeDTOById(refereeId));
+        } catch (ObjectNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
 }

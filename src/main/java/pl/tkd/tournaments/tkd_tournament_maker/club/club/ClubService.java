@@ -4,17 +4,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import pl.tkd.tournaments.tkd_tournament_maker.club.competitor.Competitor;
 import pl.tkd.tournaments.tkd_tournament_maker.club.competitor.CompetitorRepository;
-import pl.tkd.tournaments.tkd_tournament_maker.club.competitor.Sex;
 import pl.tkd.tournaments.tkd_tournament_maker.club.referee.Referee;
 import pl.tkd.tournaments.tkd_tournament_maker.club.referee.RefereeDTO;
 import pl.tkd.tournaments.tkd_tournament_maker.club.referee.RefereeRepository;
 import pl.tkd.tournaments.tkd_tournament_maker.exceptions.ObjectNotFoundException;
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.tournament.Tournament;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -46,6 +45,7 @@ public class ClubService {
             for (Tournament tournament : referee.getTournaments()) {
                 dto.getTournamentIds().add(tournament.getId());
             }
+            dto.setUserName(referee.getUsername());
             dto.setRefereeClass(referee.getRefereeClass());
             referees.add(dto);
         }
@@ -58,4 +58,23 @@ public class ClubService {
         throw new ObjectNotFoundException("Competitor doesn't exist");
     }
 
+    public  RefereeDTO getRefereeDTOById(Long id) throws ObjectNotFoundException {
+        RefereeDTO dto = new RefereeDTO();
+        Optional<Referee> referee = refereeRepository.findById(id);
+        if (referee.isPresent()){
+            dto.setId(referee.get().getId());
+            dto.setFirstname(referee.get().getFirstName());
+            dto.setLastname(referee.get().getLastName());
+            dto.setTournamentIds(new HashSet<>());
+            for (Tournament tournament : referee.get().getTournaments()) {
+                dto.getTournamentIds().add(tournament.getId());
+            }
+            dto.setUserName(referee.get().getUsername());
+            dto.setRefereeClass(referee.get().getRefereeClass());
+            return dto;
+        }
+        else {
+            throw new ObjectNotFoundException("Referee not found");
+        }
+    }
 }
