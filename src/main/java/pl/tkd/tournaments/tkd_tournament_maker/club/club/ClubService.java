@@ -4,16 +4,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import pl.tkd.tournaments.tkd_tournament_maker.club.competitor.Competitor;
 import pl.tkd.tournaments.tkd_tournament_maker.club.competitor.CompetitorRepository;
+import pl.tkd.tournaments.tkd_tournament_maker.club.competitor.CompetitorTableDTO;
 import pl.tkd.tournaments.tkd_tournament_maker.club.referee.Referee;
 import pl.tkd.tournaments.tkd_tournament_maker.club.referee.RefereeDTO;
 import pl.tkd.tournaments.tkd_tournament_maker.club.referee.RefereeRepository;
 import pl.tkd.tournaments.tkd_tournament_maker.exceptions.ObjectNotFoundException;
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.tournament.Tournament;
 
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -50,6 +48,26 @@ public class ClubService {
             referees.add(dto);
         }
         return referees;
+    }
+
+    public List<CompetitorTableDTO> getCompetitorsByClub(String clubName) {
+        Club club = getClubByName(clubName);
+        List<CompetitorTableDTO> competitors = new LinkedList<>();
+        for (Competitor competitor : competitorRepository.findByClub(club)) {
+            Set<Long> tournamentIds = new HashSet<>();
+            for (Tournament tournament : competitor.getTournaments()) {
+                tournamentIds.add(tournament.getId());
+            }
+            CompetitorTableDTO dto = new CompetitorTableDTO();
+            dto.setId(competitor.getId());
+            dto.setFirstname(competitor.getFirstName());
+            dto.setLastname(competitor.getLastName());
+            dto.setTournamentIds(tournamentIds);
+            dto.setUserName(competitor.getUsername());
+            dto.setBelt(competitor.getBelt());
+            competitors.add(dto);
+        }
+        return competitors;
     }
 
     public Competitor getCompetitorById(Long id) throws ObjectNotFoundException {
