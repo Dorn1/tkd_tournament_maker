@@ -10,6 +10,7 @@ public class CompetitorTableDTO {
     String firstname;
     String lastname;
     Integer belt;
+    Double weight;
     private String userName;
     private Set<Long> tournamentIds;
 }

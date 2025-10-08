@@ -10,6 +10,8 @@ import pl.tkd.tournaments.tkd_tournament_maker.club.referee.RefereeDTO;
 import pl.tkd.tournaments.tkd_tournament_maker.club.referee.RefereeRepository;
 import pl.tkd.tournaments.tkd_tournament_maker.exceptions.ObjectNotFoundException;
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.tournament.Tournament;
+import pl.tkd.tournaments.tkd_tournament_maker.tournament.tournament.TournamentRepository;
+import pl.tkd.tournaments.tkd_tournament_maker.tournament.tournament.dto.TournamentTableDTO;
 
 import java.util.*;
 
@@ -19,6 +21,7 @@ public class ClubService {
     private final ClubRepository clubRepository;
     private final CompetitorRepository competitorRepository;
     private final RefereeRepository refereeRepository;
+    private final TournamentRepository tournamentRepository;
 
 
     public Club getClubById(Long id) throws ObjectNotFoundException {
@@ -70,16 +73,42 @@ public class ClubService {
         return competitors;
     }
 
+    public List<TournamentTableDTO> getTournamentsByClub(String clubName) {
+        Club club = getClubByName(clubName);
+        List<TournamentTableDTO> tournaments = new LinkedList<>();
+        for (Tournament tournament : tournamentRepository.findByOrganizer_Club(club)) {
+            TournamentTableDTO dto = new TournamentTableDTO();
+            dto.setId(tournament.getId());
+            dto.setName(tournament.getName());
+            dto.setDate(tournament.getStartDate().toString());
+            dto.setLocation(tournament.getLocation());
+            tournaments.add(dto);
+        }
+        return tournaments;
+    }
+
+    public List<ClubDTO> getClubs() {
+        List<ClubDTO> clubs = new LinkedList<>();
+        for (Club club : clubRepository.findAll()) {
+            ClubDTO dto = new ClubDTO();
+            dto.setId(club.getId());
+            dto.setUsername(club.getUsername());
+            dto.setAdmin(club.isAdmin());
+            clubs.add(dto);
+        }
+        return clubs;
+    }
+
     public Competitor getCompetitorById(Long id) throws ObjectNotFoundException {
         if (competitorRepository.findById(id).isPresent())
             return competitorRepository.findById(id).get();
         throw new ObjectNotFoundException("Competitor doesn't exist");
     }
 
-    public  RefereeDTO getRefereeDTOById(Long id) throws ObjectNotFoundException {
+    public RefereeDTO getRefereeDTOById(Long id) throws ObjectNotFoundException {
         RefereeDTO dto = new RefereeDTO();
         Optional<Referee> referee = refereeRepository.findById(id);
-        if (referee.isPresent()){
+        if (referee.isPresent()) {
             dto.setId(referee.get().getId());
             dto.setFirstname(referee.get().getFirstName());
             dto.setLastname(referee.get().getLastName());
@@ -90,9 +119,29 @@ public class ClubService {
             dto.setUserName(referee.get().getUsername());
             dto.setRefereeClass(referee.get().getRefereeClass());
             return dto;
-        }
-        else {
+        } else {
             throw new ObjectNotFoundException("Referee not found");
         }
     }
+
+    public CompetitorTableDTO getCompetitorDTOById(Long id) throws ObjectNotFoundException {
+        CompetitorTableDTO dto = new CompetitorTableDTO();
+        Optional<Competitor> competitor = competitorRepository.findById(id);
+        if (competitor.isPresent()) {
+            dto.setId(competitor.get().getId());
+            dto.setFirstname(competitor.get().getFirstName());
+            dto.setLastname(competitor.get().getLastName());
+            dto.setTournamentIds(new HashSet<>());
+            for (Tournament tournament : competitor.get().getTournaments()) {
+                dto.getTournamentIds().add(tournament.getId());
+            }
+            dto.setUserName(competitor.get().getUsername());
+            dto.setBelt(competitor.get().getBelt());
+            dto.setWeight(competitor.get().getWeight());
+            return dto;
+        } else {
+            throw new ObjectNotFoundException("Competitor not found");
+        }
+    }
+
 }
