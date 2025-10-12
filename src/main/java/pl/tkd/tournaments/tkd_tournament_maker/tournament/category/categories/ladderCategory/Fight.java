@@ -24,68 +24,20 @@ public class Fight {
     private Competitor competitor2;
     @ManyToOne
     private Competitor winner;
-    @OneToOne
-    private Fight nextFightObserver;
-    @OneToOne
-    private Fight thirdPlaceFightObserver = null;
-    @OneToMany
-    private Set<Fight> fightsBefore = new HashSet<>();
+    private Long nextFightObserver;
+    private Long thirdPlaceFightObserver = null;
+    @ElementCollection
+    private Set<Long> fightsBefore = new HashSet<>();
     @ManyToOne
     private Category category;
-    @ManyToOne
-    private Referee mainFightReferee;
-    @ManyToMany
-    private Set<Referee> fightReferees = new HashSet<>();
-    @ManyToMany
-    private Set<Referee> tableReferees = new HashSet<>();
+    private Long mainFightReferee;
+    @ElementCollection
+    private Set<Long> fightReferees = new HashSet<>();
+
+    @ElementCollection
+    private Set<Long> tableReferees = new HashSet<>();
 
 
-    public Competitor getLoser(){
-        if (winner.equals(competitor1)){
-            return competitor2;
-        }
-        return competitor1;
-    }
 
-    public void updateObservers() throws IllegalAccessException {
-        if (nextFightObserver != null){
-            nextFightObserver.addCompetitor(winner);
-        }
-        if (thirdPlaceFightObserver != null) {
-            if (thirdPlaceFightObserver.competitor1 ==null) {
-                thirdPlaceFightObserver.setCompetitor1(competitor1);
-            } else if (thirdPlaceFightObserver.competitor2 == null) {
-                thirdPlaceFightObserver.setCompetitor2(competitor2);
-            }
-        }
-    }
-
-    public void setWinner(boolean wonFirst) throws ObjectNotFoundException, IllegalAccessException {
-        if (competitor1 != null && competitor2 != null){
-        winner = wonFirst ? competitor1 : competitor2;
-        }
-        else if(competitor1 != null){
-            winner = competitor1;
-        }
-        else if(competitor2 != null){
-            winner = competitor2;
-        }
-        else{
-            throw new ObjectNotFoundException("neither competitor1 nor competitor2 is set");
-        }
-        updateObservers();
-    }
-
-    public void addCompetitor(Competitor competitor) throws IllegalAccessException {
-        if (competitor1 == null){
-            competitor1 = competitor;
-        }
-        else if (competitor2 == null && competitor1 != null){
-            competitor2 = competitor;
-        }
-        else {
-            throw new IllegalAccessException("added too many competitors to fight");
-        }
-    }
 
 }

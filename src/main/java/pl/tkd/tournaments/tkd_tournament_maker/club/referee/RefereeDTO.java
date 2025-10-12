@@ -12,5 +12,6 @@ public class RefereeDTO {
     private String lastname;
     private RefereeClass refereeClass;
     private String userName;
+    private  Long clubId;
     private Set<Long> tournamentIds;
 }

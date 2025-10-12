@@ -6,11 +6,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pl.tkd.tournaments.tkd_tournament_maker.tournament.category.categories.ladderCategory.LadderCategoryDTO;
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.category.categories.tableCategory.*;
 import pl.tkd.tournaments.tkd_tournament_maker.exceptions.ObjectNotFoundException;
 import pl.tkd.tournaments.tkd_tournament_maker.exceptions.RematchNeededException;
+import pl.tkd.tournaments.tkd_tournament_maker.tournament.tournament.dto.CreateTournamentRequest;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @CrossOrigin("*")
@@ -27,18 +30,14 @@ public class TournamentController {
     }
 
     @PostMapping(value = "/newTournament")
-    public ResponseEntity<String> newTournament(@RequestParam String name,
-                                                @RequestParam String location,
-                                                @RequestParam Long startDate,
-                                                @RequestParam Long endDate,
-                                                @RequestParam Long organizerId) {
+    public ResponseEntity<String> newTournament(@RequestBody CreateTournamentRequest request) {
         try {
-            tournamentService.addTournament(name,
-                    location,
-                    startDate,
-                    endDate,
-                    organizerId);
-            logger.info("New tournament {} created", name);
+            tournamentService.addTournament(request.getName(),
+                    request.getLocation(),
+                    request.getStartDate(),
+                    request.getEndDate(),
+                    request.getOrganizerName());
+            logger.info("New tournament {} created", request.getName());
             return ResponseEntity.ok("Tournament created");
         } catch (ObjectNotFoundException e) {
             logger.warn("attempt to access a non-existent club");
@@ -63,9 +62,9 @@ public class TournamentController {
     }
 
     @PostMapping(value = "/newMat")
-    public ResponseEntity<String> newMat(@RequestParam Long tournamentId) {
+    public ResponseEntity<String> newMat(@RequestParam Long tournamentId, @RequestParam Long mat_Leader_Id) {
         try {
-            tournamentService.addMat(tournamentId);
+            tournamentService.addMat(tournamentId, mat_Leader_Id);
             logger.info("New mat created");
             return ResponseEntity.ok("Mat created");
         } catch (ObjectNotFoundException e) {
@@ -77,15 +76,31 @@ public class TournamentController {
     @PostMapping(value = "/newCategory")
     //need to change parameters here
     public ResponseEntity<String> newCategory(@RequestParam Long matId,
-                                              boolean ladderCategory) {
+                                              @RequestParam boolean ladderCategory,
+                                              @RequestBody Map<String, String> filterParams) {
         try {
-            tournamentService.addCategory(matId, ladderCategory);
+            tournamentService.addCategory(matId, ladderCategory, filterParams);
             logger.info("New Category created");
             return ResponseEntity.ok("Category created");
         } catch (ObjectNotFoundException e) {
             logger.warn("attempt to access a non-existent mat");
             return ResponseEntity.status(404).body(e.getMessage());
+        } catch (IllegalAccessException e) {
+            return ResponseEntity.status(400).body(e.getMessage());
         }
+    }
+
+    @GetMapping(value = "/getLadderCategory")
+    public ResponseEntity<LadderCategoryDTO> getLadderCategory(@RequestParam Long categoryId) {
+        LadderCategoryDTO ladderCategoryDTO = tournamentService.getLadderCategoryById(categoryId);
+        return ResponseEntity.ok(ladderCategoryDTO);
+    }
+
+    @PostMapping(value = "/addRefereeToMat")
+    public ResponseEntity<String> addRefereeToMat(@RequestParam Long refereeId,
+                                                  @RequestParam Long matId) {
+        tournamentService.addRefereeToMat(refereeId, matId);
+        return ResponseEntity.ok("Referee added to mat");
     }
 
     @PostMapping(value = "/addCompetitorToTournament")

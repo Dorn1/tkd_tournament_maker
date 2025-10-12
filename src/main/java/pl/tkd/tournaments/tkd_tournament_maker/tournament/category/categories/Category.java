@@ -18,8 +18,7 @@ public abstract class Category {
     private Long id;
     @ManyToMany
     private Set<Competitor> competitors;
-    @ManyToOne
-    private Mat mat;
+    private Long matId;
 
 
 }

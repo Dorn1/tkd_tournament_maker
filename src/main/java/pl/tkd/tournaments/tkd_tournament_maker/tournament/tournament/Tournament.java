@@ -29,7 +29,7 @@ public class Tournament {
 
 
     @ManyToOne
-    private Club organizer_Club;
+    private Club organizerClub;
     @ManyToMany
     Set<Club> clubs;
     @ManyToMany
@@ -45,7 +45,7 @@ public class Tournament {
         this.location = location;
         this.startDate = startDate;
         this.endDate = endDate;
-        this.organizer_Club = organizer_Club;
+        this.organizerClub = organizer_Club;
     }
 
 }

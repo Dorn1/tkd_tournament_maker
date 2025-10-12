@@ -58,7 +58,12 @@ public class ClubService {
         List<CompetitorTableDTO> competitors = new LinkedList<>();
         for (Competitor competitor : competitorRepository.findByClub(club)) {
             Set<Long> tournamentIds = new HashSet<>();
-            for (Tournament tournament : competitor.getTournaments()) {
+            List<Tournament> competitorTournaments = new ArrayList<>();
+            for (Long id : competitor.getTournamentIds()){
+                competitorTournaments.add(tournamentRepository.findById(id).orElseThrow());
+            }
+
+            for (Tournament tournament : competitorTournaments) {
                 tournamentIds.add(tournament.getId());
             }
             CompetitorTableDTO dto = new CompetitorTableDTO();
@@ -76,7 +81,7 @@ public class ClubService {
     public List<TournamentTableDTO> getTournamentsByClub(String clubName) {
         Club club = getClubByName(clubName);
         List<TournamentTableDTO> tournaments = new LinkedList<>();
-        for (Tournament tournament : tournamentRepository.findByOrganizer_Club(club)) {
+        for (Tournament tournament : tournamentRepository.findByClubAsOrganizerOrMember(club)) {
             TournamentTableDTO dto = new TournamentTableDTO();
             dto.setId(tournament.getId());
             dto.setName(tournament.getName());
@@ -132,7 +137,12 @@ public class ClubService {
             dto.setFirstname(competitor.get().getFirstName());
             dto.setLastname(competitor.get().getLastName());
             dto.setTournamentIds(new HashSet<>());
-            for (Tournament tournament : competitor.get().getTournaments()) {
+            List<Tournament> competitorTournaments = new ArrayList<>();
+            for (Long tid : competitor.get().getTournamentIds()){
+                competitorTournaments.add(tournamentRepository.findById(tid).orElseThrow());
+            }
+
+            for (Tournament tournament : competitorTournaments) {
                 dto.getTournamentIds().add(tournament.getId());
             }
             dto.setUserName(competitor.get().getUsername());

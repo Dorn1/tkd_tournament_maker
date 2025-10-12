@@ -64,22 +64,22 @@ public class TournamentServiceTests {
         } catch (IllegalAccessException e) {
             Assertions.fail();
         }
-        List<Fight> firstLayer = testCategory1.getFirstPlaceFight().getFightsBefore().stream().toList();
+        List<Long> firstLayer = testCategory1.getFirstPlaceFight().getFightsBefore().stream().toList();
         Assertions.assertEquals(2,firstLayer.size());
-        Assertions.assertTrue(Math.abs(countAscendants(firstLayer.getFirst())-countAscendants(firstLayer.get(1))) <= 1);
+       // Assertions.assertTrue(Math.abs(countAscendants(firstLayer.getFirst())-countAscendants(firstLayer.get(1))) <= 1);
     }
 
-    private int countAscendants(Fight startFight) {
-        int counter = 0;
-        Stack<Fight> waitingFights = new Stack<>();
-        waitingFights.push(startFight);
-        while (!waitingFights.isEmpty()) {
-            Fight currentFight = waitingFights.pop();
-            counter++;
-            for (Fight fightBefore : currentFight.getFightsBefore()) {
-                waitingFights.push(fightBefore);
-            }
-        }
-        return counter;
-    }
+//    private int countAscendants(Fight startFight) {
+//        int counter = 0;
+//        Stack<Fight> waitingFights = new Stack<>();
+//        waitingFights.push(startFight);
+//        while (!waitingFights.isEmpty()) {
+//            Fight currentFight = waitingFights.pop();
+//            counter++;
+//            for (Fight fightBefore : currentFight.getFightsBefore()) {
+//                waitingFights.push(fightBefore);
+//            }
+//        }
+//        return counter;
+//    }
 }

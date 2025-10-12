@@ -1,5 +1,6 @@
 package pl.tkd.tournaments.tkd_tournament_maker.tournament.tournament.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data

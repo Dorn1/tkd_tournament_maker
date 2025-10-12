@@ -32,8 +32,8 @@ public class Competitor extends User {
     @ManyToOne
     private Club club;
     @ToString.Exclude
-    @ManyToMany
-    Set<Tournament> tournaments;
+    @ElementCollection
+    Set<Long> tournamentIds;
 
     private Double Weight;
     private Integer belt;
