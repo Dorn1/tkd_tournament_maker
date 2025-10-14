@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pl.tkd.tournaments.tkd_tournament_maker.tournament.category.categories.ladderCategory.FightDTO;
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.category.categories.ladderCategory.LadderCategoryDTO;
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.category.categories.tableCategory.*;
 import pl.tkd.tournaments.tkd_tournament_maker.exceptions.ObjectNotFoundException;
@@ -94,6 +95,12 @@ public class TournamentController {
     public ResponseEntity<LadderCategoryDTO> getLadderCategory(@RequestParam Long categoryId) {
         LadderCategoryDTO ladderCategoryDTO = tournamentService.getLadderCategoryById(categoryId);
         return ResponseEntity.ok(ladderCategoryDTO);
+    }
+
+    @GetMapping(value = "/getFight")
+    public ResponseEntity<FightDTO> getFight(@RequestParam Long fightId) {
+        FightDTO fightDTO = tournamentService.getFightDTOById(fightId);
+        return ResponseEntity.ok(fightDTO);
     }
 
     @PostMapping(value = "/addRefereeToMat")

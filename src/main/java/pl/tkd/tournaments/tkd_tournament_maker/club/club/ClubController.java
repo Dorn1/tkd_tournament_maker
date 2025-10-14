@@ -72,6 +72,14 @@ public class ClubController {
             return ResponseEntity.notFound().build();
         }
     }
+    @GetMapping(value = "/getClub")
+    public ResponseEntity<ClubDTO> getClub(@RequestParam Long clubId) {
+        try {
+            return ResponseEntity.ok(clubService.getClubDTOById(clubId));
+        } catch (ObjectNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 
     @GetMapping(value = "/getClubs")
     public ResponseEntity<List<ClubDTO>> getClubs() {

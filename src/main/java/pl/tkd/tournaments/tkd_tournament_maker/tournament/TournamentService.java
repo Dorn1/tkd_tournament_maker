@@ -101,6 +101,7 @@ public class TournamentService {
         if (ladderCategory) {
             category = new LadderCategory();
             category.setCompetitors(new HashSet<>(competitors));
+            category.setMatId(matId);
             generateLadderCategory((LadderCategory) category);
             ladderCategoryRepository.save((LadderCategory) category);
         } else
@@ -166,8 +167,8 @@ public class TournamentService {
                 generatingFight.getFightsBefore().add(beforeFight2.getId());
                 category.getFights().add(beforeFight1);
                 category.getFights().add(beforeFight2);
-                nextLayerQueque.add(beforeFight1);
                 nextLayerQueque.add(beforeFight2);
+                nextLayerQueque.add(beforeFight1);
                 if (thisLayerQueque.isEmpty()) {
                     if (category.getCompetitors().size() != maxtwopowered &&
                             layerFightCount * 4 >= maxtwopowered / 2)
@@ -475,6 +476,7 @@ public class TournamentService {
         dto.setLastname(competitor.getLastName());
         dto.setBelt(competitor.getBelt());
         dto.setClubId(competitor.getClub().getId());
+
         return dto;
     }
 
@@ -533,5 +535,9 @@ public class TournamentService {
         } else {
             throw new IllegalAccessException("added too many competitors to fight");
         }
+    }
+
+    public FightDTO getFightDTOById(Long fightId) {
+        return createFightDTO(fightRepository.findById(fightId).orElseThrow(), true);
     }
 }

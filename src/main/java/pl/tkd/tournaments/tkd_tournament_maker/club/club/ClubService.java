@@ -154,4 +154,15 @@ public class ClubService {
         }
     }
 
+    public ClubDTO getClubDTOById(Long clubId) throws ObjectNotFoundException {
+        ClubDTO dto = new ClubDTO();
+        Optional<Club> club = clubRepository.findById(clubId);
+        if (club.isPresent()) {
+            dto.setId(club.get().getId());
+            dto.setUsername(club.get().getUsername());
+            return dto;
+        } else {
+            throw new ObjectNotFoundException("Club not found");
+        }
+    }
 }
