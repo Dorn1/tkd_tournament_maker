@@ -12,4 +12,5 @@ public class MatDTO {
     private TournamentTableDTO tournament;
     private RefereeDTO matLeader;
     private List<RefereeDTO> Referees;
+    private List<Long> categoryQueque;
 }

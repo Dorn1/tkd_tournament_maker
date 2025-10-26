@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import pl.tkd.tournaments.tkd_tournament_maker.club.club.Club;
 import pl.tkd.tournaments.tkd_tournament_maker.club.club.ClubService;
 import pl.tkd.tournaments.tkd_tournament_maker.club.competitor.Competitor;
-import pl.tkd.tournaments.tkd_tournament_maker.club.competitor.CompetitorRepository;
 import pl.tkd.tournaments.tkd_tournament_maker.club.competitor.CompetitorTableDTO;
 import pl.tkd.tournaments.tkd_tournament_maker.club.competitor.Sex;
 import pl.tkd.tournaments.tkd_tournament_maker.club.referee.Referee;
@@ -26,7 +25,6 @@ import pl.tkd.tournaments.tkd_tournament_maker.exceptions.RematchNeededException
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.tournament.dto.TournamentTableDTO;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class TournamentService {
@@ -130,7 +128,7 @@ public class TournamentService {
         Tournament tournament = getTournament(tournamentId);
         Competitor competitor = clubService.getCompetitorById(CompetitorId);
         tournament.getCompetitors().add(competitor);
-    tournamentRepository.save(tournament);
+        tournamentRepository.save(tournament);
     }
 
     public void generateLadderCategory(LadderCategory category) throws IllegalAccessException {
@@ -142,13 +140,14 @@ public class TournamentService {
             maxtwopowered *= 2;
         }
         int layerFightCount = 1;
-        category.setFirstPlaceFight(new Fight());
+        Fight firstPlaceFight = new Fight();
+        firstPlaceFight = fightRepository.save(firstPlaceFight);
+        category.setFirstPlaceFight(firstPlaceFight);
         category.getFights().add(category.getFirstPlaceFight());
         int competitorFightSum = 2;
         List<Fight> thisLayerQueque = new ArrayList<>();
         thisLayerQueque.add(category.getFirstPlaceFight());
         List<Fight> nextLayerQueque = new ArrayList<>();
-        boolean thirdPlaceFightSet = false;
         while (competitorFightSum < category.getCompetitors().size()) {
             Fight generatingFight = thisLayerQueque.removeFirst();
             Fight beforeFight1 = new Fight();
@@ -167,8 +166,9 @@ public class TournamentService {
                 generatingFight.getFightsBefore().add(beforeFight2.getId());
                 category.getFights().add(beforeFight1);
                 category.getFights().add(beforeFight2);
-                nextLayerQueque.add(beforeFight2);
                 nextLayerQueque.add(beforeFight1);
+                nextLayerQueque.add(beforeFight2);
+
                 if (thisLayerQueque.isEmpty()) {
                     if (category.getCompetitors().size() != maxtwopowered &&
                             layerFightCount * 4 >= maxtwopowered / 2)
@@ -179,17 +179,11 @@ public class TournamentService {
                     layerFightCount = thisLayerQueque.size();
                 }
                 competitorFightSum += 2;
+
             }
-            if (!thirdPlaceFightSet && thisLayerQueque.size() == 2) {
-                thirdPlaceFightSet = true;
-                category.setThridPlaceFight(new Fight());
-                thisLayerQueque.getFirst().setThirdPlaceFightObserver(category.getThridPlaceFight().getId());
-                thisLayerQueque.getLast().setThirdPlaceFightObserver(category.getThridPlaceFight().getId());
-                category.getThridPlaceFight().getFightsBefore().add(thisLayerQueque.getFirst().getId());
-                category.getThridPlaceFight().getFightsBefore().add(thisLayerQueque.getLast().getId());
-                category.getFights().add(category.getThridPlaceFight());
-            }
+
         }
+
         Set<Competitor> competitorsCopy = new HashSet<>(category.getCompetitors());
 
         for (Fight fight : category.getFights()) {
@@ -201,7 +195,18 @@ public class TournamentService {
                 addCompetitor(randomCompetitor(competitorsCopy), fight);
             }
         }
-
+        if (firstPlaceFight.getFightsBefore().size() == 2) {
+            Fight thirdPlaceFight = new Fight();
+            thirdPlaceFight = fightRepository.save(thirdPlaceFight);
+            category.setThridPlaceFight(thirdPlaceFight);
+            Fight fight1 = fightRepository.findById(firstPlaceFight.getFightsBefore().stream().toList().getFirst()).orElseThrow();
+            fight1.setThirdPlaceFightObserver(category.getThridPlaceFight().getId());
+            Fight fight2 = fightRepository.findById(firstPlaceFight.getFightsBefore().stream().toList().getLast()).orElseThrow();
+            fight2.setThirdPlaceFightObserver(category.getThridPlaceFight().getId());
+            category.getFights().add(category.getThridPlaceFight());
+            fightRepository.save(fight1);
+            fightRepository.save(fight2);
+        }
         fightRepository.saveAll(category.getFights());
         ladderCategoryRepository.save(category);
     }
@@ -365,12 +370,12 @@ public class TournamentService {
             for (Fight fight : category.getFights()) {
                 if (fight.getCompetitor1().getId().equals(competitorID)
                         && fight.getWinner() == null) {
-                    setWinner(false, fight);
+                    setFightWinner(false, fight.getId());
                     break;
                 }
                 if (fight.getCompetitor2().getId().equals(competitorID)
                         && fight.getWinner() == null) {
-                    setWinner(true, fight);
+                    setFightWinner(true, fight.getId());
                     break;
                 }
             }
@@ -398,24 +403,47 @@ public class TournamentService {
             dto.setFirstPlaceFight(createFightDTO(category.getFirstPlaceFight(), true));
             dto.setThridPlaceFight(createFightDTO(category.getThridPlaceFight(), false));
             Mat categoryMat = matRepository.findById(category.getMatId()).orElseThrow();
-            MatDTO matDTO = new MatDTO();
-            matDTO.setId(categoryMat.getId());
+
             TournamentTableDTO tournament = new TournamentTableDTO();
             tournament.setId(categoryMat.getTournament().getId());
             tournament.setName(categoryMat.getTournament().getName());
             tournament.setLocation(categoryMat.getTournament().getLocation());
             tournament.setDate(categoryMat.getTournament().getStartDate().toString());
-            matDTO.setTournament(tournament);
-            if (categoryMat.getMatLeader() != null)
-                matDTO.setMatLeader(createRefereeDTO(categoryMat.getMatLeader()));
-            matDTO.setReferees(new ArrayList<>());
-            for (Referee referee : categoryMat.getReferees()) {
-                matDTO.getReferees().add(createRefereeDTO(referee));
-            }
+            MatDTO matDTO = createMatDTO(categoryMat, tournament);
             dto.setMat(matDTO);
+
+
             return dto;
         }
         throw new RuntimeException("requested Ladder Category not found");
+    }
+
+    private MatDTO createMatDTO(Mat categoryMat, TournamentTableDTO tournament) {
+        MatDTO matDTO = new MatDTO();
+        matDTO.setId(categoryMat.getId());
+        matDTO.setTournament(tournament);
+        if (categoryMat.getMatLeader() != null)
+            matDTO.setMatLeader(createRefereeDTO(categoryMat.getMatLeader()));
+        matDTO.setReferees(new ArrayList<>());
+        for (Referee referee : categoryMat.getReferees()) {
+            matDTO.getReferees().add(createRefereeDTO(referee));
+        }
+        matDTO.setCategoryQueque(categoryMat.getCategoryQueque());
+        return matDTO;
+    }
+
+    private List<FightDTO> addOneWithChildren(Fight fight) {
+        List<FightDTO> fights = new ArrayList<>();
+        if (!fight.getFightsBefore().isEmpty()) {
+            for (Long beforeFight : fight.getFightsBefore()) {
+                Fight fight1 = fightRepository.findById(beforeFight).orElseThrow();
+                fights.add(createFightDTO(fight1, false));
+            }
+            for (Long beforeFight : fight.getFightsBefore()) {
+                fights.addAll(addOneWithChildren(fightRepository.findById(beforeFight).orElseThrow()));
+            }
+        }
+        return fights;
     }
 
     private RefereeDTO createRefereeDTO(Referee referee) {
@@ -430,7 +458,7 @@ public class TournamentService {
 
     private FightDTO createFightDTO(Fight fight, boolean recursively) {
         FightDTO dto = new FightDTO();
-        if (fight.getFightsBefore() != null &&!fight.getFightsBefore().isEmpty() && recursively) {
+        if (fight.getFightsBefore() != null && !fight.getFightsBefore().isEmpty() && recursively) {
             List<FightDTO> fightsBefore = new ArrayList<>();
             for (Long beforeFight : fight.getFightsBefore()) {
                 fightsBefore.add(createFightDTO(fightRepository.findById(beforeFight).orElseThrow(), recursively));
@@ -504,17 +532,22 @@ public class TournamentService {
     }
 
     public void updateObservers(Fight fight) throws IllegalAccessException {
+
         Fight nextFightObserver = fightRepository.findById(fight.getNextFightObserver()).orElseThrow();
-        addCompetitor(fight.getWinner(), fight);
-        Fight thirdPlaceFightObserver = fightRepository.findById(fight.getThirdPlaceFightObserver()).orElseThrow();
-        if (thirdPlaceFightObserver.getCompetitor1() == null) {
-            thirdPlaceFightObserver.setCompetitor1(fight.getCompetitor1());
-        } else if (thirdPlaceFightObserver.getCompetitor2() == null) {
-            thirdPlaceFightObserver.setCompetitor2(fight.getCompetitor2());
+        addCompetitor(fight.getWinner(), nextFightObserver);
+        if (fight.getThirdPlaceFightObserver() != null) {
+            Fight thirdPlaceFightObserver = fightRepository.findById(fight.getThirdPlaceFightObserver()).orElseThrow();
+            if (thirdPlaceFightObserver.getCompetitor2() == null) {
+                thirdPlaceFightObserver.setCompetitor2(fight.getCompetitor1());
+            } else if (thirdPlaceFightObserver.getCompetitor1() == null) {
+                thirdPlaceFightObserver.setCompetitor1(fight.getCompetitor2());
+            }
+            fightRepository.save(thirdPlaceFightObserver);
         }
     }
 
-    public void setWinner(boolean wonFirst, Fight fight) throws ObjectNotFoundException, IllegalAccessException {
+    public void setFightWinner(boolean wonFirst, Long fightId) throws ObjectNotFoundException, IllegalAccessException {
+        Fight fight = fightRepository.findById(fightId).orElseThrow(() -> new ObjectNotFoundException("Fight not found"));
         if (fight.getCompetitor1() != null && fight.getCompetitor2() != null) {
             fight.setWinner(wonFirst ? fight.getCompetitor1() : fight.getCompetitor2());
         } else if (fight.getCompetitor1() != null) {
@@ -524,20 +557,40 @@ public class TournamentService {
         } else {
             throw new ObjectNotFoundException("neither competitor1 nor competitor2 is set");
         }
-        updateObservers(fight);
+        if (fight.getNextFightObserver() != null) {
+            updateObservers(fight);
+        }
+        fightRepository.save(fight);
     }
 
     public void addCompetitor(Competitor competitor, Fight fight) throws IllegalAccessException {
-        if (fight.getCompetitor1() == null) {
-            fight.setCompetitor1(competitor);
-        } else if (fight.getCompetitor2() == null) {
+        if (fight.getCompetitor2() == null) {
             fight.setCompetitor2(competitor);
+        } else if (fight.getCompetitor1() == null) {
+            fight.setCompetitor1(competitor);
         } else {
             throw new IllegalAccessException("added too many competitors to fight");
         }
+        fightRepository.save(fight);
     }
 
     public FightDTO getFightDTOById(Long fightId) {
         return createFightDTO(fightRepository.findById(fightId).orElseThrow(), true);
+    }
+
+    public List<MatDTO> getMatsByTournamentId(Long tournamentId) {
+        Tournament tournament = tournamentRepository.findById(tournamentId).orElseThrow();
+        List<Mat> mats = matRepository.findByTournament(tournament);
+        List<MatDTO> matDTOS = new ArrayList<>();
+        for (Mat mat : mats) {
+            TournamentTableDTO tournamentDTO = new TournamentTableDTO();
+            tournamentDTO.setId(tournament.getId());
+            tournamentDTO.setName(tournament.getName());
+            tournamentDTO.setLocation(tournament.getLocation());
+            tournamentDTO.setDate(tournament.getStartDate().toString());
+            MatDTO dto = createMatDTO(mat, tournamentDTO);
+            matDTOS.add(dto);
+        }
+        return matDTOS;
     }
 }

@@ -11,6 +11,7 @@ import pl.tkd.tournaments.tkd_tournament_maker.tournament.category.categories.la
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.category.categories.tableCategory.*;
 import pl.tkd.tournaments.tkd_tournament_maker.exceptions.ObjectNotFoundException;
 import pl.tkd.tournaments.tkd_tournament_maker.exceptions.RematchNeededException;
+import pl.tkd.tournaments.tkd_tournament_maker.tournament.mat.MatDTO;
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.tournament.dto.CreateTournamentRequest;
 
 import java.util.List;
@@ -43,6 +44,16 @@ public class TournamentController {
         } catch (ObjectNotFoundException e) {
             logger.warn("attempt to access a non-existent club");
             return ResponseEntity.status(404).body(e.getMessage());
+        }
+    }
+
+    @GetMapping(value = "/getTournamentMats")
+    public ResponseEntity<List<MatDTO>> getTournamentMats(@RequestParam Long tournamentId) {
+        try {
+            List<MatDTO> mats = tournamentService.getMatsByTournamentId(tournamentId);
+            return ResponseEntity.ok(mats);
+        } catch ( Exception e) {
+            return ResponseEntity.status(404).body(null);
         }
     }
 
@@ -121,5 +132,17 @@ public class TournamentController {
             return ResponseEntity.status(404).body(e.getMessage());
         }
 
+    }
+
+    @PostMapping(value = "/setWinner")
+    public ResponseEntity<String> setWinner(@RequestParam Long fightId,
+                                            @RequestParam Boolean wonFirst) {
+        try{
+            tournamentService.setFightWinner(wonFirst, fightId);
+            return ResponseEntity.ok("");
+        } catch (Exception e) {
+            logger.warn("attempt to access a non-existent fight or competitor");
+            return ResponseEntity.status(404).body(e.getMessage());
+        }
     }
 }
