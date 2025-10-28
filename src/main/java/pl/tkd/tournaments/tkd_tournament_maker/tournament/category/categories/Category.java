@@ -16,6 +16,7 @@ public abstract class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String name;
     @ManyToMany
     private Set<Competitor> competitors;
     private Long matId;

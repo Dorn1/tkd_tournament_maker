@@ -593,4 +593,25 @@ public class TournamentService {
         }
         return matDTOS;
     }
+
+    public String getCategoryNameById(Long categoryId) {
+        if (tableCategoryRepository.findById(categoryId).isPresent()) {
+            TableCategory category = tableCategoryRepository.findById(categoryId).get();
+            if (!category.getName().isEmpty()) {
+                return tableCategoryRepository.findById(categoryId).get().getName();
+            } else {
+                return "";
+            }
+        } else if (ladderCategoryRepository.findById(categoryId).isPresent()) {
+            LadderCategory category = ladderCategoryRepository.findById(categoryId).get();
+            if (!category.getName().isEmpty()) {
+                return ladderCategoryRepository.findById(categoryId).get().getName();
+            }
+            else {
+                return "";
+            }
+        } else {
+            throw new RuntimeException("Category not found");
+        }
+    }
 }

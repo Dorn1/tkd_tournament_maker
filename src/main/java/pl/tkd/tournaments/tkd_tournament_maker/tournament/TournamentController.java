@@ -145,4 +145,14 @@ public class TournamentController {
             return ResponseEntity.status(404).body(e.getMessage());
         }
     }
+    @GetMapping(value = "/getCategoryName")
+    public ResponseEntity<String> getCategoryName(@RequestParam Long categoryId) {
+        try{
+            String name = tournamentService.getCategoryNameById(categoryId);
+            return ResponseEntity.ok(name);
+        } catch (Exception e) {
+            logger.warn("attempt to access a non-existent category");
+            return ResponseEntity.status(404).body(e.getMessage());
+        }
+    }
 }
