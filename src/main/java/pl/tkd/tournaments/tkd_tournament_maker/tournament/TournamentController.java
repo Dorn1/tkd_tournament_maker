@@ -95,7 +95,7 @@ public class TournamentController {
             logger.info("New Category created");
             return ResponseEntity.ok("Category created");
         } catch (ObjectNotFoundException e) {
-            logger.warn("attempt to access a non-existent mat");
+            logger.warn("attempt to access a non-existent mat or category type");
             return ResponseEntity.status(404).body(e.getMessage());
         } catch (IllegalAccessException e) {
             return ResponseEntity.status(400).body(e.getMessage());
