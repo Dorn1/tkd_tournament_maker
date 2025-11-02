@@ -1,6 +1,5 @@
 package pl.tkd.tournaments.tkd_tournament_maker.tournament;
 
-import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +11,6 @@ import pl.tkd.tournaments.tkd_tournament_maker.tournament.category.categories.la
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.category.categories.tableCategory.*;
 import pl.tkd.tournaments.tkd_tournament_maker.exceptions.ObjectNotFoundException;
 import pl.tkd.tournaments.tkd_tournament_maker.exceptions.RematchNeededException;
-import pl.tkd.tournaments.tkd_tournament_maker.tournament.mat.Mat;
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.mat.MatDTO;
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.tournament.dto.CreateTournamentRequest;
 
@@ -89,11 +87,11 @@ public class TournamentController {
 
     @PostMapping(value = "/newCategory")
     //need to change parameters here
-    public ResponseEntity<String> newCategory(@RequestParam Long matId,
-                                              @RequestParam boolean ladderCategory,
+    public ResponseEntity<String> newCategory(@RequestParam Long tournamentId,
+                                              @RequestParam String categoryType,
                                               @RequestBody Map<String, String> filterParams) {
         try {
-            tournamentService.addCategory(matId, ladderCategory, filterParams);
+            tournamentService.addCategory(tournamentId, categoryType, filterParams);
             logger.info("New Category created");
             return ResponseEntity.ok("Category created");
         } catch (ObjectNotFoundException e) {

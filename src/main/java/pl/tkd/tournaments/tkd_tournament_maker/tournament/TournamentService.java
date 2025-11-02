@@ -26,6 +26,7 @@ import pl.tkd.tournaments.tkd_tournament_maker.exceptions.RematchNeededException
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.tournament.dto.TournamentTableDTO;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class TournamentService {
@@ -89,28 +90,50 @@ public class TournamentService {
     }
 
     public List<Competitor> filterCompetitors(List<Competitor> competitors, Map<String, String> filterData) {
-        return competitors;
-
+        CategoryFilterHandler categoryFilterHandler = new CategoryFilterHandler();
+        for (Map.Entry<String, String> entry : filterData.entrySet()) {
+            switch (entry.getKey()) {
+                case "max-weight":
+                    categoryFilterHandler.addmaxWeight(Double.valueOf(entry.getValue()));
+                    break;
+                case "min-weight":
+                    categoryFilterHandler.addminWeight(Double.valueOf(entry.getValue()));
+                    break;
+                case "max-age":
+                    categoryFilterHandler.addmaxAge(Long.valueOf(entry.getValue()));
+                    break;
+                case "min-age":
+                    categoryFilterHandler.addminAge(Long.valueOf(entry.getValue()));
+                    break;
+                case "max-belt":
+                    categoryFilterHandler.addmaxBelt(Integer.valueOf(entry.getValue()));
+                    break;
+                case "min-belt":
+                    categoryFilterHandler.addminBelt(Integer.valueOf(entry.getValue()));
+                    break;
+                case "sex":
+                    categoryFilterHandler.setSex(Sex.valueOf(entry.getValue()));
+            }
+        }
+        Set<Competitor> filteredCompetitors = categoryFilterHandler.build().filter(new HashSet<>(competitors));
+        return new ArrayList<>(filteredCompetitors);
     }
 
-    public void addCategory(Long matId, boolean ladderCategory, Map<String, String> filterData) throws ObjectNotFoundException, IllegalAccessException {
-        Mat mat = getMat(matId);
+    public void addCategory(Long tournamentId, String categoryType, Map<String, String> filterData) throws ObjectNotFoundException, IllegalAccessException {
+        Tournament tournament = getTournament(tournamentId);
         Category category = new TableCategory();
-        List<Competitor> competitors = filterCompetitors(new ArrayList<>(mat.getTournament().getCompetitors()), filterData);
-        if (ladderCategory) {
-            category = new LadderCategory();
-            category.setCompetitors(new HashSet<>(competitors));
-            category.setMatId(matId);
-            generateLadderCategory((LadderCategory) category);
-            ladderCategoryRepository.save((LadderCategory) category);
-        } else
-            tableCategoryRepository.save((TableCategory) category);
-        //Category Filtering logic needed here
-        if (mat.getCategoryQueque().isEmpty())
-            mat.setCategoryQueque(new ArrayList<>());
-
-        mat.getCategoryQueque().add(category.getId());
-        matRepository.save(mat);
+        List<Competitor> competitors = filterCompetitors(tournament.getCompetitors().stream().toList(), filterData);
+        switch (categoryType) {
+            case "ladder":
+                category = new LadderCategory();
+                category.setCompetitors(new HashSet<>(competitors));
+                generateLadderCategory((LadderCategory) category);
+                ladderCategoryRepository.save((LadderCategory) category);
+            case "table":
+                tableCategoryRepository.save((TableCategory) category);
+            default:
+                throw new ObjectNotFoundException("Incorrect Category Type");
+        }
     }
 
     public Mat getMat(Long id) throws ObjectNotFoundException {
@@ -608,24 +631,24 @@ public class TournamentService {
             LadderCategory category = ladderCategoryRepository.findById(categoryId).get();
             if (category.getName() != null && !category.getName().isEmpty()) {
                 return ladderCategoryRepository.findById(categoryId).get().getName();
-            }
-            else {
+            } else {
                 return "";
             }
         } else {
             throw new RuntimeException("Category not found");
         }
     }
-    public MatDTO getMatDTO(Long matId){
+
+    public MatDTO getMatDTO(Long matId) {
         Mat mat = matRepository.findById(matId).orElseThrow();
-        return createMatDTO(mat,createTournamentTableDTO(mat.getTournament()));
+        return createMatDTO(mat, createTournamentTableDTO(mat.getTournament()));
     }
 
     public List<RefereeDTO> getLeaders(Long tournamentId) {
         Tournament tournament = tournamentRepository.findById(tournamentId).orElseThrow();
         List<RefereeDTO> refereeDtos = new LinkedList<>();
-        for (Referee referee : tournament.getReferees()){
-            if(referee.getRefereeClass().equals(RefereeClass.MAT_LEADER))
+        for (Referee referee : tournament.getReferees()) {
+            if (referee.getRefereeClass().equals(RefereeClass.MAT_LEADER))
                 refereeDtos.add(createRefereeDTO(referee));
         }
         return refereeDtos;
@@ -648,8 +671,8 @@ public class TournamentService {
     public List<RefereeDTO> getReferees(Long tournamentId) {
         Tournament tournament = tournamentRepository.findById(tournamentId).orElseThrow();
         List<RefereeDTO> refereeDtos = new LinkedList<>();
-        for (Referee referee : tournament.getReferees()){
-                refereeDtos.add(createRefereeDTO(referee));
+        for (Referee referee : tournament.getReferees()) {
+            refereeDtos.add(createRefereeDTO(referee));
         }
         return refereeDtos;
     }
