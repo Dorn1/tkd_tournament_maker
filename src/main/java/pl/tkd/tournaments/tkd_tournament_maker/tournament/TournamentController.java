@@ -6,11 +6,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pl.tkd.tournaments.tkd_tournament_maker.club.referee.RefereeDTO;
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.category.categories.ladderCategory.FightDTO;
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.category.categories.ladderCategory.LadderCategoryDTO;
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.category.categories.tableCategory.*;
 import pl.tkd.tournaments.tkd_tournament_maker.exceptions.ObjectNotFoundException;
 import pl.tkd.tournaments.tkd_tournament_maker.exceptions.RematchNeededException;
+import pl.tkd.tournaments.tkd_tournament_maker.tournament.mat.Mat;
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.mat.MatDTO;
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.tournament.dto.CreateTournamentRequest;
 
@@ -52,7 +54,7 @@ public class TournamentController {
         try {
             List<MatDTO> mats = tournamentService.getMatsByTournamentId(tournamentId);
             return ResponseEntity.ok(mats);
-        } catch ( Exception e) {
+        } catch (Exception e) {
             return ResponseEntity.status(404).body(null);
         }
     }
@@ -61,11 +63,11 @@ public class TournamentController {
     public ResponseEntity<String> getTableWinners(@RequestParam Long categoryId) {
         try {
             TableCategory tableCategory = tournamentService.getTableCategoryById(categoryId);
-            try{
-            List<PlaceWrapper> winners = tournamentService.getTableWinners(tableCategory);
+            try {
+                List<PlaceWrapper> winners = tournamentService.getTableWinners(tableCategory);
                 return ResponseEntity.ok(winners.toString());
-            }catch (RematchNeededException e){
-                tournamentService.setTableRematch(tableCategory,e.getCompetitors());
+            } catch (RematchNeededException e) {
+                tournamentService.setTableRematch(tableCategory, e.getCompetitors());
                 return ResponseEntity.status(399).body(e.getMessage());
             }
         } catch (ObjectNotFoundException e) {
@@ -120,12 +122,22 @@ public class TournamentController {
         tournamentService.addRefereeToMat(refereeId, matId);
         return ResponseEntity.ok("Referee added to mat");
     }
+    @PostMapping(value = "/removeRefereeFromMat")
+    public ResponseEntity<String> removeRefereeRomMat(@RequestParam Long refereeId,
+                                                  @RequestParam Long matId) {
+        try {
+            tournamentService.removeRefereeFromMat(refereeId, matId);
+            return ResponseEntity.ok("Referee removed from mat");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
 
     @PostMapping(value = "/addCompetitorToTournament")
     public ResponseEntity<String> addCompetitorToTournament(@RequestParam Long competitorId,
                                                             @RequestParam Long tournamentID) {
-        try{
-            tournamentService.addCompetitorToTournament(competitorId,tournamentID);
+        try {
+            tournamentService.addCompetitorToTournament(competitorId, tournamentID);
             return ResponseEntity.ok("competitor added to tournament");
         } catch (ObjectNotFoundException e) {
             logger.warn("attempt to access a non-existent tournament or competitor");
@@ -137,7 +149,7 @@ public class TournamentController {
     @PostMapping(value = "/setWinner")
     public ResponseEntity<String> setWinner(@RequestParam Long fightId,
                                             @RequestParam Boolean wonFirst) {
-        try{
+        try {
             tournamentService.setFightWinner(wonFirst, fightId);
             return ResponseEntity.ok("");
         } catch (Exception e) {
@@ -145,9 +157,39 @@ public class TournamentController {
             return ResponseEntity.status(404).body(e.getMessage());
         }
     }
+
+    @GetMapping(value = "/getMat")
+    public ResponseEntity<MatDTO> getMat(@RequestParam Long matId) {
+        try {
+            MatDTO dto =  tournamentService.getMatDTO(matId);
+            return ResponseEntity.ok(dto);
+        }
+        catch (Exception e){
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+    @GetMapping(value = "/getTournamentLeaders")
+    public ResponseEntity<List<RefereeDTO>> getTournamentLeaders(@RequestParam Long tournamentId){
+        try{
+            List<RefereeDTO> dtos = tournamentService.getLeaders(tournamentId);
+            return ResponseEntity.ok(dtos);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+    @GetMapping(value = "/getTournamentReferees")
+    public ResponseEntity<List<RefereeDTO>> getTournamentReferees(@RequestParam Long tournamentId){
+        try{
+            List<RefereeDTO> dtos = tournamentService.getReferees(tournamentId);
+            return ResponseEntity.ok(dtos);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
     @GetMapping(value = "/getCategoryName")
     public ResponseEntity<String> getCategoryName(@RequestParam Long categoryId) {
-        try{
+        try {
             String name = tournamentService.getCategoryNameById(categoryId);
             return ResponseEntity.ok(name);
         } catch (Exception e) {
@@ -155,4 +197,17 @@ public class TournamentController {
             return ResponseEntity.status(404).body(e.getMessage());
         }
     }
+
+    @PostMapping(value = "/setMatLeader")
+    public ResponseEntity<String> setMatLeader(Long matId, Long leaderId){
+        try {
+            tournamentService.setMatLeader(matId,leaderId);
+            return ResponseEntity.ok("success");
+        }
+        catch (Exception e){
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+
 }

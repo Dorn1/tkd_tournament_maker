@@ -8,6 +8,7 @@ import pl.tkd.tournaments.tkd_tournament_maker.club.competitor.Competitor;
 import pl.tkd.tournaments.tkd_tournament_maker.club.competitor.CompetitorTableDTO;
 import pl.tkd.tournaments.tkd_tournament_maker.club.competitor.Sex;
 import pl.tkd.tournaments.tkd_tournament_maker.club.referee.Referee;
+import pl.tkd.tournaments.tkd_tournament_maker.club.referee.RefereeClass;
 import pl.tkd.tournaments.tkd_tournament_maker.club.referee.RefereeDTO;
 import pl.tkd.tournaments.tkd_tournament_maker.club.referee.RefereeRepository;
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.category.categories.*;
@@ -404,11 +405,7 @@ public class TournamentService {
             dto.setThridPlaceFight(createFightDTO(category.getThridPlaceFight(), false));
             Mat categoryMat = matRepository.findById(category.getMatId()).orElseThrow();
 
-            TournamentTableDTO tournament = new TournamentTableDTO();
-            tournament.setId(categoryMat.getTournament().getId());
-            tournament.setName(categoryMat.getTournament().getName());
-            tournament.setLocation(categoryMat.getTournament().getLocation());
-            tournament.setDate(categoryMat.getTournament().getStartDate().toString());
+            TournamentTableDTO tournament = createTournamentTableDTO(categoryMat.getTournament());
             MatDTO matDTO = createMatDTO(categoryMat, tournament);
             dto.setMat(matDTO);
 
@@ -416,6 +413,15 @@ public class TournamentService {
             return dto;
         }
         throw new RuntimeException("requested Ladder Category not found");
+    }
+
+    private static TournamentTableDTO createTournamentTableDTO(Tournament categoryMat) {
+        TournamentTableDTO tournament = new TournamentTableDTO();
+        tournament.setId(categoryMat.getId());
+        tournament.setName(categoryMat.getName());
+        tournament.setLocation(categoryMat.getLocation());
+        tournament.setDate(categoryMat.getStartDate().toString());
+        return tournament;
     }
 
     private MatDTO createMatDTO(Mat categoryMat, TournamentTableDTO tournament) {
@@ -583,11 +589,7 @@ public class TournamentService {
         List<Mat> mats = matRepository.findByTournament(tournament);
         List<MatDTO> matDTOS = new ArrayList<>();
         for (Mat mat : mats) {
-            TournamentTableDTO tournamentDTO = new TournamentTableDTO();
-            tournamentDTO.setId(tournament.getId());
-            tournamentDTO.setName(tournament.getName());
-            tournamentDTO.setLocation(tournament.getLocation());
-            tournamentDTO.setDate(tournament.getStartDate().toString());
+            TournamentTableDTO tournamentDTO = createTournamentTableDTO(tournament);
             MatDTO dto = createMatDTO(mat, tournamentDTO);
             matDTOS.add(dto);
         }
@@ -597,14 +599,14 @@ public class TournamentService {
     public String getCategoryNameById(Long categoryId) {
         if (tableCategoryRepository.findById(categoryId).isPresent()) {
             TableCategory category = tableCategoryRepository.findById(categoryId).get();
-            if (!category.getName().isEmpty()) {
+            if (category.getName() != null && !category.getName().isEmpty()) {
                 return tableCategoryRepository.findById(categoryId).get().getName();
             } else {
                 return "";
             }
         } else if (ladderCategoryRepository.findById(categoryId).isPresent()) {
             LadderCategory category = ladderCategoryRepository.findById(categoryId).get();
-            if (!category.getName().isEmpty()) {
+            if (category.getName() != null && !category.getName().isEmpty()) {
                 return ladderCategoryRepository.findById(categoryId).get().getName();
             }
             else {
@@ -613,5 +615,42 @@ public class TournamentService {
         } else {
             throw new RuntimeException("Category not found");
         }
+    }
+    public MatDTO getMatDTO(Long matId){
+        Mat mat = matRepository.findById(matId).orElseThrow();
+        return createMatDTO(mat,createTournamentTableDTO(mat.getTournament()));
+    }
+
+    public List<RefereeDTO> getLeaders(Long tournamentId) {
+        Tournament tournament = tournamentRepository.findById(tournamentId).orElseThrow();
+        List<RefereeDTO> refereeDtos = new LinkedList<>();
+        for (Referee referee : tournament.getReferees()){
+            if(referee.getRefereeClass().equals(RefereeClass.MAT_LEADER))
+                refereeDtos.add(createRefereeDTO(referee));
+        }
+        return refereeDtos;
+    }
+
+    public void setMatLeader(Long matId, Long leaderId) {
+        Referee leader = refereeRepository.findById(leaderId).orElseThrow();
+        Mat mat = matRepository.findById(matId).orElseThrow();
+        mat.setMatLeader(leader);
+        matRepository.save(mat);
+    }
+
+    public void removeRefereeFromMat(Long refereeId, Long matId) {
+        Referee referee = refereeRepository.findById(refereeId).orElseThrow();
+        Mat mat = matRepository.findById(matId).orElseThrow();
+        mat.getReferees().remove(referee);
+        matRepository.save(mat);
+    }
+
+    public List<RefereeDTO> getReferees(Long tournamentId) {
+        Tournament tournament = tournamentRepository.findById(tournamentId).orElseThrow();
+        List<RefereeDTO> refereeDtos = new LinkedList<>();
+        for (Referee referee : tournament.getReferees()){
+                refereeDtos.add(createRefereeDTO(referee));
+        }
+        return refereeDtos;
     }
 }
