@@ -291,6 +291,10 @@ public class AuthenticationService {
                     )
             );
             User user = userRepository.findByUsername(authenticationRequest.getUserName()).orElseThrow();
+            if(user.getDisabled()){
+                log.warn("Attempt to authenticate as disabled user");
+                throw new IllegalAccessException("Attempt to authenticate as disabled user");
+            }
             String jwtToken = jwtService.generateToken(user);
             log.info("User {} authenticated", user.getUsername());
             return AuthenticationResponse
