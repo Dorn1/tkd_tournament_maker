@@ -8,5 +8,6 @@ public class TournamentTableDTO {
     Long id;
     String name;
     String date;
+    String endDate;
     String location;
 }

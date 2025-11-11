@@ -13,6 +13,7 @@ import pl.tkd.tournaments.tkd_tournament_maker.tournament.tournament.Tournament;
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.tournament.TournamentRepository;
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.tournament.dto.TournamentTableDTO;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
@@ -37,7 +38,9 @@ public class ClubService {
     public List<RefereeDTO> getRefereesByClub(String clubName) {
         Club club = getClubByName(clubName);
         List<RefereeDTO> referees = new LinkedList<>();
-        for (Referee referee : refereeRepository.findByClub(club)) {
+        for (Referee referee : refereeRepository.findByClub(club).stream()
+                .filter(referee -> !referee.getDisabled())
+                .toList()) {
             RefereeDTO dto = new RefereeDTO();
             dto.setId(referee.getId());
             dto.setFirstname(referee.getFirstName());
@@ -56,7 +59,7 @@ public class ClubService {
     public List<CompetitorTableDTO> getCompetitorsByClub(String clubName) {
         Club club = getClubByName(clubName);
         List<CompetitorTableDTO> competitors = new LinkedList<>();
-        for (Competitor competitor : competitorRepository.findByClub(club)) {
+        for (Competitor competitor : competitorRepository.findByClub(club).stream().filter(competitor -> !competitor.getDisabled()).toList()) {
             Set<Long> tournamentIds = new HashSet<>();
             List<Tournament> competitorTournaments = new ArrayList<>();
             for (Long id : competitor.getTournamentIds()){
@@ -81,11 +84,13 @@ public class ClubService {
     public List<TournamentTableDTO> getTournamentsByClub(String clubName) {
         Club club = getClubByName(clubName);
         List<TournamentTableDTO> tournaments = new LinkedList<>();
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         for (Tournament tournament : tournamentRepository.findByClubAsOrganizerOrMember(club)) {
             TournamentTableDTO dto = new TournamentTableDTO();
             dto.setId(tournament.getId());
             dto.setName(tournament.getName());
-            dto.setDate(tournament.getStartDate().toString());
+            dto.setDate(format.format(tournament.getStartDate()));
+            dto.setEndDate(format.format(tournament.getEndDate()));
             dto.setLocation(tournament.getLocation());
             tournaments.add(dto);
         }
@@ -94,7 +99,7 @@ public class ClubService {
 
     public List<ClubDTO> getClubs() {
         List<ClubDTO> clubs = new LinkedList<>();
-        for (Club club : clubRepository.findAll()) {
+        for (Club club : clubRepository.findAll().stream().filter(club -> !club.getDisabled()).toList()) {
             ClubDTO dto = new ClubDTO();
             dto.setId(club.getId());
             dto.setUsername(club.getUsername());

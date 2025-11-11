@@ -27,6 +27,7 @@ import pl.tkd.tournaments.tkd_tournament_maker.security.authentication.jwt.JwtSe
 
 import java.util.InputMismatchException;
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -179,7 +180,8 @@ public class AuthenticationService {
             String role = variables.get(ROLE);
             switch (role) {
                 case "CLUB":
-                    Club updatedClub = clubRepository.findById(request.getId()).orElseThrow();;
+                    Club updatedClub = clubRepository.findById(request.getId()).orElseThrow();
+                    ;
                     if (request.getPassword() != null)
                         updatedClub.setPassword(passwordEncoder.encode(request.getPassword()));
                     updatedClub.setAdmin(Boolean.parseBoolean(request.getVariables().get(ADMIN)));
@@ -208,7 +210,8 @@ public class AuthenticationService {
                         throw new IllegalArgumentException(REQUIRED_ARGUMENTS_MISSING_MESSAGE);
 
 
-                    Competitor updatedCompetitor = competitorRepository.findById(request.getId()).orElseThrow();;
+                    Competitor updatedCompetitor = competitorRepository.findById(request.getId()).orElseThrow();
+                    ;
                     if (request.getPassword() != null)
                         updatedCompetitor.setPassword(passwordEncoder.encode(request.getPassword()));
                     updatedCompetitor.setBelt(Integer.valueOf(variables.get(BELT)));
@@ -237,7 +240,8 @@ public class AuthenticationService {
                         updatedReferee.setPassword(passwordEncoder.encode(request.getPassword()));
                     updatedReferee.setFirstName(variables.get(NAME));
                     updatedReferee.setLastName(variables.get(LASTNAME));
-                    updatedReferee.setRefereeClass(RefereeClass.valueOf(variables.get(REFEREE_CLASS)));;
+                    updatedReferee.setRefereeClass(RefereeClass.valueOf(variables.get(REFEREE_CLASS)));
+                    ;
 
                     refereeRepository.save(updatedReferee);
                     String refereeToken = jwtService.generateToken(updatedReferee);
@@ -259,11 +263,23 @@ public class AuthenticationService {
 
     }
 
-    public void deleteUser(String userName){
-        if (userRepository.findByUsername(userName).isPresent())
-            userRepository.delete(userRepository.findByUsername(userName).get());
-        else
+    public void archiveUser(String userName) {
+        if (userRepository.findByUsername(userName).isPresent()) {
+            User user = userRepository.findByUsername(userName).get();
+            if(user instanceof Referee ref) {
+                ref.setDisabled(true);
+                refereeRepository.save(ref);
+            }else if(user instanceof Competitor comp){
+                comp.setDisabled(true);
+               competitorRepository.save(comp);
+            }
+            else if(user instanceof Club club){
+                club.setDisabled(true);
+               clubRepository.save(club);
+            }
+        } else {
             throw new IllegalArgumentException("User not found");
+        }
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest authenticationRequest) {
@@ -292,12 +308,14 @@ public class AuthenticationService {
         User user = userRepository.findByUsername(username).orElseThrow();
         return user.getId();
     }
+
     public String getUserType(String username) {
         User user = userRepository.findById(getUserId(username)).orElseThrow();
         return user.getRole().toString();
     }
-    public boolean isAdmin(String username){
+
+    public boolean isAdmin(String username) {
         Club club = clubRepository.findByUsername(username);
-        return  club.isAdmin();
+        return club.isAdmin();
     }
 }

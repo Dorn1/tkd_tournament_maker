@@ -50,6 +50,8 @@ public class User implements UserDetails {
     @UpdateTimestamp
     private LocalDate updatedAt;
 
+    private Boolean disabled = false;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));

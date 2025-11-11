@@ -1,7 +1,6 @@
 package pl.tkd.tournaments.tkd_tournament_maker.security.authentication;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.tkd.tournaments.tkd_tournament_maker.security.authentication.dto.AuthenticationRequest;
@@ -33,7 +32,7 @@ public class AuthenticationController {
             @RequestParam String username
     ){
         try{
-            authenticationService.deleteUser(username);
+            authenticationService.archiveUser(username);
             return ResponseEntity.ok("Successfully deleted");
         }catch (Exception e){
             return ResponseEntity.status(404).body(e.getMessage());
