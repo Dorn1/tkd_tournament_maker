@@ -63,6 +63,15 @@ public class ClubController {
             return ResponseEntity.status(500).body(null);
         }
     }
+    @GetMapping(value = "/getGuestTournaments")
+    public ResponseEntity<List<TournamentTableDTO>> getGuestTournaments(@RequestParam String clubName) {
+        try {
+            return ResponseEntity.ok(clubService.getTournamentsByGuest(clubName));
+        }
+        catch (Exception e) {
+            return ResponseEntity.status(500).body(null);
+        }
+    }
 
     @GetMapping(value = "/getCompetitor")
     public ResponseEntity<CompetitorTableDTO> getCompetitor(@RequestParam Long competitorId) {

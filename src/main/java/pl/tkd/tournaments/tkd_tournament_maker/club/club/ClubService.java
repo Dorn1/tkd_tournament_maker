@@ -85,7 +85,21 @@ public class ClubService {
         Club club = getClubByName(clubName);
         List<TournamentTableDTO> tournaments = new LinkedList<>();
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-        for (Tournament tournament : tournamentRepository.findByClubAsOrganizerOrMember(club)) {
+        for (Tournament tournament : tournamentRepository.findByClubAsOrganizer(club)) {
+            TournamentTableDTO dto = new TournamentTableDTO();
+            dto.setId(tournament.getId());
+            dto.setName(tournament.getName());
+            dto.setDate(format.format(tournament.getStartDate()));
+            dto.setEndDate(format.format(tournament.getEndDate()));
+            dto.setLocation(tournament.getLocation());
+            tournaments.add(dto);
+        }
+        return tournaments;
+    }    public List<TournamentTableDTO> getTournamentsByGuest(String clubName) {
+        Club club = getClubByName(clubName);
+        List<TournamentTableDTO> tournaments = new LinkedList<>();
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        for (Tournament tournament : tournamentRepository.findByClubAsMember(club)) {
             TournamentTableDTO dto = new TournamentTableDTO();
             dto.setId(tournament.getId());
             dto.setName(tournament.getName());

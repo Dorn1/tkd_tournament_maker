@@ -76,12 +76,10 @@ public class TournamentService {
     }
 
 
-    public void addMat(Long tournamentId, Long mat_LeaderId) throws ObjectNotFoundException {
+    public void addMat(Long tournamentId) throws ObjectNotFoundException {
         Tournament tournament = getTournament(tournamentId);
         Mat mat = new Mat();
-        Referee matLeader = refereeRepository.findById(mat_LeaderId).orElseThrow(() -> new ObjectNotFoundException("Referee not found"));
         mat.setTournament(tournament);
-        mat.setMatLeader(matLeader);
         mat.setCategoryQueque(new ArrayList<>());
         mat.setReferees(new ArrayList<>());
         tournament.getMats().add(mat);
@@ -675,5 +673,13 @@ public class TournamentService {
             refereeDtos.add(createRefereeDTO(referee));
         }
         return refereeDtos;
+    }
+
+    public void removeMat(Long matId) {
+        Mat mat = matRepository.findById(matId).orElseThrow();
+        Tournament tournament = mat.getTournament();
+        tournament.getMats().remove(mat);
+        tournamentRepository.save(tournament);
+        matRepository.delete(mat);
     }
 }

@@ -74,9 +74,9 @@ public class TournamentController {
     }
 
     @PostMapping(value = "/newMat")
-    public ResponseEntity<String> newMat(@RequestParam Long tournamentId, @RequestParam Long mat_Leader_Id) {
+    public ResponseEntity<String> newMat(@RequestParam Long tournamentId) {
         try {
-            tournamentService.addMat(tournamentId, mat_Leader_Id);
+            tournamentService.addMat(tournamentId);
             logger.info("New mat created");
             return ResponseEntity.ok("Mat created");
         } catch (ObjectNotFoundException e) {
@@ -166,6 +166,18 @@ public class TournamentController {
             return ResponseEntity.badRequest().body(null);
         }
     }
+
+    @DeleteMapping(value = "/removeMat")
+    public ResponseEntity<String> removeMat(@RequestParam Long matId){
+        try {
+            tournamentService.removeMat(matId);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+
+    }
+
     @GetMapping(value = "/getTournamentLeaders")
     public ResponseEntity<List<RefereeDTO>> getTournamentLeaders(@RequestParam Long tournamentId){
         try{
