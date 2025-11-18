@@ -5,7 +5,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pl.tkd.tournaments.tkd_tournament_maker.club.club.ClubDTO;
 import pl.tkd.tournaments.tkd_tournament_maker.club.referee.RefereeDTO;
+import pl.tkd.tournaments.tkd_tournament_maker.tournament.category.categories.Category;
+import pl.tkd.tournaments.tkd_tournament_maker.tournament.category.categories.CategoryDTO;
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.category.categories.ladderCategory.FightDTO;
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.category.categories.ladderCategory.LadderCategoryDTO;
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.category.categories.tableCategory.*;
@@ -85,13 +88,38 @@ public class TournamentController {
         }
     }
 
-    @PostMapping(value = "/newCategory")
-    //need to change parameters here
-    public ResponseEntity<String> newCategory(@RequestParam Long tournamentId,
-                                              @RequestParam String categoryType,
-                                              @RequestBody Map<String, String> filterParams) {
+    @PatchMapping(value = "/addClubToTournament")
+    public ResponseEntity<String> addClubToTournament(@RequestParam Long clubId,
+                                                      @RequestParam Long tournamentId) {
         try {
-            tournamentService.addCategory(tournamentId, categoryType, filterParams);
+            tournamentService.addClubToTournament(clubId, tournamentId);
+            logger.info("Club added to Tournament");
+            return ResponseEntity.ok("Club added to Tournament");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    @PatchMapping(value = "/removeClubFromTournament")
+    public ResponseEntity<String> removeClubFromTournament(@RequestParam Long clubId,
+                                                           @RequestParam Long tournamentId) {
+        try {
+            tournamentService.removeClubFromTournament(clubId, tournamentId);
+            logger.info("Club removed from Tournament");
+            return ResponseEntity.ok("Club removed from Tournament");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    @PostMapping(value = "/newCategory")
+    public ResponseEntity<String> newCategory(
+            @RequestParam Long tournamentId,
+            @RequestParam String categoryType,
+            @RequestParam String categoryName,
+            @RequestBody Map<String, String> filterParams) {
+        try {
+            tournamentService.addCategory(categoryName, tournamentId, categoryType, filterParams);
             logger.info("New Category created");
             return ResponseEntity.ok("Category created");
         } catch (ObjectNotFoundException e) {
@@ -114,15 +142,38 @@ public class TournamentController {
         return ResponseEntity.ok(fightDTO);
     }
 
+    @PatchMapping(value = "/addRefereeToTournament")
+    public ResponseEntity<String> addRefereeToTournament(@RequestParam Long refereeId,
+                                                         @RequestParam Long tournamentId) {
+        try {
+            tournamentService.addRefereeToTournamnet(refereeId, tournamentId);
+            return ResponseEntity.ok("Referee added to tournament");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PatchMapping(value = "/removeRefereeFromTournament")
+    public ResponseEntity<String> removeRefereeFromTournament(@RequestParam Long refereeId,
+                                                              @RequestParam Long tournamentId) {
+        try {
+            tournamentService.removeRefereeFormTournamnet(refereeId, tournamentId);
+            return ResponseEntity.ok("Referee added to tournament");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     @PostMapping(value = "/addRefereeToMat")
     public ResponseEntity<String> addRefereeToMat(@RequestParam Long refereeId,
                                                   @RequestParam Long matId) {
         tournamentService.addRefereeToMat(refereeId, matId);
         return ResponseEntity.ok("Referee added to mat");
     }
+
     @PostMapping(value = "/removeRefereeFromMat")
     public ResponseEntity<String> removeRefereeRomMat(@RequestParam Long refereeId,
-                                                  @RequestParam Long matId) {
+                                                      @RequestParam Long matId) {
         try {
             tournamentService.removeRefereeFromMat(refereeId, matId);
             return ResponseEntity.ok("Referee removed from mat");
@@ -159,16 +210,15 @@ public class TournamentController {
     @GetMapping(value = "/getMat")
     public ResponseEntity<MatDTO> getMat(@RequestParam Long matId) {
         try {
-            MatDTO dto =  tournamentService.getMatDTO(matId);
+            MatDTO dto = tournamentService.getMatDTO(matId);
             return ResponseEntity.ok(dto);
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(null);
         }
     }
 
     @DeleteMapping(value = "/removeMat")
-    public ResponseEntity<String> removeMat(@RequestParam Long matId){
+    public ResponseEntity<String> removeMat(@RequestParam Long matId) {
         try {
             tournamentService.removeMat(matId);
             return ResponseEntity.ok().build();
@@ -179,18 +229,29 @@ public class TournamentController {
     }
 
     @GetMapping(value = "/getTournamentLeaders")
-    public ResponseEntity<List<RefereeDTO>> getTournamentLeaders(@RequestParam Long tournamentId){
-        try{
+    public ResponseEntity<List<RefereeDTO>> getTournamentLeaders(@RequestParam Long tournamentId) {
+        try {
             List<RefereeDTO> dtos = tournamentService.getLeaders(tournamentId);
             return ResponseEntity.ok(dtos);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(null);
         }
     }
+
     @GetMapping(value = "/getTournamentReferees")
-    public ResponseEntity<List<RefereeDTO>> getTournamentReferees(@RequestParam Long tournamentId){
-        try{
+    public ResponseEntity<List<RefereeDTO>> getTournamentReferees(@RequestParam Long tournamentId) {
+        try {
             List<RefereeDTO> dtos = tournamentService.getReferees(tournamentId);
+            return ResponseEntity.ok(dtos);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    @GetMapping(value = "/getTournamentClubs")
+    public ResponseEntity<List<ClubDTO>> getTournamentClubs(@RequestParam Long tournamentId) {
+        try {
+            List<ClubDTO> dtos = tournamentService.getTournamentClubs(tournamentId);
             return ResponseEntity.ok(dtos);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(null);
@@ -208,13 +269,52 @@ public class TournamentController {
         }
     }
 
-    @PostMapping(value = "/setMatLeader")
-    public ResponseEntity<String> setMatLeader(Long matId, Long leaderId){
+    @GetMapping(value = "/getFreeCategories")
+    public ResponseEntity<List<CategoryDTO>> getFreeCategories(@RequestParam Long tournamentId) {
         try {
-            tournamentService.setMatLeader(matId,leaderId);
-            return ResponseEntity.ok("success");
+            List<CategoryDTO> categories = tournamentService.getFreeCategories(tournamentId);
+            return ResponseEntity.ok().body(categories);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);
         }
-        catch (Exception e){
+    }
+
+    @PostMapping(value = "/setMatLeader")
+    public ResponseEntity<String> setMatLeader(Long matId, Long leaderId) {
+        try {
+            tournamentService.setMatLeader(matId, leaderId);
+            return ResponseEntity.ok("success");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    @PatchMapping(value = "/addCategoryToMat")
+    public ResponseEntity<String> addCategoryToMat(Long categoryId, Long matId, String categoryType) {
+        try {
+            tournamentService.addCategoryToMat(categoryId, matId, categoryType);
+            return ResponseEntity.ok("success");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PatchMapping(value = "/removeCategoryFromMat")
+    public ResponseEntity<String> removeCategoryFromMat(Long categoryId, Long matId, String categoryType) {
+        try {
+            tournamentService.removeCategoryFromMat(categoryId, matId, categoryType);
+            return ResponseEntity.ok("success");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping(value = "/getMatCategories")
+    public ResponseEntity<List<CategoryDTO>> getMatCategories(@RequestParam Long matId){
+        try {
+            List<CategoryDTO> dtos = tournamentService.getMatCategories(matId);
+            return ResponseEntity.ok(dtos);
+        }catch (Exception e){
             return ResponseEntity.badRequest().body(null);
         }
     }

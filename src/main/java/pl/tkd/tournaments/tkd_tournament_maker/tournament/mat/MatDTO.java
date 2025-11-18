@@ -9,6 +9,7 @@ import java.util.List;
 @Data
 public class MatDTO {
     private Long id;
+    private Long number;
     private TournamentTableDTO tournament;
     private RefereeDTO matLeader;
     private List<RefereeDTO> Referees;

@@ -17,6 +17,7 @@ public class Mat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private Long number;
     @ManyToOne
     private Tournament tournament;
     @ElementCollection

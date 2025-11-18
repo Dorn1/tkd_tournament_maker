@@ -3,6 +3,7 @@ package pl.tkd.tournaments.tkd_tournament_maker.tournament;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pl.tkd.tournaments.tkd_tournament_maker.club.club.Club;
+import pl.tkd.tournaments.tkd_tournament_maker.club.club.ClubDTO;
 import pl.tkd.tournaments.tkd_tournament_maker.club.club.ClubService;
 import pl.tkd.tournaments.tkd_tournament_maker.club.competitor.Competitor;
 import pl.tkd.tournaments.tkd_tournament_maker.club.competitor.CompetitorTableDTO;
@@ -26,7 +27,6 @@ import pl.tkd.tournaments.tkd_tournament_maker.exceptions.RematchNeededException
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.tournament.dto.TournamentTableDTO;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class TournamentService {
@@ -78,10 +78,17 @@ public class TournamentService {
 
     public void addMat(Long tournamentId) throws ObjectNotFoundException {
         Tournament tournament = getTournament(tournamentId);
+        Long max = 0L;
+        for (Mat mat : tournament.getMats()){
+            if (mat.getNumber() > max)
+                max = mat.getNumber();
+
+        }
         Mat mat = new Mat();
         mat.setTournament(tournament);
         mat.setCategoryQueque(new ArrayList<>());
         mat.setReferees(new ArrayList<>());
+        mat.setNumber(max+1);
         tournament.getMats().add(mat);
         matRepository.save(mat);
         tournamentRepository.save(tournament);
@@ -103,10 +110,10 @@ public class TournamentService {
                 case "min-age":
                     categoryFilterHandler.addminAge(Long.valueOf(entry.getValue()));
                     break;
-                case "max-belt":
+                case "max-degree":
                     categoryFilterHandler.addmaxBelt(Integer.valueOf(entry.getValue()));
                     break;
-                case "min-belt":
+                case "min-degree":
                     categoryFilterHandler.addminBelt(Integer.valueOf(entry.getValue()));
                     break;
                 case "sex":
@@ -117,18 +124,24 @@ public class TournamentService {
         return new ArrayList<>(filteredCompetitors);
     }
 
-    public void addCategory(Long tournamentId, String categoryType, Map<String, String> filterData) throws ObjectNotFoundException, IllegalAccessException {
+    public void addCategory(String categoryName, Long tournamentId, String categoryType, Map<String, String> filterData) throws ObjectNotFoundException, IllegalAccessException {
         Tournament tournament = getTournament(tournamentId);
         Category category = new TableCategory();
         List<Competitor> competitors = filterCompetitors(tournament.getCompetitors().stream().toList(), filterData);
         switch (categoryType) {
             case "ladder":
                 category = new LadderCategory();
+                category.setName(categoryName);
                 category.setCompetitors(new HashSet<>(competitors));
                 generateLadderCategory((LadderCategory) category);
+                category.setTournamentId(tournamentId);
                 ladderCategoryRepository.save((LadderCategory) category);
+                break;
             case "table":
+                category.setTournamentId(tournamentId);
+                category.setName(categoryName);
                 tableCategoryRepository.save((TableCategory) category);
+                break;
             default:
                 throw new ObjectNotFoundException("Incorrect Category Type");
         }
@@ -156,6 +169,9 @@ public class TournamentService {
     public void generateLadderCategory(LadderCategory category) throws IllegalAccessException {
         if (category.getFirstPlaceFight() != null) {
             throw new IllegalAccessException("Category already has generated ladder");
+        }
+        if (category.getCompetitors().size() <2){
+            throw new IllegalAccessException("category need to have at least 2 competitors");
         }
         int maxtwopowered = 1;
         while (maxtwopowered < category.getCompetitors().size()) {
@@ -448,6 +464,7 @@ public class TournamentService {
     private MatDTO createMatDTO(Mat categoryMat, TournamentTableDTO tournament) {
         MatDTO matDTO = new MatDTO();
         matDTO.setId(categoryMat.getId());
+        matDTO.setNumber(categoryMat.getNumber());
         matDTO.setTournament(tournament);
         if (categoryMat.getMatLeader() != null)
             matDTO.setMatLeader(createRefereeDTO(categoryMat.getMatLeader()));
@@ -681,5 +698,144 @@ public class TournamentService {
         tournament.getMats().remove(mat);
         tournamentRepository.save(tournament);
         matRepository.delete(mat);
+    }
+
+    public List<ClubDTO> getTournamentClubs(Long tournamentId) {
+        Tournament tournament = tournamentRepository.findById(tournamentId).orElseThrow();
+        List<ClubDTO> dtos = new LinkedList<>();
+        for (Club club : tournament.getClubs()){
+            ClubDTO dto = createClubDTO(club);
+            dtos.add(dto);
+        }
+        return dtos;
+    }
+    private ClubDTO createClubDTO(Club club){
+        ClubDTO dto = new ClubDTO();
+        dto.setId(club.getId());
+        dto.setUsername(club.getUsername());
+        dto.setAdmin(club.isAdmin());
+        return dto;
+    }
+
+    public void addClubToTournament(Long clubId, Long tournamentId) throws ObjectNotFoundException {
+        Tournament  tournament = tournamentRepository.findById(tournamentId).orElseThrow();
+        Club club = clubService.getClubById(clubId);
+        if(!tournament.getClubs().contains(club)) {
+            tournament.getClubs().add(club);
+            tournamentRepository.save(tournament);
+        }
+    }
+
+    public void removeClubFromTournament(Long clubId, Long tournamentId) throws ObjectNotFoundException {
+        Tournament  tournament = tournamentRepository.findById(tournamentId).orElseThrow();
+        Club club = clubService.getClubById(clubId);
+        if(tournament.getClubs().contains(club)){
+            tournament.getClubs().remove(club);
+            tournamentRepository.save(tournament);
+        }
+    }
+
+    public void addRefereeToTournamnet(Long refereeId, Long tournamentId) {
+        Tournament tournament = tournamentRepository.findById(tournamentId).orElseThrow();
+        Referee referee = refereeRepository.findById(refereeId).orElseThrow();
+        if (!tournament.getReferees().contains(referee)){
+            tournament.getReferees().add(referee);
+            tournamentRepository.save(tournament);
+        }
+    }
+
+    public void removeRefereeFormTournamnet(Long refereeId, Long tournamentId) {
+        Tournament tournament = tournamentRepository.findById(tournamentId).orElseThrow();
+        Referee referee = refereeRepository.findById(refereeId).orElseThrow();
+        if (tournament.getReferees().contains(referee)){
+            tournament.getReferees().remove(referee);
+            tournamentRepository.save(tournament);
+        }
+    }
+
+    public List<CategoryDTO> getFreeCategories(Long tournamentId) {
+        Tournament tournament = tournamentRepository.findById(tournamentId).orElseThrow();
+        List<CategoryDTO> categories = new LinkedList<>();
+        List<LadderCategory> ladderCategories = ladderCategoryRepository.findByMatIdIsNullAndTournamentId(tournamentId).orElseThrow();
+        List<TableCategory> tableCategories = tableCategoryRepository.findByMatIdIsNullAndTournamentId(tournamentId).orElseThrow();
+        for (LadderCategory category : ladderCategories){
+            categories.add(createCategoryDTO(category, "ladder"));
+        }
+        for (TableCategory category : tableCategories){
+            categories.add(createCategoryDTO(category, "ladder"));
+        }
+        return  categories;
+    }
+    private CategoryDTO createCategoryDTO(Category category, String categoryType){
+        CategoryDTO dto = new CategoryDTO();
+            dto.setType(categoryType);
+        dto.setName(category.getName());
+        dto.setId(category.getId());
+        return dto;
+    }
+
+    public void addCategoryToMat(Long categoryId, Long matId, String categoryType) throws IllegalAccessException {
+        Mat mat = matRepository.findById(matId).orElseThrow();
+        if (!mat.getCategoryQueque().contains(categoryId)){
+        switch (categoryType){
+            case "ladder":
+                LadderCategory ladderCategory = ladderCategoryRepository.findById(categoryId).orElseThrow();
+                ladderCategory.setMatId(matId);
+                ladderCategoryRepository.save(ladderCategory);
+                mat.getCategoryQueque().add(categoryId);
+                matRepository.save(mat);
+                break;
+            case "table":
+                TableCategory tableCategory = tableCategoryRepository.findById(categoryId).orElseThrow();
+                tableCategory.setMatId(matId);
+                tableCategoryRepository.save(tableCategory);
+                mat.getCategoryQueque().add(categoryId);
+                matRepository.save(mat);
+                break;
+            default:
+                throw new IllegalAccessException("Illegal category type");
+        }}
+    }
+
+    public void removeCategoryFromMat(Long categoryId, Long matId, String categoryType) throws IllegalAccessException {
+        Mat mat = matRepository.findById(matId).orElseThrow();
+        if (mat.getCategoryQueque().contains(categoryId)){
+        switch (categoryType){
+            case "ladder":
+                LadderCategory ladderCategory = ladderCategoryRepository.findById(categoryId).orElseThrow();
+                ladderCategory.setMatId(null);
+                ladderCategoryRepository.save(ladderCategory);
+                mat.getCategoryQueque().remove(categoryId);
+                matRepository.save(mat);
+                break;
+            case "table":
+                TableCategory tableCategory = tableCategoryRepository.findById(categoryId).orElseThrow();
+                tableCategory.setMatId(null);
+                tableCategoryRepository.save(tableCategory);
+                mat.getCategoryQueque().remove(categoryId);
+                matRepository.save(mat);
+                break;
+            default:
+                throw new IllegalAccessException("Illegal category type");
+        }}
+    }
+
+    public List<CategoryDTO> getMatCategories(Long matId) {
+        Mat mat = matRepository.findById(matId).orElseThrow();
+        List<CategoryDTO> dtos = new LinkedList<>();
+        for (Long categoryId : mat.getCategoryQueque()){
+            try{
+                LadderCategory category = ladderCategoryRepository.findById(categoryId).orElseThrow();
+                dtos.add(createCategoryDTO(category,"ladder"));
+            } catch (Exception e) {
+                try{
+                    TableCategory category = tableCategoryRepository.findById(categoryId).orElseThrow();
+                    dtos.add(createCategoryDTO(category,"table"));
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        }
+        return dtos;
     }
 }

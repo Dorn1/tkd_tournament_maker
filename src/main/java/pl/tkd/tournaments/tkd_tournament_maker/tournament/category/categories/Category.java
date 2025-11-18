@@ -20,6 +20,7 @@ public abstract class Category {
     @ManyToMany
     private Set<Competitor> competitors;
     private Long matId;
+    private Long tournamentId;
 
 
 }
