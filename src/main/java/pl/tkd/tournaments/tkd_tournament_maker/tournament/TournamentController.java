@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.tkd.tournaments.tkd_tournament_maker.club.club.ClubDTO;
+import pl.tkd.tournaments.tkd_tournament_maker.club.competitor.CompetitorTableDTO;
 import pl.tkd.tournaments.tkd_tournament_maker.club.referee.RefereeDTO;
-import pl.tkd.tournaments.tkd_tournament_maker.tournament.category.categories.Category;
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.category.categories.CategoryDTO;
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.category.categories.ladderCategory.FightDTO;
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.category.categories.ladderCategory.LadderCategoryDTO;
@@ -33,6 +33,8 @@ public class TournamentController {
     public TournamentController(TournamentService tournamentService) {
         this.tournamentService = tournamentService;
     }
+
+
 
     @PostMapping(value = "/newTournament")
     public ResponseEntity<String> newTournament(@RequestBody CreateTournamentRequest request) {
@@ -158,7 +160,20 @@ public class TournamentController {
                                                               @RequestParam Long tournamentId) {
         try {
             tournamentService.removeRefereeFormTournamnet(refereeId, tournamentId);
-            return ResponseEntity.ok("Referee added to tournament");
+            return ResponseEntity.ok("Competitior added to tournament");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+
+
+    @PatchMapping(value = "/removeCompetitorFromTournament")
+    public ResponseEntity<String> removeCompetitorFromTournament(@RequestParam Long competitorId,
+                                                              @RequestParam Long tournamentId) {
+        try {
+            tournamentService.removeCompetitorFormTournament(competitorId, tournamentId);
+            return ResponseEntity.ok("Competitor removed from tournament");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -182,11 +197,11 @@ public class TournamentController {
         }
     }
 
-    @PostMapping(value = "/addCompetitorToTournament")
+    @PatchMapping(value = "/addCompetitorToTournament")
     public ResponseEntity<String> addCompetitorToTournament(@RequestParam Long competitorId,
-                                                            @RequestParam Long tournamentID) {
+                                                            @RequestParam Long tournamentId) {
         try {
-            tournamentService.addCompetitorToTournament(competitorId, tournamentID);
+            tournamentService.addCompetitorToTournament(competitorId, tournamentId);
             return ResponseEntity.ok("competitor added to tournament");
         } catch (ObjectNotFoundException e) {
             logger.warn("attempt to access a non-existent tournament or competitor");
@@ -252,6 +267,15 @@ public class TournamentController {
     public ResponseEntity<List<ClubDTO>> getTournamentClubs(@RequestParam Long tournamentId) {
         try {
             List<ClubDTO> dtos = tournamentService.getTournamentClubs(tournamentId);
+            return ResponseEntity.ok(dtos);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+    @GetMapping(value = "/getTournamentCompetitors")
+    public ResponseEntity<List<CompetitorTableDTO>> getTournamentCompetitors(@RequestParam Long tournamentId) {
+        try {
+            List<CompetitorTableDTO> dtos = tournamentService.getTournamentCompetitors(tournamentId);
             return ResponseEntity.ok(dtos);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(null);

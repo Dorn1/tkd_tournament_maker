@@ -6,6 +6,7 @@ import pl.tkd.tournaments.tkd_tournament_maker.club.club.Club;
 import pl.tkd.tournaments.tkd_tournament_maker.club.club.ClubDTO;
 import pl.tkd.tournaments.tkd_tournament_maker.club.club.ClubService;
 import pl.tkd.tournaments.tkd_tournament_maker.club.competitor.Competitor;
+import pl.tkd.tournaments.tkd_tournament_maker.club.competitor.CompetitorRepository;
 import pl.tkd.tournaments.tkd_tournament_maker.club.competitor.CompetitorTableDTO;
 import pl.tkd.tournaments.tkd_tournament_maker.club.competitor.Sex;
 import pl.tkd.tournaments.tkd_tournament_maker.club.referee.Referee;
@@ -40,6 +41,7 @@ public class TournamentService {
     private final TableCategoryRepository tableCategoryRepository;
     private final LadderCategoryRepository ladderCategoryRepository;
     private final RematchRepository rematchRepository;
+    private final CompetitorRepository competitorRepository;
 
 
     @Autowired
@@ -49,7 +51,7 @@ public class TournamentService {
                              FightRepository fightRepository,
                              TableDataRepository tableDataRepository,
                              PlaceWrapperRepository placeWrapperRepository, TableCategoryRepository tableCategoryRepository, LadderCategoryRepository ladderCategoryRepository,
-                             RematchRepository rematchRepository) {
+                             RematchRepository rematchRepository, CompetitorRepository competitorRepository) {
         this.tournamentRepository = tournamentRepository;
         this.matRepository = matRepository;
         this.refereeRepository = refereeRepository;
@@ -60,6 +62,7 @@ public class TournamentService {
         this.tableCategoryRepository = tableCategoryRepository;
         this.ladderCategoryRepository = ladderCategoryRepository;
         this.rematchRepository = rematchRepository;
+        this.competitorRepository = competitorRepository;
     }
 
 
@@ -79,7 +82,7 @@ public class TournamentService {
     public void addMat(Long tournamentId) throws ObjectNotFoundException {
         Tournament tournament = getTournament(tournamentId);
         Long max = 0L;
-        for (Mat mat : tournament.getMats()){
+        for (Mat mat : tournament.getMats()) {
             if (mat.getNumber() > max)
                 max = mat.getNumber();
 
@@ -88,7 +91,7 @@ public class TournamentService {
         mat.setTournament(tournament);
         mat.setCategoryQueque(new ArrayList<>());
         mat.setReferees(new ArrayList<>());
-        mat.setNumber(max+1);
+        mat.setNumber(max + 1);
         tournament.getMats().add(mat);
         matRepository.save(mat);
         tournamentRepository.save(tournament);
@@ -162,15 +165,17 @@ public class TournamentService {
     public void addCompetitorToTournament(Long CompetitorId, Long tournamentId) throws ObjectNotFoundException {
         Tournament tournament = getTournament(tournamentId);
         Competitor competitor = clubService.getCompetitorById(CompetitorId);
-        tournament.getCompetitors().add(competitor);
-        tournamentRepository.save(tournament);
+        if (!tournament.getCompetitors().contains(competitor)) {
+            tournament.getCompetitors().add(competitor);
+            tournamentRepository.save(tournament);
+        }
     }
 
     public void generateLadderCategory(LadderCategory category) throws IllegalAccessException {
         if (category.getFirstPlaceFight() != null) {
             throw new IllegalAccessException("Category already has generated ladder");
         }
-        if (category.getCompetitors().size() <2){
+        if (category.getCompetitors().size() < 2) {
             throw new IllegalAccessException("category need to have at least 2 competitors");
         }
         int maxtwopowered = 1;
@@ -703,13 +708,14 @@ public class TournamentService {
     public List<ClubDTO> getTournamentClubs(Long tournamentId) {
         Tournament tournament = tournamentRepository.findById(tournamentId).orElseThrow();
         List<ClubDTO> dtos = new LinkedList<>();
-        for (Club club : tournament.getClubs()){
+        for (Club club : tournament.getClubs()) {
             ClubDTO dto = createClubDTO(club);
             dtos.add(dto);
         }
         return dtos;
     }
-    private ClubDTO createClubDTO(Club club){
+
+    private ClubDTO createClubDTO(Club club) {
         ClubDTO dto = new ClubDTO();
         dto.setId(club.getId());
         dto.setUsername(club.getUsername());
@@ -718,18 +724,18 @@ public class TournamentService {
     }
 
     public void addClubToTournament(Long clubId, Long tournamentId) throws ObjectNotFoundException {
-        Tournament  tournament = tournamentRepository.findById(tournamentId).orElseThrow();
+        Tournament tournament = tournamentRepository.findById(tournamentId).orElseThrow();
         Club club = clubService.getClubById(clubId);
-        if(!tournament.getClubs().contains(club)) {
+        if (!tournament.getClubs().contains(club)) {
             tournament.getClubs().add(club);
             tournamentRepository.save(tournament);
         }
     }
 
     public void removeClubFromTournament(Long clubId, Long tournamentId) throws ObjectNotFoundException {
-        Tournament  tournament = tournamentRepository.findById(tournamentId).orElseThrow();
+        Tournament tournament = tournamentRepository.findById(tournamentId).orElseThrow();
         Club club = clubService.getClubById(clubId);
-        if(tournament.getClubs().contains(club)){
+        if (tournament.getClubs().contains(club)) {
             tournament.getClubs().remove(club);
             tournamentRepository.save(tournament);
         }
@@ -738,7 +744,7 @@ public class TournamentService {
     public void addRefereeToTournamnet(Long refereeId, Long tournamentId) {
         Tournament tournament = tournamentRepository.findById(tournamentId).orElseThrow();
         Referee referee = refereeRepository.findById(refereeId).orElseThrow();
-        if (!tournament.getReferees().contains(referee)){
+        if (!tournament.getReferees().contains(referee)) {
             tournament.getReferees().add(referee);
             tournamentRepository.save(tournament);
         }
@@ -747,7 +753,7 @@ public class TournamentService {
     public void removeRefereeFormTournamnet(Long refereeId, Long tournamentId) {
         Tournament tournament = tournamentRepository.findById(tournamentId).orElseThrow();
         Referee referee = refereeRepository.findById(refereeId).orElseThrow();
-        if (tournament.getReferees().contains(referee)){
+        if (tournament.getReferees().contains(referee)) {
             tournament.getReferees().remove(referee);
             tournamentRepository.save(tournament);
         }
@@ -758,17 +764,18 @@ public class TournamentService {
         List<CategoryDTO> categories = new LinkedList<>();
         List<LadderCategory> ladderCategories = ladderCategoryRepository.findByMatIdIsNullAndTournamentId(tournamentId).orElseThrow();
         List<TableCategory> tableCategories = tableCategoryRepository.findByMatIdIsNullAndTournamentId(tournamentId).orElseThrow();
-        for (LadderCategory category : ladderCategories){
+        for (LadderCategory category : ladderCategories) {
             categories.add(createCategoryDTO(category, "ladder"));
         }
-        for (TableCategory category : tableCategories){
+        for (TableCategory category : tableCategories) {
             categories.add(createCategoryDTO(category, "ladder"));
         }
-        return  categories;
+        return categories;
     }
-    private CategoryDTO createCategoryDTO(Category category, String categoryType){
+
+    private CategoryDTO createCategoryDTO(Category category, String categoryType) {
         CategoryDTO dto = new CategoryDTO();
-            dto.setType(categoryType);
+        dto.setType(categoryType);
         dto.setName(category.getName());
         dto.setId(category.getId());
         return dto;
@@ -776,65 +783,86 @@ public class TournamentService {
 
     public void addCategoryToMat(Long categoryId, Long matId, String categoryType) throws IllegalAccessException {
         Mat mat = matRepository.findById(matId).orElseThrow();
-        if (!mat.getCategoryQueque().contains(categoryId)){
-        switch (categoryType){
-            case "ladder":
-                LadderCategory ladderCategory = ladderCategoryRepository.findById(categoryId).orElseThrow();
-                ladderCategory.setMatId(matId);
-                ladderCategoryRepository.save(ladderCategory);
-                mat.getCategoryQueque().add(categoryId);
-                matRepository.save(mat);
-                break;
-            case "table":
-                TableCategory tableCategory = tableCategoryRepository.findById(categoryId).orElseThrow();
-                tableCategory.setMatId(matId);
-                tableCategoryRepository.save(tableCategory);
-                mat.getCategoryQueque().add(categoryId);
-                matRepository.save(mat);
-                break;
-            default:
-                throw new IllegalAccessException("Illegal category type");
-        }}
+        if (!mat.getCategoryQueque().contains(categoryId)) {
+            switch (categoryType) {
+                case "ladder":
+                    LadderCategory ladderCategory = ladderCategoryRepository.findById(categoryId).orElseThrow();
+                    ladderCategory.setMatId(matId);
+                    ladderCategoryRepository.save(ladderCategory);
+                    mat.getCategoryQueque().add(categoryId);
+                    matRepository.save(mat);
+                    break;
+                case "table":
+                    TableCategory tableCategory = tableCategoryRepository.findById(categoryId).orElseThrow();
+                    tableCategory.setMatId(matId);
+                    tableCategoryRepository.save(tableCategory);
+                    mat.getCategoryQueque().add(categoryId);
+                    matRepository.save(mat);
+                    break;
+                default:
+                    throw new IllegalAccessException("Illegal category type");
+            }
+        }
     }
 
     public void removeCategoryFromMat(Long categoryId, Long matId, String categoryType) throws IllegalAccessException {
         Mat mat = matRepository.findById(matId).orElseThrow();
-        if (mat.getCategoryQueque().contains(categoryId)){
-        switch (categoryType){
-            case "ladder":
-                LadderCategory ladderCategory = ladderCategoryRepository.findById(categoryId).orElseThrow();
-                ladderCategory.setMatId(null);
-                ladderCategoryRepository.save(ladderCategory);
-                mat.getCategoryQueque().remove(categoryId);
-                matRepository.save(mat);
-                break;
-            case "table":
-                TableCategory tableCategory = tableCategoryRepository.findById(categoryId).orElseThrow();
-                tableCategory.setMatId(null);
-                tableCategoryRepository.save(tableCategory);
-                mat.getCategoryQueque().remove(categoryId);
-                matRepository.save(mat);
-                break;
-            default:
-                throw new IllegalAccessException("Illegal category type");
-        }}
+        if (mat.getCategoryQueque().contains(categoryId)) {
+            switch (categoryType) {
+                case "ladder":
+                    LadderCategory ladderCategory = ladderCategoryRepository.findById(categoryId).orElseThrow();
+                    ladderCategory.setMatId(null);
+                    ladderCategoryRepository.save(ladderCategory);
+                    mat.getCategoryQueque().remove(categoryId);
+                    matRepository.save(mat);
+                    break;
+                case "table":
+                    TableCategory tableCategory = tableCategoryRepository.findById(categoryId).orElseThrow();
+                    tableCategory.setMatId(null);
+                    tableCategoryRepository.save(tableCategory);
+                    mat.getCategoryQueque().remove(categoryId);
+                    matRepository.save(mat);
+                    break;
+                default:
+                    throw new IllegalAccessException("Illegal category type");
+            }
+        }
     }
 
     public List<CategoryDTO> getMatCategories(Long matId) {
         Mat mat = matRepository.findById(matId).orElseThrow();
         List<CategoryDTO> dtos = new LinkedList<>();
-        for (Long categoryId : mat.getCategoryQueque()){
-            try{
+        for (Long categoryId : mat.getCategoryQueque()) {
+            try {
                 LadderCategory category = ladderCategoryRepository.findById(categoryId).orElseThrow();
-                dtos.add(createCategoryDTO(category,"ladder"));
+                dtos.add(createCategoryDTO(category, "ladder"));
             } catch (Exception e) {
-                try{
+                try {
                     TableCategory category = tableCategoryRepository.findById(categoryId).orElseThrow();
-                    dtos.add(createCategoryDTO(category,"table"));
+                    dtos.add(createCategoryDTO(category, "table"));
                 } catch (Exception ex) {
                     throw new RuntimeException(ex);
                 }
             }
+        }
+        return dtos;
+    }
+
+    public void removeCompetitorFormTournament(Long competitorId, Long tournamentId) {
+        Tournament tournament = tournamentRepository.findById(tournamentId).orElseThrow();
+        Competitor competitor = competitorRepository.findById(competitorId).orElseThrow();
+        if (tournament.getCompetitors().contains(competitor)) {
+            tournament.getCompetitors().remove(competitor);
+            tournamentRepository.save(tournament);
+        }
+    }
+
+    public List<CompetitorTableDTO> getTournamentCompetitors(Long tournamentId) {
+        Tournament tournament = tournamentRepository.findById(tournamentId).orElseThrow();
+        List<CompetitorTableDTO> dtos = new LinkedList<>();
+        for (Competitor competitor : tournament.getCompetitors()) {
+            CompetitorTableDTO dto = createCompetitorTableDTO(competitor);
+            dtos.add(dto);
         }
         return dtos;
     }
