@@ -19,6 +19,10 @@ public abstract class Category {
     private String name;
     @ManyToMany
     private Set<Competitor> competitors;
+    @ManyToMany
+    private Set<Competitor> confirmed;
+    @ManyToMany
+    private Set<Competitor> removed;
     private Long matId;
     private Long tournamentId;
 

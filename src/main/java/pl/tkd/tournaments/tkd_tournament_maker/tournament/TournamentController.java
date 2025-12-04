@@ -17,6 +17,7 @@ import pl.tkd.tournaments.tkd_tournament_maker.exceptions.RematchNeededException
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.mat.MatDTO;
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.tournament.dto.CreateTournamentRequest;
 
+import javax.security.auth.RefreshFailedException;
 import java.util.List;
 import java.util.Map;
 
@@ -134,14 +135,24 @@ public class TournamentController {
 
     @GetMapping(value = "/getLadderCategory")
     public ResponseEntity<LadderCategoryDTO> getLadderCategory(@RequestParam Long categoryId) {
-        LadderCategoryDTO ladderCategoryDTO = tournamentService.getLadderCategoryById(categoryId);
-        return ResponseEntity.ok(ladderCategoryDTO);
+        try {
+            LadderCategoryDTO ladderCategoryDTO = tournamentService.getLadderCategoryById(categoryId);
+            return ResponseEntity.ok(ladderCategoryDTO);
+        } catch (ObjectNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @GetMapping(value = "/getFight")
     public ResponseEntity<FightDTO> getFight(@RequestParam Long fightId) {
-        FightDTO fightDTO = tournamentService.getFightDTOById(fightId);
-        return ResponseEntity.ok(fightDTO);
+        try {
+            FightDTO fightDTO = tournamentService.getFightDTOById(fightId);
+            return ResponseEntity.ok(fightDTO);
+        } catch (ObjectNotFoundException e) {
+            return ResponseEntity.status(404).body(null);
+        } catch (IllegalAccessException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
     }
 
     @PatchMapping(value = "/addRefereeToTournament")
@@ -341,6 +352,29 @@ public class TournamentController {
         }catch (Exception e){
             return ResponseEntity.badRequest().body(null);
         }
+    }
+
+    @GetMapping(value = "/getOngoingRefereeCategory")
+    public ResponseEntity<CategoryDTO> getOngoingRefereeCategory(@RequestParam String refereeName){
+        try {
+            CategoryDTO dto = tournamentService.getOngoingRefereeCategory(refereeName);
+            return ResponseEntity.ok(dto);
+        } catch (Exception e) {
+            return ResponseEntity.status(210).body(null);
+        }
+    }
+    @GetMapping(value = "/removeCompetitorFromCategory")
+    public ResponseEntity<String> removeCompetitorFromCategory(Long competitorId, Long categoryId){
+        try {
+            tournamentService.removeCompetitorFromLadderCategory(competitorId,categoryId);
+        } catch (ObjectNotFoundException e) {
+            return ResponseEntity.status(404).body("Competitor or Category not found");
+        } catch (IllegalAccessException e) {
+            logger.warn("Illegal access on removeCompetitorFromCategory endpoint");
+            return ResponseEntity.badRequest().body("Illegal access on removeCompetitorFromCategory endpoint");
+        }
+        logger.info("Successfully removed Competitor from Category");
+        return ResponseEntity.ok().body("Successfully removed Competitor from Category");
     }
 
 

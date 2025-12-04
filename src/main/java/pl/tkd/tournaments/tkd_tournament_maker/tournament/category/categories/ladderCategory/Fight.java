@@ -4,9 +4,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import pl.tkd.tournaments.tkd_tournament_maker.club.competitor.Competitor;
-import pl.tkd.tournaments.tkd_tournament_maker.club.referee.Referee;
-import pl.tkd.tournaments.tkd_tournament_maker.exceptions.ObjectNotFoundException;
-import pl.tkd.tournaments.tkd_tournament_maker.tournament.category.categories.Category;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -28,8 +25,7 @@ public class Fight {
     private Long thirdPlaceFightObserver = null;
     @ElementCollection
     private Set<Long> fightsBefore = new HashSet<>();
-    @ManyToOne
-    private Category category;
+    private Long categoryId;
     private Long mainFightReferee;
     @ElementCollection
     private Set<Long> fightReferees = new HashSet<>();
