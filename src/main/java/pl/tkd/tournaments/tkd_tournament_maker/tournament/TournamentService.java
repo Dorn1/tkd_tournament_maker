@@ -80,7 +80,7 @@ public class TournamentService {
                               String organizer) throws ObjectNotFoundException {
         Club club = clubService.getClubByName(organizer);
         Date startDate = new Date(startDatenum);
-        Date endDate = new Date(endDatenum);
+        Date endDate = new Date(endDatenum + 24L * 60 * 60 * 1000);
         Tournament tournament = new Tournament(name, location, startDate, endDate, club);
         tournamentRepository.save(tournament);
     }
@@ -441,7 +441,7 @@ public class TournamentService {
             throw new ObjectNotFoundException("Category not found");
     }
 
-    public LadderCategoryDTO getLadderCategoryById(Long categoryId) throws ObjectNotFoundException {
+    public LadderCategoryDTO getLadderCategoryById(Long categoryId) throws ObjectNotFoundException, IllegalAccessException {
         LadderCategory category = ladderCategoryRepository.findById(categoryId).get();
 
         if (ladderCategoryRepository.findById(categoryId).isPresent()) {
@@ -500,7 +500,7 @@ public class TournamentService {
         return matDTO;
     }
 
-    private List<FightDTO> addOneWithChildren(Fight fight) throws ObjectNotFoundException {
+    private List<FightDTO> addOneWithChildren(Fight fight) throws ObjectNotFoundException, IllegalAccessException {
         List<FightDTO> fights = new ArrayList<>();
         if (!fight.getFightsBefore().isEmpty()) {
             for (Long beforeFight : fight.getFightsBefore()) {
@@ -524,8 +524,23 @@ public class TournamentService {
         return dto;
     }
 
-    private FightDTO createFightDTO(Fight fight, boolean recursively) throws ObjectNotFoundException {
+    private FightDTO createFightDTO(Fight fight, boolean recursively) throws ObjectNotFoundException, IllegalAccessException {
         FightDTO dto = new FightDTO();
+        Long fightId = fight.getId();
+        Long categoryId = fight.getCategoryId();
+        Category category = null;
+        category = getCategory(categoryId);
+        try {
+            if (category.getRemoved().contains(fight.getCompetitor1()) && fight.getWinner() == null) {
+                setFightWinner(false, fightId);
+            }
+        }catch (Exception ignored){}
+        try {
+            if (category.getRemoved().contains(fight.getCompetitor2()) && fight.getWinner() == null) {
+                setFightWinner(true, fightId);
+            }
+        }catch (Exception ignored){}
+
         if (!fight.getFightsBefore().isEmpty() && recursively) {
             List<FightDTO> fightsBefore = new ArrayList<>();
             for (Long beforeFight : fight.getFightsBefore()) {
@@ -647,15 +662,6 @@ public class TournamentService {
 
     public FightDTO getFightDTOById(Long fightId) throws ObjectNotFoundException, IllegalAccessException {
         Fight fight = fightRepository.findById(fightId).orElseThrow();
-        Long categoryId = fight.getCategoryId();
-        Category category = null;
-        category = getCategory(categoryId);
-        if (category.getRemoved().contains(fight.getCompetitor1())) {
-            setFightWinner(true, fightId);
-        }
-        if (category.getRemoved().contains(fight.getCompetitor2())) {
-            setFightWinner(false, fightId);
-        }
         return createFightDTO(fight, true);
     }
 
@@ -816,7 +822,7 @@ public class TournamentService {
         }
     }
 
-    public void addRefereeToTournamnet(Long refereeId, Long tournamentId) {
+    public void addRefereeToTournament(Long refereeId, Long tournamentId) {
         Tournament tournament = tournamentRepository.findById(tournamentId).orElseThrow();
         Referee referee = refereeRepository.findById(refereeId).orElseThrow();
         if (!tournament.getReferees().contains(referee)) {
@@ -825,7 +831,7 @@ public class TournamentService {
         }
     }
 
-    public void removeRefereeFormTournamnet(Long refereeId, Long tournamentId) {
+    public void removeRefereeFormTournament(Long refereeId, Long tournamentId) {
         Tournament tournament = tournamentRepository.findById(tournamentId).orElseThrow();
         Referee referee = refereeRepository.findById(refereeId).orElseThrow();
         if (tournament.getReferees().contains(referee)) {
@@ -867,8 +873,8 @@ public class TournamentService {
                     ladderCategoryRepository.save(ladderCategory);
                     mat.getCategoryQueque().add(categoryId);
                     matRepository.save(mat);
-                    ensureMainReferee(ladderCategory.getFirstPlaceFight(),mat.getMatLeader().getId());
-                    ensureMainReferee(ladderCategory.getThridPlaceFight(),mat.getMatLeader().getId());
+                    ensureMainReferee(ladderCategory.getFirstPlaceFight(), mat.getMatLeader().getId());
+                    ensureMainReferee(ladderCategory.getThridPlaceFight(), mat.getMatLeader().getId());
                     break;
                 case "table":
                     TableCategory tableCategory = tableCategoryRepository.findById(categoryId).orElseThrow();
@@ -952,27 +958,49 @@ public class TournamentService {
         for (Tournament tournament : tournaments) {
             if (tournament.getStartDate().before(today) && tournament.getEndDate().after(today)) {
                 for (Mat mat : tournament.getMats()) {
-                    if (mat.getReferees().contains(referee) || mat.getMatLeader().equals(referee)) {
-                        Long categoryId = mat.getCategoryQueque().getFirst();
-                        Category category = null;
-                        String categoryType = null;
-                        try {
-                            category = ladderCategoryRepository.findById(categoryId).orElseThrow();
-
-                            categoryType = "ladder";
-                        } catch (Exception e) {
+                    try {
+                        if (mat.getReferees().contains(referee) || mat.getMatLeader().equals(referee)) {
+                            Long categoryId = mat.getCategoryQueque().getFirst();
+                            Category category = null;
+                            String categoryType = null;
                             try {
-                                category = tableCategoryRepository.findById(categoryId).orElseThrow();
-                                categoryType = "table";
-                            } catch (Exception ex) {
-                                throw new RuntimeException(ex);
+                                category = ladderCategoryRepository.findById(categoryId).orElseThrow();
+
+                                categoryType = "ladder";
+                            } catch (Exception e) {
+                                try {
+                                    category = tableCategoryRepository.findById(categoryId).orElseThrow();
+                                    categoryType = "table";
+                                } catch (Exception ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             }
+                            return createCategoryDTO(category, categoryType);
                         }
-                        return createCategoryDTO(category, categoryType);
+                    } catch (Exception e) {
+
                     }
                 }
+
             }
         }
         throw new IllegalAccessException("no onging tournaments");
+    }
+
+    public void finishCompetition(Long categoryId) throws ObjectNotFoundException, IllegalAccessException {
+        Category category = getCategory(categoryId);
+        Mat mat = matRepository.findById(category.getMatId()).orElseThrow();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentPrincipalName = authentication.getName();
+
+        if (!Objects.equals(mat.getMatLeader().getUsername(), currentPrincipalName)) {
+            logger.info("Attempt to remove competitor from another club");
+            throw new IllegalAccessException("Attempt to remove competitor from another club");
+        }
+        if (category.getId().equals(mat.getCategoryQueque().getFirst())){
+            mat.getCategoryQueque().remove(category.getId());
+            mat.getFinishedCategories().add(category.getId());
+            matRepository.save(mat);
+        }
     }
 }

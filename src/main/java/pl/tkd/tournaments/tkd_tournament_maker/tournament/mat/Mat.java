@@ -22,6 +22,8 @@ public class Mat {
     private Tournament tournament;
     @ElementCollection
     private List<Long> categoryQueque;
+    @ElementCollection
+    private List<Long> finishedCategories;
     @ManyToOne
     private Referee matLeader;
     @ManyToMany

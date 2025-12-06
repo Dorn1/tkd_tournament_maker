@@ -17,7 +17,6 @@ import pl.tkd.tournaments.tkd_tournament_maker.exceptions.RematchNeededException
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.mat.MatDTO;
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.tournament.dto.CreateTournamentRequest;
 
-import javax.security.auth.RefreshFailedException;
 import java.util.List;
 import java.util.Map;
 
@@ -140,6 +139,8 @@ public class TournamentController {
             return ResponseEntity.ok(ladderCategoryDTO);
         } catch (ObjectNotFoundException e) {
             return ResponseEntity.notFound().build();
+        } catch (IllegalAccessException e) {
+            return ResponseEntity.badRequest().body(null);
         }
     }
 
@@ -159,7 +160,7 @@ public class TournamentController {
     public ResponseEntity<String> addRefereeToTournament(@RequestParam Long refereeId,
                                                          @RequestParam Long tournamentId) {
         try {
-            tournamentService.addRefereeToTournamnet(refereeId, tournamentId);
+            tournamentService.addRefereeToTournament(refereeId, tournamentId);
             return ResponseEntity.ok("Referee added to tournament");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -170,7 +171,7 @@ public class TournamentController {
     public ResponseEntity<String> removeRefereeFromTournament(@RequestParam Long refereeId,
                                                               @RequestParam Long tournamentId) {
         try {
-            tournamentService.removeRefereeFormTournamnet(refereeId, tournamentId);
+            tournamentService.removeRefereeFormTournament(refereeId, tournamentId);
             return ResponseEntity.ok("Competitior added to tournament");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -363,8 +364,19 @@ public class TournamentController {
             return ResponseEntity.status(210).body(null);
         }
     }
-    @GetMapping(value = "/removeCompetitorFromCategory")
-    public ResponseEntity<String> removeCompetitorFromCategory(Long competitorId, Long categoryId){
+
+    @PatchMapping(value = "/finishCategory")
+    public ResponseEntity<String> finishCompetition(@RequestParam Long categoryId){
+        try {
+            tournamentService.finishCompetition(categoryId);
+            return ResponseEntity.ok().body("category successfully finished");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    @PatchMapping(value = "/removeCompetitorFromCategory")
+    public ResponseEntity<String> removeCompetitorFromCategory(@RequestParam Long competitorId, @RequestParam Long categoryId){
         try {
             tournamentService.removeCompetitorFromLadderCategory(competitorId,categoryId);
         } catch (ObjectNotFoundException e) {
