@@ -1003,4 +1003,40 @@ public class TournamentService {
             matRepository.save(mat);
         }
     }
+
+    public CategoryDTO getOngoinCompetitorCategory(String competitorName) throws IllegalAccessException {
+        Competitor competitor = competitorRepository.findByUsername(competitorName);
+        List<Tournament> tournaments = tournamentRepository.findTournamentsByCompetitorInCompetitors(competitor);
+        Date today = new Date();
+        for (Tournament tournament : tournaments) {
+            if (tournament.getStartDate().before(today) && tournament.getEndDate().after(today)) {
+                for (Mat mat : tournament.getMats()) {
+                    try {
+                        Long categoryId = mat.getCategoryQueque().getFirst();
+                        Category category = null;
+                        String categoryType = null;
+                        try {
+                            category = ladderCategoryRepository.findById(categoryId).orElseThrow();
+
+                            categoryType = "ladder";
+                        } catch (Exception e) {
+                            try {
+                                category = tableCategoryRepository.findById(categoryId).orElseThrow();
+                                categoryType = "table";
+                            } catch (Exception ex) {
+                                throw new RuntimeException(ex);
+                            }
+                        }
+                        if (category.getCompetitors().contains(competitor)) {
+                            return createCategoryDTO(category, categoryType);
+                        }
+                    } catch (Exception e) {
+
+                    }
+                }
+
+            }
+        }
+        throw new IllegalAccessException("no onging tournaments");
+    }
 }

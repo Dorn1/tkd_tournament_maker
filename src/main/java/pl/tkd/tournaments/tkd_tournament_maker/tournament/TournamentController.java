@@ -365,6 +365,16 @@ public class TournamentController {
         }
     }
 
+    @GetMapping(value = "/getOngoingCompetitorCategory")
+    public ResponseEntity<CategoryDTO> getOngoingCompetitorCategory(@RequestParam String competitorName){
+        try {
+            CategoryDTO dto = tournamentService.getOngoinCompetitorCategory(competitorName);
+            return ResponseEntity.ok(dto);
+        } catch (Exception e) {
+            return ResponseEntity.status(210).body(null);
+        }
+    }
+
     @PatchMapping(value = "/finishCategory")
     public ResponseEntity<String> finishCompetition(@RequestParam Long categoryId){
         try {
