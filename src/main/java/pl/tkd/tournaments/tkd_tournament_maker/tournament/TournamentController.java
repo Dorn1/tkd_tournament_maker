@@ -15,7 +15,9 @@ import pl.tkd.tournaments.tkd_tournament_maker.tournament.category.categories.ta
 import pl.tkd.tournaments.tkd_tournament_maker.exceptions.ObjectNotFoundException;
 import pl.tkd.tournaments.tkd_tournament_maker.exceptions.RematchNeededException;
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.mat.MatDTO;
+import pl.tkd.tournaments.tkd_tournament_maker.tournament.tournament.Tournament;
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.tournament.dto.CreateTournamentRequest;
+import pl.tkd.tournaments.tkd_tournament_maker.tournament.tournament.dto.TournamentTableDTO;
 
 import java.util.List;
 import java.util.Map;
@@ -33,7 +35,6 @@ public class TournamentController {
     public TournamentController(TournamentService tournamentService) {
         this.tournamentService = tournamentService;
     }
-
 
 
     @PostMapping(value = "/newTournament")
@@ -179,10 +180,9 @@ public class TournamentController {
     }
 
 
-
     @PatchMapping(value = "/removeCompetitorFromTournament")
     public ResponseEntity<String> removeCompetitorFromTournament(@RequestParam Long competitorId,
-                                                              @RequestParam Long tournamentId) {
+                                                                 @RequestParam Long tournamentId) {
         try {
             tournamentService.removeCompetitorFormTournament(competitorId, tournamentId);
             return ResponseEntity.ok("Competitor removed from tournament");
@@ -284,6 +284,7 @@ public class TournamentController {
             return ResponseEntity.badRequest().body(null);
         }
     }
+
     @GetMapping(value = "/getTournamentCompetitors")
     public ResponseEntity<List<CompetitorTableDTO>> getTournamentCompetitors(@RequestParam Long tournamentId) {
         try {
@@ -291,6 +292,17 @@ public class TournamentController {
             return ResponseEntity.ok(dtos);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    @GetMapping(value = "/getTournamentById")
+    public ResponseEntity<TournamentTableDTO> getTournamentById(@RequestParam Long tournamentId) {
+        try{
+            Tournament tournament = tournamentService.getTournament(tournamentId);
+            TournamentTableDTO dto = tournamentService.getTournamentDTO(tournament);
+            return ResponseEntity.ok(dto);
+        } catch (ObjectNotFoundException e) {
+            return ResponseEntity.status(404).body(null);
         }
     }
 
@@ -356,7 +368,7 @@ public class TournamentController {
     }
 
     @GetMapping(value = "/getOngoingRefereeCategory")
-    public ResponseEntity<CategoryDTO> getOngoingRefereeCategory(@RequestParam String refereeName){
+    public ResponseEntity<CategoryDTO> getOngoingRefereeCategory(@RequestParam String refereeName) {
         try {
             CategoryDTO dto = tournamentService.getOngoingRefereeCategory(refereeName);
             return ResponseEntity.ok(dto);
@@ -366,7 +378,7 @@ public class TournamentController {
     }
 
     @GetMapping(value = "/getOngoingCompetitorCategory")
-    public ResponseEntity<CategoryDTO> getOngoingCompetitorCategory(@RequestParam String competitorName){
+    public ResponseEntity<CategoryDTO> getOngoingCompetitorCategory(@RequestParam String competitorName) {
         try {
             CategoryDTO dto = tournamentService.getOngoinCompetitorCategory(competitorName);
             return ResponseEntity.ok(dto);
@@ -376,7 +388,7 @@ public class TournamentController {
     }
 
     @PatchMapping(value = "/finishCategory")
-    public ResponseEntity<String> finishCompetition(@RequestParam Long categoryId){
+    public ResponseEntity<String> finishCompetition(@RequestParam Long categoryId) {
         try {
             tournamentService.finishCompetition(categoryId);
             return ResponseEntity.ok().body("category successfully finished");
@@ -386,9 +398,9 @@ public class TournamentController {
     }
 
     @PatchMapping(value = "/removeCompetitorFromCategory")
-    public ResponseEntity<String> removeCompetitorFromCategory(@RequestParam Long competitorId, @RequestParam Long categoryId){
+    public ResponseEntity<String> removeCompetitorFromCategory(@RequestParam Long competitorId, @RequestParam Long categoryId) {
         try {
-            tournamentService.removeCompetitorFromLadderCategory(competitorId,categoryId);
+            tournamentService.removeCompetitorFromLadderCategory(competitorId, categoryId);
         } catch (ObjectNotFoundException e) {
             return ResponseEntity.status(404).body("Competitor or Category not found");
         } catch (IllegalAccessException e) {
@@ -397,6 +409,41 @@ public class TournamentController {
         }
         logger.info("Successfully removed Competitor from Category");
         return ResponseEntity.ok().body("Successfully removed Competitor from Category");
+    }
+
+    @PatchMapping(value = "/acceptCompetitorInCategory")
+    public ResponseEntity<String> acceptCompetitorInCategory(@RequestParam Long competitorId, @RequestParam Long categoryId) {
+        try {
+            tournamentService.acceptCompetitorCategory(competitorId, categoryId);
+        } catch (ObjectNotFoundException e) {
+            return ResponseEntity.status(404).body("Competitor or Category not found");
+        } catch (IllegalAccessException e) {
+            logger.warn("Illegal access on acceptCompetitorInCategory endpoint");
+            return ResponseEntity.badRequest().body("Illegal access on acceptCompetitorInCategory endpoint");
+        }
+        logger.info("Successfully accepted Competitor in Category");
+        return ResponseEntity.ok().body("Successfully accepted Competitor in Category");
+    }
+
+    @PatchMapping(value = "/declineCompetitorInCategory")
+    public ResponseEntity<String> declineCompetitorInCategory(@RequestParam Long competitorId, @RequestParam Long categoryId) {
+        try {
+            tournamentService.declineCompetitorCategory(competitorId, categoryId);
+        } catch (ObjectNotFoundException e) {
+            return ResponseEntity.status(404).body("Competitor or Category not found");
+        } catch (IllegalAccessException e) {
+            logger.warn("Illegal access on declineCompetitorInCategory endpoint");
+            return ResponseEntity.badRequest().body("Illegal access on declineCompetitorInCategory endpoint");
+        }
+        logger.info("Successfully declined Competitor in Category");
+        return ResponseEntity.ok().body("Successfully declined Competitor in Category");
+    }
+
+    @GetMapping(value = "/getCompetitorsForCommission")
+    public ResponseEntity<Map<Long,List<CategoryDTO>>> getClassifiedCompetitors(@RequestParam Long tournamentId){
+        Map<Long,List<CategoryDTO>> data = tournamentService.getCompetitorsForComission(tournamentId);
+        return ResponseEntity.ok(data);
+
     }
 
 
