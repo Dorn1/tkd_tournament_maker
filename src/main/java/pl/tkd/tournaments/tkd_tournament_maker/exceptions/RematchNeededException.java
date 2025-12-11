@@ -7,10 +7,8 @@ import java.util.List;
 
 @Getter
 public class RematchNeededException extends RuntimeException {
-    private final List<TableData> competitors;
-    public RematchNeededException(String message, List<TableData> competitors) {
+    public RematchNeededException(String message) {
         super(message);
-        this.competitors = competitors;
     }
 
 }

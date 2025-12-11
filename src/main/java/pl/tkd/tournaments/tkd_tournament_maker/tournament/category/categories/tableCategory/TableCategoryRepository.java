@@ -9,4 +9,8 @@ import java.util.Optional;
 @Repository
 public interface TableCategoryRepository extends CategoryRepository<TableCategory> {
     Optional<List<TableCategory>> findByMatIdIsNullAndTournamentId(Long tournamentId);
+
+    TableCategory findByScoresContaining(TableData score);
+
+    TableCategory findByRematchesContaining(TableData score);
 }

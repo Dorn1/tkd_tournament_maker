@@ -7,6 +7,7 @@ import pl.tkd.tournaments.tkd_tournament_maker.club.club.Club;
 import pl.tkd.tournaments.tkd_tournament_maker.club.competitor.Competitor;
 import pl.tkd.tournaments.tkd_tournament_maker.club.referee.Referee;
 
+import java.util.Date;
 import java.util.List;
 @Repository
 public interface TournamentRepository extends JpaRepository<Tournament, Long> {
@@ -20,4 +21,8 @@ public interface TournamentRepository extends JpaRepository<Tournament, Long> {
 
     @Query("SELECT t FROM Tournament t WHERE :competitor MEMBER OF t.competitors")
     List<Tournament> findTournamentsByCompetitorInCompetitors(Competitor competitor);
+
+    List<Tournament> findByStartDateAfter(Date today);
+
+    List<Tournament> findByStartDateBefore(Date today);
 }

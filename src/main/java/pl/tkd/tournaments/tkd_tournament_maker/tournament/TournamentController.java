@@ -63,21 +63,12 @@ public class TournamentController {
         }
     }
 
-    @GetMapping(value = "/getTableWinners")
-    public ResponseEntity<String> getTableWinners(@RequestParam Long categoryId) {
-        try {
-            TableCategory tableCategory = tournamentService.getTableCategoryById(categoryId);
-            try {
-                List<PlaceWrapper> winners = tournamentService.getTableWinners(tableCategory);
-                return ResponseEntity.ok(winners.toString());
-            } catch (RematchNeededException e) {
-                tournamentService.setTableRematch(tableCategory, e.getCompetitors());
-                return ResponseEntity.status(399).body(e.getMessage());
-            }
-        } catch (ObjectNotFoundException e) {
-            return ResponseEntity.status(404).body(e.getMessage());
-        }
+    @GetMapping(value = "/getTableCategory")
+    public ResponseEntity<TableCategoryDTO> getTableCategory(@RequestParam Long categoryId) {
+        TableCategoryDTO tableCategoryDTO = tournamentService.getTableCategoryByIdDTO(categoryId);
+        return ResponseEntity.ok(tableCategoryDTO);
     }
+
 
     @PostMapping(value = "/newMat")
     public ResponseEntity<String> newMat(@RequestParam Long tournamentId) {
@@ -297,7 +288,7 @@ public class TournamentController {
 
     @GetMapping(value = "/getTournamentById")
     public ResponseEntity<TournamentTableDTO> getTournamentById(@RequestParam Long tournamentId) {
-        try{
+        try {
             Tournament tournament = tournamentService.getTournament(tournamentId);
             TournamentTableDTO dto = tournamentService.getTournamentDTO(tournament);
             return ResponseEntity.ok(dto);
@@ -358,11 +349,11 @@ public class TournamentController {
     }
 
     @GetMapping(value = "/getMatCategories")
-    public ResponseEntity<List<CategoryDTO>> getMatCategories(@RequestParam Long matId){
+    public ResponseEntity<List<CategoryDTO>> getMatCategories(@RequestParam Long matId) {
         try {
             List<CategoryDTO> dtos = tournamentService.getMatCategories(matId);
             return ResponseEntity.ok(dtos);
-        }catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(null);
         }
     }
@@ -380,7 +371,7 @@ public class TournamentController {
     @GetMapping(value = "/getOngoingCompetitorCategory")
     public ResponseEntity<CategoryDTO> getOngoingCompetitorCategory(@RequestParam String competitorName) {
         try {
-            CategoryDTO dto = tournamentService.getOngoinCompetitorCategory(competitorName);
+            CategoryDTO dto = tournamentService.getOngoingCompetitorCategory(competitorName);
             return ResponseEntity.ok(dto);
         } catch (Exception e) {
             return ResponseEntity.status(210).body(null);
@@ -401,8 +392,9 @@ public class TournamentController {
     public ResponseEntity<String> removeCompetitorFromCategory(@RequestParam Long competitorId, @RequestParam Long categoryId) {
         try {
             tournamentService.removeCompetitorFromLadderCategory(competitorId, categoryId);
-        } catch (ObjectNotFoundException e) {
-            return ResponseEntity.status(404).body("Competitor or Category not found");
+        }
+        catch (ObjectNotFoundException e) {
+            tournamentService.removeCompetitorFromTableCategory(competitorId, categoryId);
         } catch (IllegalAccessException e) {
             logger.warn("Illegal access on removeCompetitorFromCategory endpoint");
             return ResponseEntity.badRequest().body("Illegal access on removeCompetitorFromCategory endpoint");
@@ -440,11 +432,33 @@ public class TournamentController {
     }
 
     @GetMapping(value = "/getCompetitorsForCommission")
-    public ResponseEntity<Map<Long,List<CategoryDTO>>> getClassifiedCompetitors(@RequestParam Long tournamentId){
-        Map<Long,List<CategoryDTO>> data = tournamentService.getCompetitorsForComission(tournamentId);
+    public ResponseEntity<Map<Long, List<CategoryDTO>>> getClassifiedCompetitors(@RequestParam Long tournamentId) {
+        Map<Long, List<CategoryDTO>> data = tournamentService.getCompetitorsForComission(tournamentId);
         return ResponseEntity.ok(data);
 
     }
 
+    @GetMapping(value = "/getFutureTournaments")
+    public ResponseEntity<List<TournamentTableDTO>> getFutureTournaments() {
+        List<TournamentTableDTO> tournaments = tournamentService.getFutureTournaments();
+        return ResponseEntity.ok(tournaments);
+    }
+
+    @GetMapping(value = "/getPastTournaments")
+    public ResponseEntity<List<TournamentTableDTO>> getPastTournaments() {
+        List<TournamentTableDTO> tournaments = tournamentService.getPastTournaments();
+        return ResponseEntity.ok(tournaments);
+    }
+
+    @PostMapping(value = "/setScore")
+    public ResponseEntity<String> setScore(@RequestParam Long scoreId, @RequestParam Long scoreValue) {
+        try {
+            tournamentService.setTableCategoryScore(scoreId, scoreValue);
+            return ResponseEntity.ok("Score set successfully");
+        }
+        catch (Exception e) {
+            return ResponseEntity.status(210).body(e.getMessage());
+        }
+    }
 
 }

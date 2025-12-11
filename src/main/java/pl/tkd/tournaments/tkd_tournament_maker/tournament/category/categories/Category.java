@@ -22,9 +22,17 @@ public abstract class Category {
     private Set<Competitor> classified;
     @ManyToMany
     private Set<Competitor> removed;
+    @ManyToOne
+    private Competitor firstPlace;
+    @ManyToOne
+    private Competitor secondPlace;
+    @ManyToOne
+    private Competitor thirdPlace;
+
     private Long matId;
     private boolean generated;
     private Long tournamentId;
+
 
 
 }

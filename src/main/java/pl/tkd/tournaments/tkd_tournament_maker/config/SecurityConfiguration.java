@@ -32,7 +32,15 @@ public class SecurityConfiguration {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(req ->
-                        req.requestMatchers("/auth/register", "/auth/authenticate")
+                        req.requestMatchers("/auth/register",
+                                        "/auth/authenticate",
+                                        "/tournament/getFutureTournaments",
+                                        "tournament/getPastTournaments"
+                                        ,"tournament/getOngoingCompetitorCategory",
+                                        "/tournament/getLadderCategory",
+                                        "/tournament/getTableCategory",
+                                        "/getClub",
+                                        "/tournament/getFight")
                                 .permitAll()
                                 .anyRequest()
                                 .authenticated())

@@ -18,6 +18,7 @@ import pl.tkd.tournaments.tkd_tournament_maker.club.referee.Referee;
 import pl.tkd.tournaments.tkd_tournament_maker.club.referee.RefereeClass;
 import pl.tkd.tournaments.tkd_tournament_maker.club.referee.RefereeDTO;
 import pl.tkd.tournaments.tkd_tournament_maker.club.referee.RefereeRepository;
+import pl.tkd.tournaments.tkd_tournament_maker.exceptions.RematchNeededException;
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.category.categories.*;
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.category.categories.ladderCategory.*;
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.category.categories.tableCategory.*;
@@ -29,7 +30,6 @@ import pl.tkd.tournaments.tkd_tournament_maker.tournament.mat.MatRepository;
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.tournament.Tournament;
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.tournament.TournamentRepository;
 import pl.tkd.tournaments.tkd_tournament_maker.exceptions.ObjectNotFoundException;
-import pl.tkd.tournaments.tkd_tournament_maker.exceptions.RematchNeededException;
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.tournament.dto.TournamentTableDTO;
 
 import java.text.SimpleDateFormat;
@@ -44,10 +44,8 @@ public class TournamentService {
     private final RefereeRepository refereeRepository;
     private final ClubService clubService;
     private final TableDataRepository tableDataRepository;
-    private final PlaceWrapperRepository placeWrapperRepository;
     private final TableCategoryRepository tableCategoryRepository;
     private final LadderCategoryRepository ladderCategoryRepository;
-    private final RematchRepository rematchRepository;
     private final CompetitorRepository competitorRepository;
     private static final Logger logger = LoggerFactory.getLogger(TournamentService.class);
 
@@ -57,19 +55,16 @@ public class TournamentService {
                              MatRepository matRepository, RefereeRepository refereeRepository,
                              ClubService clubService,
                              FightRepository fightRepository,
-                             TableDataRepository tableDataRepository,
-                             PlaceWrapperRepository placeWrapperRepository, TableCategoryRepository tableCategoryRepository, LadderCategoryRepository ladderCategoryRepository,
-                             RematchRepository rematchRepository, CompetitorRepository competitorRepository) {
+                             TableDataRepository tableDataRepository, TableCategoryRepository tableCategoryRepository, LadderCategoryRepository ladderCategoryRepository,
+                             CompetitorRepository competitorRepository) {
         this.tournamentRepository = tournamentRepository;
         this.matRepository = matRepository;
         this.refereeRepository = refereeRepository;
         this.clubService = clubService;
         this.fightRepository = fightRepository;
         this.tableDataRepository = tableDataRepository;
-        this.placeWrapperRepository = placeWrapperRepository;
         this.tableCategoryRepository = tableCategoryRepository;
         this.ladderCategoryRepository = ladderCategoryRepository;
-        this.rematchRepository = rematchRepository;
         this.competitorRepository = competitorRepository;
     }
 
@@ -151,6 +146,7 @@ public class TournamentService {
             case "table":
                 category.setTournamentId(tournamentId);
                 category.setName(categoryName);
+                category.setClassified(new HashSet<>(competitors));
                 category = tableCategoryRepository.save((TableCategory) category);
                 break;
             default:
@@ -179,7 +175,7 @@ public class TournamentService {
         }
     }
 
-    public TournamentTableDTO getTournamentDTO(Tournament tournament){
+    public TournamentTableDTO getTournamentDTO(Tournament tournament) {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         TournamentTableDTO dto = new TournamentTableDTO();
         dto.setId(tournament.getId());
@@ -282,86 +278,15 @@ public class TournamentService {
         ladderCategoryRepository.save(category);
     }
 
-    public List<PlaceWrapper> getTableWinners(TableCategory category) {
-        List<TableData> winners = new ArrayList<>();
-        for (TableData score : category.getScores()) {
-            if (winners.size() < category.getWantedPlaces()) {
-                winners.add(score);
-            } else {
-                for (TableData winscore : winners) {
-                    if (score.getScore() > winscore.getScore()) {
-                        winners.remove(winscore);
-                        winners.add(score);
-                        break;
-                    }
-                }
-            }
-        }
-
-        for (TableData winner : winners) {
-            List<TableData> copy = new ArrayList<>(winners);
-            copy.remove(winner);
-            for (TableData winner2 : copy) {
-                if (Objects.equals(winner.getScore(), winner2.getScore())) {
-                    List<TableData> rematchWinners = new ArrayList<>(2);
-                    winners.add(winner);
-                    winners.add(winner2);
-                    throw new RematchNeededException("Rematch!", rematchWinners);
-                }
-            }
-        }
-
-        List<TableData> allCopy = new ArrayList<>(category.getScores());
-        allCopy.removeAll(winners);
-        TableData lastPlace = allCopy.getFirst();
-        for (TableData winner : winners) {
-            if (lastPlace.getScore() > winner.getScore()) {
-                lastPlace = winner;
-            }
-        }
-        List<TableData> rematchCompetitors = new LinkedList<>();
-        for (TableData score : allCopy) {
-            if (Objects.equals(score.getScore(), lastPlace.getScore())) {
-                if (!rematchCompetitors.contains(lastPlace))
-                    rematchCompetitors.add(lastPlace);
-                rematchCompetitors.add(score);
-            }
-        }
-
-        if (!rematchCompetitors.isEmpty()) {
-            throw new RematchNeededException("Rematch needed!", rematchCompetitors);
-        }
-
-        List<PlaceWrapper> result = new ArrayList<>();
-        winners = winners.stream().sorted(Comparator.comparing(TableData::getScore)).toList();
-        for (int place = 0; place < winners.size(); place++) {
-            PlaceWrapper placeWrapper1 = new PlaceWrapper();
-            placeWrapper1.setPlace(place + 1);
-            placeWrapper1.setCategory(category);
-            placeWrapper1.setCompetitor(winners.get(place).getCompetitor());
-            result.add(placeWrapper1);
-            placeWrapperRepository.save(placeWrapper1);
-        }
-        return result;
-    }
-
-    public void setTableRematch(TableCategory tableCategory, List<TableData> competitors) {
-        Rematch newRematch = new Rematch();
-        Set<TableData> tables = new HashSet<>(competitors);
-        newRematch.setTables(tables);
-        tableCategory.getRematches().add(newRematch);
-        rematchRepository.save(newRematch);
-        tableCategoryRepository.save(tableCategory);
-
-    }
-
     public void generateTableCategory(TableCategory category) {
         for (Competitor competitor : category.getCompetitors()) {
             TableData tableData = new TableData();
+            tableData.setChecked(false);
             tableData.setCompetitor(competitor);
             tableDataRepository.save(tableData);
             category.getScores().add(tableData);
         }
+        category.setGenerated(true);
         tableCategoryRepository.save(category);
     }
 
@@ -546,12 +471,14 @@ public class TournamentService {
             if (category.getRemoved().contains(fight.getCompetitor1()) && fight.getWinner() == null) {
                 setFightWinner(false, fightId);
             }
-        }catch (Exception ignored){}
+        } catch (Exception ignored) {
+        }
         try {
             if (category.getRemoved().contains(fight.getCompetitor2()) && fight.getWinner() == null) {
                 setFightWinner(true, fightId);
             }
-        }catch (Exception ignored){}
+        } catch (Exception ignored) {
+        }
 
         if (!fight.getFightsBefore().isEmpty() && recursively) {
             List<FightDTO> fightsBefore = new ArrayList<>();
@@ -873,7 +800,7 @@ public class TournamentService {
         }
         for (TableCategory category : tableCategories) {
             if (category.isGenerated())
-                categories.add(createCategoryDTO(category, "ladder"));
+                categories.add(createCategoryDTO(category, "table"));
         }
         return categories;
     }
@@ -883,6 +810,13 @@ public class TournamentService {
         dto.setType(categoryType);
         dto.setName(category.getName());
         dto.setId(category.getId());
+        try {
+            dto.setFirstPlace(createCompetitorTableDTO(category.getFirstPlace()));
+            dto.setSecondPlace(createCompetitorTableDTO(category.getSecondPlace()));
+            dto.setThirdPlace(createCompetitorTableDTO(category.getThirdPlace()));
+
+        } catch (Exception ignored) {
+        }
         return dto;
     }
 
@@ -1021,14 +955,25 @@ public class TournamentService {
             logger.info("Attempt to remove competitor from another club");
             throw new IllegalAccessException("Attempt to remove competitor from another club");
         }
-        if (category.getId().equals(mat.getCategoryQueque().getFirst())){
+        if (category.getId().equals(mat.getCategoryQueque().getFirst())) {
             mat.getCategoryQueque().remove(category.getId());
             mat.getFinishedCategories().add(category.getId());
             matRepository.save(mat);
         }
+
+        if (category instanceof LadderCategory) {
+            LadderCategory ladderCategory = (LadderCategory) category;
+            ladderCategory.setFirstPlace(ladderCategory.getFirstPlaceFight().getWinner());
+            ladderCategory.setSecondPlace(getLoser(ladderCategory.getFirstPlaceFight()));
+            ladderCategory.setThirdPlace(ladderCategory.getThridPlaceFight().getWinner());
+            ladderCategoryRepository.save(ladderCategory);
+        } else if (category instanceof TableCategory) {
+            TableCategory tableCategory = (TableCategory) category;
+            tableCategoryRepository.save(tableCategory);
+        }
     }
 
-    public CategoryDTO getOngoinCompetitorCategory(String competitorName) throws IllegalAccessException {
+    public CategoryDTO getOngoingCompetitorCategory(String competitorName) throws IllegalAccessException {
         Competitor competitor = competitorRepository.findByUsername(competitorName);
         List<Tournament> tournaments = tournamentRepository.findTournamentsByCompetitorInCompetitors(competitor);
         Date today = new Date();
@@ -1063,6 +1008,7 @@ public class TournamentService {
         }
         throw new IllegalAccessException("no onging tournaments");
     }
+
     public void acceptCompetitorCategory(Long competitorId, Long categoryId) throws ObjectNotFoundException, IllegalAccessException {
         Category category = getCategory(categoryId);
         Competitor competitor = competitorRepository.findById(competitorId).orElseThrow();
@@ -1078,6 +1024,7 @@ public class TournamentService {
         saveCategory(category);
         checkAndGenerateIfPossible(category);
     }
+
     public void declineCompetitorCategory(Long competitorId, Long categoryId) throws ObjectNotFoundException, IllegalAccessException {
         Category category = getCategory(categoryId);
         Competitor competitor = competitorRepository.findById(competitorId).orElseThrow();
@@ -1092,8 +1039,9 @@ public class TournamentService {
         saveCategory(category);
         checkAndGenerateIfPossible(category);
     }
-    private void checkAndGenerateIfPossible(Category category){
-        if (category.getClassified().isEmpty()){
+
+    private void checkAndGenerateIfPossible(Category category) {
+        if (category.getClassified().isEmpty()) {
             try {
                 if (category instanceof LadderCategory) {
                     generateLadderCategory((LadderCategory) category);
@@ -1107,27 +1055,237 @@ public class TournamentService {
         }
     }
 
-    public Map<Long,List<CategoryDTO>> getCompetitorsForComission(Long tournamentId) {
+    public Map<Long, List<CategoryDTO>> getCompetitorsForComission(Long tournamentId) {
         List<LadderCategory> ladderCategories = ladderCategoryRepository.findByMatIdIsNullAndTournamentId(tournamentId).orElseThrow();
         List<TableCategory> tableCategories = tableCategoryRepository.findByMatIdIsNullAndTournamentId(tournamentId).orElseThrow();
-        Map<Long,List<CategoryDTO>> comisionData = new HashMap<>();
+        Map<Long, List<CategoryDTO>> comisionData = new HashMap<>();
         for (LadderCategory category : ladderCategories) {
             for (Competitor competitor : category.getClassified()) {
-                if (!comisionData.containsKey(competitor.getId())){
-                    comisionData.put(competitor.getId(),new LinkedList<>());
+                if (!comisionData.containsKey(competitor.getId())) {
+                    comisionData.put(competitor.getId(), new LinkedList<>());
                 }
-                comisionData.get(competitor.getId()).add(createCategoryDTO(category,"ladder"));
+                comisionData.get(competitor.getId()).add(createCategoryDTO(category, "ladder"));
             }
         }
         for (TableCategory category : tableCategories) {
             for (Competitor competitor : category.getClassified()) {
-                if (!comisionData.containsKey(competitor.getId())){
-                    comisionData.put(competitor.getId(),new LinkedList<>());
+                if (!comisionData.containsKey(competitor.getId())) {
+                    comisionData.put(competitor.getId(), new LinkedList<>());
                 }
-                comisionData.get(competitor.getId()).add(createCategoryDTO(category,"table"));
+                comisionData.get(competitor.getId()).add(createCategoryDTO(category, "table"));
             }
         }
         return comisionData;
     }
 
+    public List<TournamentTableDTO> getFutureTournaments() {
+        Date today = new Date();
+        List<Tournament> tournaments = tournamentRepository.findByStartDateAfter(today);
+        List<TournamentTableDTO> dtos = new LinkedList<>();
+        for (Tournament tournament : tournaments) {
+            TournamentTableDTO dto = createTournamentTableDTO(tournament);
+            dtos.add(dto);
+        }
+        return dtos;
+    }
+
+    public List<TournamentTableDTO> getPastTournaments() {
+        Date today = new Date();
+        List<Tournament> tournaments = tournamentRepository.findByStartDateBefore(today);
+        List<TournamentTableDTO> dtos = new LinkedList<>();
+        for (Tournament tournament : tournaments) {
+            TournamentTableDTO dto = createTournamentTableDTO(tournament);
+            dtos.add(dto);
+        }
+        return dtos;
+    }
+
+    public TableCategoryDTO getTableCategoryByIdDTO(Long categoryId) {
+        if (tableCategoryRepository.findById(categoryId).isPresent()) {
+            TableCategory category = tableCategoryRepository.findById(categoryId).get();
+            TableCategoryDTO dto = new TableCategoryDTO();
+            dto.setId(category.getId());
+            dto.setName(category.getName());
+            try {
+                dto.setScores(new HashSet<>());
+                for (TableData score : category.getScores()) {
+                    dto.getScores().add(createTableDataDTO(score));
+                }
+
+            } catch (Exception ignored) {
+            }
+            try {
+                dto.setRematches(new HashSet<>());
+                for (TableData rematch : category.getRematches()) {
+                    dto.getRematches().add(createTableDataDTO(rematch));
+                }
+            } catch (Exception ignored) {
+            }
+            Mat categoryMat = matRepository.findById(category.getMatId()).orElseThrow();
+
+            TournamentTableDTO tournament = createTournamentTableDTO(categoryMat.getTournament());
+            MatDTO matDTO = createMatDTO(categoryMat, tournament);
+            dto.setMat(matDTO);
+            List<Competitor> competitors = category.getCompetitors().stream().toList();
+            dto.setCompetitors(new ArrayList<>());
+            for (Competitor competitor : competitors) {
+                dto.getCompetitors().add(createCompetitorTableDTO(competitor));
+            }
+            return dto;
+        } else {
+            throw new RuntimeException("Category not found");
+        }
+    }
+
+
+    private TableDataDTO createTableDataDTO(TableData score) {
+        TableDataDTO dto = new TableDataDTO();
+        dto.setId(score.getId());
+        dto.setCompetitor(createCompetitorTableDTO(score.getCompetitor()));
+        dto.setScore(score.getScore());
+        return dto;
+    }
+
+    public void setTableCategoryScore(Long scoreId, Long scoreValue) {
+        TableData score = tableDataRepository.findById(scoreId).orElseThrow();
+        score.setScore(scoreValue);
+        tableDataRepository.save(score);
+        TableCategory category = tableCategoryRepository.findByScoresContaining(score);
+        if (category == null) {
+            category = tableCategoryRepository.findByRematchesContaining(score);
+        }
+        TableData top1 = null;
+        TableData top2 = null;
+        TableData top3 = null;
+        Set<TableData> allScores = new HashSet<>();
+        allScores.addAll(category.getScores());
+        allScores.addAll(category.getRematches());
+        for (TableData tableData : allScores) {
+            if (!tableData.getChecked()) {
+                if (tableData.getScore() == null) {
+                    return;
+                } else if (category.getFirstPlace() == null && (top1 == null || tableData.getScore() > top1.getScore())) {
+                    top3 = top2;
+                    top2 = top1;
+                    top1 = tableData;
+                } else if (category.getSecondPlace() == null && (top2 == null || tableData.getScore() > top2.getScore())) {
+                    top3 = top2;
+                    top2 = tableData;
+                } else if (category.getThirdPlace() == null && (top3 == null || tableData.getScore() > top3.getScore())) {
+                    top3 = tableData;
+
+                }
+            }
+        }
+        boolean top1Set = false;
+        boolean top2Set = false;
+        boolean top3Set = false;
+        if (top1 == null) {
+            top1Set = true;
+        }
+        if (top2 == null) {
+            top2Set = true;
+        }
+        if (top3 == null) {
+            top3Set = true;
+        }
+
+
+        Boolean rematchNeeded = false;
+        List<TableData> rematchCopies = new ArrayList<>();
+
+        if (!top1Set && Objects.equals(top1.getScore(), top2.getScore()) && Objects.equals(top2.getScore(), top3.getScore())) {
+            TableData c1 = new TableData();
+            c1.setCompetitor(top1.getCompetitor());
+            c1.setChecked(false);
+            c1 = tableDataRepository.save(c1);
+            rematchCopies.add(c1);
+            TableData c2 = new TableData();
+            c2.setChecked(false);
+            c2.setCompetitor(top2.getCompetitor());
+            c2 = tableDataRepository.save(c2);
+            rematchCopies.add(c2);
+            TableData c3 = new TableData();
+            c3.setCompetitor(top3.getCompetitor());
+            c3.setChecked(false);
+            c3 = tableDataRepository.save(c3);
+            rematchCopies.add(c3);
+            rematchNeeded = true;
+        } else {
+            if (!top1Set && Objects.equals(top1.getScore(), top2.getScore())) {
+                TableData c1 = new TableData();
+                c1.setCompetitor(top1.getCompetitor());
+                c1.setChecked(false);
+                c1 = tableDataRepository.save(c1);
+                rematchCopies.add(c1);
+                TableData c2 = new TableData();
+                c2.setCompetitor(top2.getCompetitor());
+                c2.setChecked(false);
+                c2 = tableDataRepository.save(c2);
+                rematchCopies.add(c2);
+                rematchNeeded = true;
+            } else if (!top1Set) {
+                category.setFirstPlace(top1.getCompetitor());
+                category = tableCategoryRepository.save(category);
+            }
+
+            if (!top2Set && Objects.equals(top2.getScore(), top3.getScore())) {
+                TableData c2 = new TableData();
+                c2.setCompetitor(top2.getCompetitor());
+                c2.setChecked(false);
+                c2 = tableDataRepository.save(c2);
+                rematchCopies.add(c2);
+                TableData c3 = new TableData();
+                c3.setChecked(false);
+                c3.setCompetitor(top3.getCompetitor());
+                c3 = tableDataRepository.save(c3);
+                rematchCopies.add(c3);
+                rematchNeeded = true;
+            } else if (!rematchNeeded && !top2Set) {
+                category.setSecondPlace(top2.getCompetitor());
+                category = tableCategoryRepository.save(category);
+            }
+        }
+
+        if (!top3Set) {
+            Boolean thirdPlaceRematch = false;
+            for (TableData scoreData : category.getScores()) {
+                scoreData.setChecked(true);
+                if (top1 != null && !scoreData.getCompetitor().equals(top1.getCompetitor()) && !scoreData.getCompetitor().equals(top2.getCompetitor()) && !scoreData.getCompetitor().equals(top3.getCompetitor()) && Objects.equals(scoreData.getScore(), top3.getScore())) {
+                    thirdPlaceRematch = true;
+                    TableData copy = new TableData();
+                    copy.setCompetitor(scoreData.getCompetitor());
+                    copy = tableDataRepository.save(copy);
+                    rematchCopies.add(copy);
+                    rematchNeeded = true;
+                }
+            }
+            if (!thirdPlaceRematch && category.getSecondPlace() != null) {
+                category.setThirdPlace(top3.getCompetitor());
+                category = tableCategoryRepository.save(category);
+            }
+        }
+
+        if (!rematchCopies.isEmpty()) {
+            category.getRematches().addAll(rematchCopies);
+            tableCategoryRepository.save(category);
+        }
+
+        if (rematchNeeded) {
+            throw new RematchNeededException("Rematch needed due to tie scores");
+        }
+        tableCategoryRepository.save(category);
+    }
+
+    public void removeCompetitorFromTableCategory(Long competitorId, Long categoryId) {
+        TableCategory category = tableCategoryRepository.findById(categoryId).orElseThrow();
+        Competitor competitor = competitorRepository.findById(competitorId).orElseThrow();
+        for (TableData data :category.getScores()){
+            if (data.getCompetitor().equals(competitor)){
+                data.setScore(0L);
+                tableDataRepository.save(data);
+                break;
+            }
+        }
+    }
 }
