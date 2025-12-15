@@ -14,4 +14,9 @@ public class LadderCategoryDTO {
     private FightDTO firstPlaceFight;
 
     private FightDTO thridPlaceFight;
+
+
+    CompetitorTableDTO firstPlace;
+    CompetitorTableDTO secondPlace;
+    CompetitorTableDTO thirdPlace;
 }

@@ -9,4 +9,6 @@ import java.util.Optional;
 @Repository
 public interface LadderCategoryRepository extends CategoryRepository<LadderCategory> {
     Optional<List<LadderCategory>> findByMatIdIsNullAndTournamentId(Long tournamentId);
+
+    List<LadderCategory> findByTournamentId(Long tournamentId);
 }

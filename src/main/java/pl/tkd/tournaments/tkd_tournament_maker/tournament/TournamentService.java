@@ -1,5 +1,6 @@
 package pl.tkd.tournaments.tkd_tournament_maker.tournament;
 
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,9 +31,11 @@ import pl.tkd.tournaments.tkd_tournament_maker.tournament.mat.MatRepository;
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.tournament.Tournament;
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.tournament.TournamentRepository;
 import pl.tkd.tournaments.tkd_tournament_maker.exceptions.ObjectNotFoundException;
+import pl.tkd.tournaments.tkd_tournament_maker.tournament.tournament.dto.TournamentStatisticsDTO;
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.tournament.dto.TournamentTableDTO;
 
 import java.text.SimpleDateFormat;
+import java.time.Year;
 import java.util.*;
 
 @Slf4j
@@ -406,6 +409,18 @@ public class TournamentService {
             TournamentTableDTO tournament = createTournamentTableDTO(categoryMat.getTournament());
             MatDTO matDTO = createMatDTO(categoryMat, tournament);
             dto.setMat(matDTO);
+            try {
+                dto.setFirstPlace(createCompetitorTableDTO(category.getFirstPlace()));
+            } catch (Exception ignored) {
+            }
+            try {
+                dto.setSecondPlace(createCompetitorTableDTO(category.getSecondPlace()));
+            } catch (Exception ignored) {
+            }
+            try {
+                dto.setThirdPlace(createCompetitorTableDTO(category.getThirdPlace()));
+            } catch (Exception ignored) {
+            }
 
 
             return dto;
@@ -526,7 +541,9 @@ public class TournamentService {
         dto.setLastname(competitor.getLastName());
         dto.setBelt(competitor.getBelt());
         dto.setClubId(competitor.getClub().getId());
-
+        dto.setWeight(competitor.getWeight());
+        Long year = (long) Year.now().getValue();
+        dto.setAge((int) (year-competitor.getBirthYear()));
         return dto;
     }
 
@@ -1121,6 +1138,18 @@ public class TournamentService {
                 }
             } catch (Exception ignored) {
             }
+            try {
+                dto.setFirstPlace(createCompetitorTableDTO(category.getFirstPlace()));
+            } catch (Exception ignored) {
+            }
+            try {
+                dto.setSecondPlace(createCompetitorTableDTO(category.getSecondPlace()));
+            } catch (Exception ignored) {
+            }
+            try {
+                dto.setThirdPlace(createCompetitorTableDTO(category.getThirdPlace()));
+            } catch (Exception ignored) {
+            }
             Mat categoryMat = matRepository.findById(category.getMatId()).orElseThrow();
 
             TournamentTableDTO tournament = createTournamentTableDTO(categoryMat.getTournament());
@@ -1280,12 +1309,56 @@ public class TournamentService {
     public void removeCompetitorFromTableCategory(Long competitorId, Long categoryId) {
         TableCategory category = tableCategoryRepository.findById(categoryId).orElseThrow();
         Competitor competitor = competitorRepository.findById(competitorId).orElseThrow();
-        for (TableData data :category.getScores()){
-            if (data.getCompetitor().equals(competitor)){
+        for (TableData data : category.getScores()) {
+            if (data.getCompetitor().equals(competitor)) {
                 data.setScore(0L);
                 tableDataRepository.save(data);
                 break;
             }
         }
+    }
+
+    public List<CategoryDTO> getTournamentCategories(Long tournamentId) {
+        List<LadderCategory> ladderCategories = ladderCategoryRepository.findByTournamentId(tournamentId);
+        List<TableCategory> tableCategories = tableCategoryRepository.findByTournamentId(tournamentId);
+        List<CategoryDTO> dtos = new LinkedList<>();
+        for (LadderCategory category : ladderCategories) {
+            dtos.add(createCategoryDTO(category, "ladder"));
+        }
+        for (TableCategory category : tableCategories) {
+            dtos.add(createCategoryDTO(category, "table"));
+        }
+        return dtos;
+    }
+
+    public TournamentStatisticsDTO getTournamentStatisticsDTO(Long tournamentId) throws ObjectNotFoundException {
+        Tournament tournament = tournamentRepository.findById(tournamentId).orElseThrow();
+        TournamentStatisticsDTO dto = new TournamentStatisticsDTO();
+        dto.setName(tournament.getName());
+        dto.setId(tournamentId);
+        dto.setDate(tournament.getStartDate().toString());
+        dto.setEndDate(tournament.getEndDate().toString());
+        dto.setLocation(tournament.getLocation());
+        dto.setCategories(new ArrayList<>());
+        for (Mat mat : tournament.getMats()) {
+            for (Long categoryId : mat.getFinishedCategories()) {
+                Category category = getCategory(categoryId);
+                if (category instanceof LadderCategory) {
+                    dto.getCategories().add(createCategoryDTO(category, "ladder"));
+                } else if (category instanceof TableCategory) {
+                    dto.getCategories().add(createCategoryDTO(category, "table"));
+                }
+            }
+        }
+        dto.setClubs(new LinkedList<>());
+        for (Club club : tournament.getClubs()){
+            dto.getClubs().add(createClubDTO(club));
+        }
+        dto.setCompetitors(new ArrayList<>());
+        for (Competitor competitor : tournament.getCompetitors()) {
+            dto.getCompetitors().add(createCompetitorTableDTO(competitor));
+        }
+        dto.getClubs().add(createClubDTO(tournament.getOrganizerClub()));
+        return dto;
     }
 }

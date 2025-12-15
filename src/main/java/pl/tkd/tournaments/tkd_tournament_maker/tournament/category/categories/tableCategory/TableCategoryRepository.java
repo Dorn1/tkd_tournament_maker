@@ -1,6 +1,7 @@
 package pl.tkd.tournaments.tkd_tournament_maker.tournament.category.categories.tableCategory;
 
 import org.springframework.stereotype.Repository;
+import pl.tkd.tournaments.tkd_tournament_maker.club.competitor.CompetitorTableDTO;
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.category.categories.CategoryRepository;
 
 import java.util.List;
@@ -13,4 +14,7 @@ public interface TableCategoryRepository extends CategoryRepository<TableCategor
     TableCategory findByScoresContaining(TableData score);
 
     TableCategory findByRematchesContaining(TableData score);
+
+    List<TableCategory> findByTournamentId(Long tournamentId);
+
 }

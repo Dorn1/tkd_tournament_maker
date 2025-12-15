@@ -17,6 +17,7 @@ import pl.tkd.tournaments.tkd_tournament_maker.exceptions.RematchNeededException
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.mat.MatDTO;
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.tournament.Tournament;
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.tournament.dto.CreateTournamentRequest;
+import pl.tkd.tournaments.tkd_tournament_maker.tournament.tournament.dto.TournamentStatisticsDTO;
 import pl.tkd.tournaments.tkd_tournament_maker.tournament.tournament.dto.TournamentTableDTO;
 
 import java.util.List;
@@ -297,6 +298,17 @@ public class TournamentController {
         }
     }
 
+    @GetMapping(value = "/getTournamentCategories")
+    public ResponseEntity<List<CategoryDTO>> getTournamentCategories(@RequestParam Long tournamentId){
+        try {
+            List<CategoryDTO> dtos = tournamentService.getTournamentCategories(tournamentId);
+            return ResponseEntity.ok(dtos);
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(null);
+        }
+
+    }
+
     @GetMapping(value = "/getCategoryName")
     public ResponseEntity<String> getCategoryName(@RequestParam Long categoryId) {
         try {
@@ -458,6 +470,15 @@ public class TournamentController {
         }
         catch (Exception e) {
             return ResponseEntity.status(210).body(e.getMessage());
+        }
+    }
+    @GetMapping(value = "/getTournamentStatisticsData")
+    public ResponseEntity<TournamentStatisticsDTO> getTournamentStatisticsData(@RequestParam Long tournamentId){
+        try {
+            TournamentStatisticsDTO dto = tournamentService.getTournamentStatisticsDTO(tournamentId);
+            return ResponseEntity.ok(dto);
+        } catch (ObjectNotFoundException e) {
+            return ResponseEntity.badRequest().body(null);
         }
     }
 

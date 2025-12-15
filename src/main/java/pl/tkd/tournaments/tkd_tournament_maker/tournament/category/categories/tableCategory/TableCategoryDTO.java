@@ -17,4 +17,8 @@ public class TableCategoryDTO {
     private List<CompetitorTableDTO> competitors;
 
     private Set<TableDataDTO> rematches;
+    
+    CompetitorTableDTO firstPlace;
+    CompetitorTableDTO secondPlace;
+    CompetitorTableDTO thirdPlace;
 }

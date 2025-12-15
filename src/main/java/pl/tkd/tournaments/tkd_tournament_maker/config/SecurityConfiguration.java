@@ -39,6 +39,7 @@ public class SecurityConfiguration {
                                         ,"tournament/getOngoingCompetitorCategory",
                                         "/tournament/getLadderCategory",
                                         "/tournament/getTableCategory",
+                                        "/tournament/getTournamentCategories",
                                         "/getClub",
                                         "/tournament/getFight")
                                 .permitAll()
