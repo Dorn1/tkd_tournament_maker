@@ -603,6 +603,21 @@ public class TournamentService {
             updateObservers(fight);
         }
         fightRepository.save(fight);
+        LadderCategory ladderCategory = ladderCategoryRepository.findById(fight.getCategoryId()).orElseThrow();
+        if (fight.getId().equals(ladderCategory.getFirstPlaceFight().getId())){
+            ladderCategory.setFirstPlace(fight.getWinner());
+            ladderCategory = ladderCategoryRepository.save(ladderCategory);
+            if (fight.getWinner().getId().equals(fight.getCompetitor1().getId())){
+                ladderCategory.setSecondPlace(fight.getCompetitor2());
+                ladderCategory = ladderCategoryRepository.save(ladderCategory);
+            }
+            else {
+                ladderCategory.setSecondPlace(fight.getCompetitor1());
+                ladderCategory = ladderCategoryRepository.save(ladderCategory);
+            }
+            ladderCategory.setThirdPlace(ladderCategory.getThridPlaceFight().getWinner());
+            ladderCategory = ladderCategoryRepository.save(ladderCategory);
+        }
     }
 
     public void addCompetitor(Competitor competitor, Fight fight) throws IllegalAccessException {
@@ -749,7 +764,6 @@ public class TournamentService {
         Tournament tournament = mat.getTournament();
         tournament.getMats().remove(mat);
         tournamentRepository.save(tournament);
-        matRepository.delete(mat);
     }
 
     public List<ClubDTO> getTournamentClubs(Long tournamentId) {

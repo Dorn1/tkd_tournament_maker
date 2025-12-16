@@ -182,9 +182,8 @@ public class AuthenticationService {
                 case "CLUB":
                     Club updatedClub = clubRepository.findById(request.getId()).orElseThrow();
                     ;
-                    if (request.getPassword() != null)
+                    if (request.getPassword() != null && !request.getPassword().isEmpty())
                         updatedClub.setPassword(passwordEncoder.encode(request.getPassword()));
-                    updatedClub.setAdmin(Boolean.parseBoolean(request.getVariables().get(ADMIN)));
                     updatedClub.setUsername(request.getUserName());
                     clubRepository.save(updatedClub);
 
@@ -212,7 +211,7 @@ public class AuthenticationService {
 
                     Competitor updatedCompetitor = competitorRepository.findById(request.getId()).orElseThrow();
                     ;
-                    if (request.getPassword() != null)
+                    if (request.getPassword() != null && !request.getPassword().isEmpty())
                         updatedCompetitor.setPassword(passwordEncoder.encode(request.getPassword()));
                     updatedCompetitor.setBelt(Integer.valueOf(variables.get(BELT)));
                     updatedCompetitor.setBirthYear(Long.valueOf(variables.get(BIRTHYEAR)));
@@ -236,7 +235,7 @@ public class AuthenticationService {
                         throw new IllegalArgumentException(REQUIRED_ARGUMENTS_MISSING_MESSAGE);
 
                     Referee updatedReferee = refereeRepository.findById(request.getId()).orElseThrow();
-                    if (request.getPassword() != null)
+                    if (request.getPassword() != null && !request.getPassword().isEmpty())
                         updatedReferee.setPassword(passwordEncoder.encode(request.getPassword()));
                     updatedReferee.setFirstName(variables.get(NAME));
                     updatedReferee.setLastName(variables.get(LASTNAME));
