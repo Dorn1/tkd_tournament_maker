@@ -506,12 +506,6 @@ public class TournamentService {
         dto.setId(fight.getId());
         dto.setMainFightReferee(createRefereeDTO(refereeRepository.findById(fight.getMainFightReferee()).orElseThrow()));
 
-        List<RefereeDTO> fightReferees = new ArrayList<>();
-        for (Long referee : fight.getFightReferees()) {
-            Referee ref = refereeRepository.findById(referee).orElseThrow();
-            fightReferees.add(createRefereeDTO(ref));
-        }
-        dto.setFightReferees(fightReferees);
 
         List<RefereeDTO> tableReferees = new ArrayList<>();
         for (Long referee : fight.getTableReferees()) {

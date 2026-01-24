@@ -27,8 +27,6 @@ public class Fight {
     private Set<Long> fightsBefore = new HashSet<>();
     private Long categoryId;
     private Long mainFightReferee;
-    @ElementCollection
-    private Set<Long> fightReferees = new HashSet<>();
 
     @ElementCollection
     private Set<Long> tableReferees = new HashSet<>();
